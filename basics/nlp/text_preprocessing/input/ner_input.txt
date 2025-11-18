@@ -1,0 +1,7 @@
+sentence = """
+In March 2022, Dr. Emily Parker traveled from New York to Tokyo to attend the International Robotics Summit organized by the Global Technology Foundation. 
+During the event, companies like Intel, Samsung, and IBM showcased their latest AI-powered devices. 
+Emily later visited Kyoto University to collaborate with Professor Hiroshi Tanaka on a research project funded by the Japanese Ministry of Science. 
+After returning to the United States, she presented her findings at the Massachusetts Institute of Technology. 
+By December 2022, the project had received an additional $2.5 million in funding, allowing the team to expand their work to Singapore and Switzerland.
+"""
