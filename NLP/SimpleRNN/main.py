@@ -10,9 +10,12 @@ import streamlit as st
 word_index = imdb.get_word_index()
 reverse_word_index = {value: key for key, value in word_index.items()}
 
-# Load the pre-trained model with ReLU activation
-model = load_model('simple_rnn_imdb.h5')
+# Get the directory where this script lives
+BASE_DIR = Path(__file__).resolve().parent
 
+# Load the pre-trained model with ReLU activation
+model_path = BASE_DIR / "simple_rnn_imdb.h5"
+model = tf.keras.models.load_model(model_path)
 
 # Function to preprocess user input
 def preprocess_text(text):
@@ -56,7 +59,3 @@ if st.button('Classify'):
     st.write(f"Prediction: {percent}%")
 else:
     st.write("Please enter a movie review.")
-    
-
-
-
