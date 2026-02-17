@@ -1,0 +1,125 @@
+# ==============================================================================
+# Logging Configuration
+# ==============================================================================
+# This YAML file configures structured logging for the Slack bot assistant.
+#
+# Educational Note:
+# - Structured logging provides consistent, parseable log output
+# - Different handlers for console (development) and file (production)
+# - Formatters include timestamps, log levels, and source locations
+# - Log levels can be configured per module for granular control
+# ==============================================================================
+
+version: 1
+disable_existing_loggers: false
+
+# ==============================================================================
+# Formatters: Define log output format
+# ==============================================================================
+formatters:
+  # Simple format for development (console)
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+  # Detailed format for production (files, log aggregators)
+  detailed:
+    format: "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(funcName)s() - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+  # JSON format for structured logging (production)
+  json:
+    (): "pythonjsonlogger.jsonlogger.JsonFormatter"
+    format: "%(asctime)s %(name)s %(levelname)s %(filename)s %(lineno)d %(funcName)s %(message)s"
+
+# ==============================================================================
+# Handlers: Define where logs are sent
+# ==============================================================================
+handlers:
+  # Console handler for development
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+
+  # File handler for all logs
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: logs/app.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+  # Error file handler (only errors and above)
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/error.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+
+# ==============================================================================
+# Loggers: Configure logging for specific modules
+# ==============================================================================
+loggers:
+  # Root logger (catches all unhandled logs)
+  root:
+    level: INFO
+    handlers: [console, file, error_file]
+
+  # Application loggers (module-specific)
+  src:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+
+  src.agent:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+
+  src.memory:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+
+  src.rag:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+
+  src.slack:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+
+  # Third-party library loggers (reduce noise)
+  slack_sdk:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+
+  anthropic:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+
+  chromadb:
+    level: WARNING
+    handlers: [console, file]
+    propagate: false
+
+  httpx:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+  asyncio:
+    level: WARNING
+    handlers: [console]
+    propagate: false

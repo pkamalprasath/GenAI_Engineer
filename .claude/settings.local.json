@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"D:\\\\AI\\\\KrishNaik_Academy\\\\Coding\\\\Vizuara\\\\open_claw_proj\\\\.venv\\\\Scripts\\\\python.exe -m pytest D:\\\\AI\\\\KrishNaik_Academy\\\\Coding\\\\Vizuara\\\\open_claw_proj\\\\tests\\\\unit\\\\test_services -v --tb=short\")",
+      "Bash(python test_integration.py:*)"
+    ]
+  }
+}
