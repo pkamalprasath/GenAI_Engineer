@@ -1,0 +1,10 @@
+paragraph="""In today's fast-moving world, people are constantly looking for better ways to stay healthy and productive. 
+While many individuals try to follow a balanced diet, the reality is that most of them struggle to maintain consistency. 
+The pressure of work, family responsibilities, and daily travel often makes it difficult to focus on proper nutrition. 
+Because of this, a large number of people depend on quick snacks and ready-made meals, even though they know these foods are not always the best choices. 
+To improve their lifestyle, some people have started exploring options like millet-based foods, natural sweeteners, and homemade snacks. 
+These alternatives are becoming popular because they are easy to prepare, gentle on the stomach, and provide long-lasting energy. 
+At the same time, technology plays an important role in how people make food decisions. 
+The recommendations they see on their phones, the reviews they read online, and the advertisements they watch on social media all influence what they buy. 
+With so much information available, learning how to clean text, remove stop words, and analyze data helps researchers understand people's real preferences more accurately.
+"""
