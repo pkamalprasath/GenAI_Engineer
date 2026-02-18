@@ -1,0 +1,163 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SLACK BOT ASSISTANT - .gitignore Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# This file prevents sensitive data and build artifacts from being committed
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECRETS - NEVER COMMIT THESE!
+# ═══════════════════════════════════════════════════════════════════════════════
+.env
+.env.local
+.env.*.local
+.env.*.secret
+secrets/
+credentials/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Python & Virtual Environments
+# ═══════════════════════════════════════════════════════════════════════════════
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+.venv/
+env.bak/
+venv.bak/
+
+# Poetry
+poetry.lock
+*.lock
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# IDE & Editor Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+*.iml
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Testing & Coverage
+# ═══════════════════════════════════════════════════════════════════════════════
+.pytest_cache/
+.pytest_cache/*
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+.nose*
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Type Checking & Linting
+# ═══════════════════════════════════════════════════════════════════════════════
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Logs (Runtime logs only - structure files are kept)
+# ═══════════════════════════════════════════════════════════════════════════════
+logs/*.log
+logs/*error.log
+*.log
+
+# Keep the logs directory structure
+!logs/.gitkeep
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Runtime Data (Generated during execution - user data)
+# ═══════════════════════════════════════════════════════════════════════════════
+memory_store/*.json
+memory_store/*.db
+memory_store/chroma_db/
+memory_store/.chroma/
+!memory_store/.gitkeep
+
+# Temporary & Backup Files
+*.tmp
+*.bak
+*.backup
+*.swp
+*~
+.#*
+temp/
+tmp/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Files (Development only)
+# ═══════════════════════════════════════════════════════════════════════════════
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ChromaDB Vector Database
+chroma_db/
+*.chroma/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# OS-Specific Files
+# ═══════════════════════════════════════════════════════════════════════════════
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+.directory
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Application-Specific Generated Files
+# ═══════════════════════════════════════════════════════════════════════════════
+heartbeat-state.json
+*.pid
+.agent_state
+.cache/
+cache/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Node Modules (if any frontend code is added)
+# ═══════════════════════════════════════════════════════════════════════════════
+node_modules/
+npm-debug.log
+yarn-error.log
