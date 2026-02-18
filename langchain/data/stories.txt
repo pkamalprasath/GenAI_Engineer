@@ -1,0 +1,11 @@
+Arun moved to a new city to start his first job as a software engineer.
+
+The city was fast, loud, and unfamiliar, but Arun was determined to adapt. Every morning, he took the same bus to work, carrying a notebook filled with ideas he hoped to turn into real products one day.
+
+At the office, Arun struggled at first. The codebase was large, the deadlines were tight, and he often doubted himself. His manager, Meera, noticed this and encouraged him to ask questions instead of staying silent.
+
+Slowly, Arun began to improve. He fixed small bugs, then larger ones. One evening, while debugging an issue others had avoided, he found a simple solution that saved the team several hours of work.
+
+Outside of work, Arun explored the city on weekends. He discovered a quiet library near a river where he liked to read and reflect. That library became his place to think clearly and regain confidence.
+
+Six months later, Arun led his first feature release. During the team meeting, Meera praised his persistence and growth. Arun realized that success wasn’t about knowing everything at the start—it was about learning consistently and asking for help.

@@ -1,0 +1,67 @@
+# ============================================================
+# LangChain Mastery - Python Dependencies
+# ============================================================
+# Install: pip install -r requirements.txt
+# Python 3.10+ recommended
+# ============================================================
+
+# --- Core LangChain ---
+langchain
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-openai
+langchain-groq
+langchain-huggingface
+langchain-chroma
+
+# --- LLM Providers ---
+openai
+huggingface_hub
+
+# --- Vector Stores ---
+chromadb
+faiss-cpu
+
+# --- Embeddings & NLP ---
+sentence_transformers
+
+# --- Document Loaders ---
+pypdf
+PyMuPDF
+unstructured
+bs4
+beautifulsoup4
+
+# --- Web Tools ---
+wikipedia
+arxiv
+ddgs
+youtube_transcript_api
+validators==0.28.1
+
+# --- API & Serving ---
+fastapi
+uvicorn
+langserve
+sse_starlette
+
+# --- UI ---
+streamlit
+
+# --- Notebooks ---
+ipykernel
+
+# --- Utilities ---
+python-dotenv
+numexpr
+
+# --- Database ---
+mysql-connector-python
+
+# --- Graph DB ---
+neo4j==5.14
+
+# --- Multi-Agent ---
+crewai
+crewai_tools
