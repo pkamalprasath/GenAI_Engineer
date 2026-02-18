@@ -182,8 +182,8 @@ After adding all 11 scopes, your list should show all of them.
 #### Your `.env` should now have these 3 Slack values:
 ```env
 SLACK_BOT_TOKEN=xoxb-YOUR-BOT-TOKEN-HERE
-SLACK_APP_TOKEN=xapp-1-A1234567890-1234567890123-abc123def456...
-SLACK_SIGNING_SECRET=abc123def456ghi789...
+SLACK_APP_TOKEN=xapp-YOUR-APP-TOKEN-HERE
+SLACK_SIGNING_SECRET=your-signing-secret-here
 ```
 
 ---
