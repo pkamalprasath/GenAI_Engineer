@@ -1,0 +1,10 @@
+---
+run:
+  generations: 1
+
+plugins:
+  target_type: huggingface.Pipeline
+  target_name: distilgpt2
+  probe_spec:  web_injection.MarkdownXSS
+reporting:
+  report_dir: D:\\AI\\KrishNaik_Academy\\Coding\\AI_Guardrails\\Garak\\reports

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Secrets
+.env
+.env.*
+# Allow the template file (safe to commit)
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated vector stores
+chroma_db/
+faiss.index/
+*.faiss
+*.pkl
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+.claude/
+
+# Logs
+*.log
+
+# Garak reports (large, generated)
+Garak/reports/
+
+# Security Testing artifacts
+Security_Testing/__pycache__/
+Security_Testing/src/__pycache__/
+Security_Testing/ai-agents-with-crewai-main/src/__pycache__/
+
+# Misc
+*.tmp
+New Text Document.txt

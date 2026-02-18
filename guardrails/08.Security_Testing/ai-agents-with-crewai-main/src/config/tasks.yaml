@@ -1,0 +1,80 @@
+personalized_activity_planning_task:
+  description: >
+    Research and find cool things to do at {destination}.
+    Focus on activities and events that match the traveler's interests and age group.
+    Utilize internet search tools and recommendation engines to gather the information.
+
+    Traveler's information:
+
+    - origin: {origin}
+    - destination: {destination}
+    - age of the traveler: {age}
+    - hotel location: {hotel_location}
+    - flight information: {flight_information}
+    - how long is the trip: {trip_duration}
+  expected_output: >
+    A list of recommended activities and events for each day of the trip.
+    Each entry should include the activity name, location, a brief description, and why it's suitable for the traveler.
+    And potential reviews and ratings of the activities.
+
+restaurant_scenic_location_scout_task:
+  description: >
+    Find highly-rated restaurants and dining experiences at {destination}.
+    Recommend scenic locations and fun activities that align with the traveler's preferences.
+    Use internet search tools, restaurant review sites, and travel guides.
+    Make sure to find a variety of options to suit different tastes and budgets, and ratings for them.
+
+    Traveler's information:
+
+    - origin: {origin}
+    - destination: {destination}
+    - age of the traveler: {age}
+    - hotel location: {hotel_location}
+    - flight information: {flight_information}
+    - how long is the trip: {trip_duration}
+  expected_output: >
+    A list of recommended restaurants, scenic locations, and fun activities for each day of the trip.
+    Each entry should include the name, location (address), type of cuisine or activity, and a brief description and ratings.
+
+itinerary_compilation_task:
+  description: >
+    Compile all researched information into a comprehensive day-by-day itinerary for the trip to {destination}.
+    Ensure the itinerary integrates flights, hotel information, and all planned activities and dining experiences.
+    Use text formatting and document creation tools to organize the information.
+  expected_output: >
+    A detailed itinerary document, the itinerary should include a day-by-day
+    plan with flights, hotel details, activities, restaurants, and scenic locations.
+
+cybersecurity_research_task:
+  description: >
+    Analyze the results of a recent cybersecurity scan and conduct thorough internet-based research to fact-check
+    and identify potential solutions for the issues and vulnerabilities highlighted in the scan. Your research should 
+    focus on the latest cybersecurity practices and mitigation techniques that could be applied to the detected vulnerabilities.
+  expected_output: >
+    Produce a detailed report that includes both the original cybersecurity scan results and the findings from your research. 
+    The report should explain each identified vulnerability, assess its potential impacts, and propose relevant mitigation strategies 
+    based on current best practices. The document should be structured to provide clarity for both technical and non-technical stakeholders, 
+    making it suitable for publication as a blog, article, or internal report. The output should contain ALL the
+    the sources (links) that were used. These links should be cited if need be.
+
+build_cybersecurity_report_task:
+  description: >
+    Generate a comprehensive report on the recent cybersecurity scan results from https://google.com. Utilize zapproxy tool
+    This report should incorporate external research and web-based findings to evaluate detected vulnerabilities, compare them with industry standards, and recommend mitigation strategies based on current best practices. 
+    Highlight any threats identified and discuss their potential impacts. The report should be clear and accessible to both technical and non-technical stakeholders.
+  expected_output: >
+    A detailed report consisting of 2 to 3 paragraphs, covering in-depth analysis of cybersecurity vulnerabilities, comparative industry insights, and mitigation strategies.
+    The report should be written in plain text, ensuring clarity and accessibility for a diverse audience. 
+    It should also feature a section on newly identified threats and their potential impacts.
+    
+convert_report_to_markdown_task:
+  description: >
+    Convert the provided plain text document into a well-formatted Markdown document. 
+    The text includes several sections such as headers, lists, code snippets, and tables. 
+    Your task is to apply Markdown syntax appropriately to enhance readability and structure. 
+    Ensure that headers are clearly defined, lists are properly bulleted or numbered, 
+    code snippets are enclosed in code blocks, and tables are correctly formatted. 
+    The document should be ready for publishing on a professional platform.
+  expected_output: >
+    A Markdown formatted document with distinct sections for headers, lists, code blocks, and tables. The document should follow Markdown best practices, be visually organized, and maintain the semantic structure of the original text. 
+    Ensure the final document is suitable for professional publication and meets the standards of clarity and accessibility.

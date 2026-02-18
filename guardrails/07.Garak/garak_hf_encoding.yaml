@@ -1,0 +1,11 @@
+---
+run:
+  generations: 1
+
+plugins:
+  target_type: huggingface.Pipeline
+  target_name: distilgpt2
+  probe_spec: encoding.InjectBase64
+
+reporting:
+  report_dir: D:\\AI\\KrishNaik_Academy\\Coding\\AI_Guardrails\\Garak\\reports
