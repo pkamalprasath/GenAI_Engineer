@@ -1,31 +1,54 @@
-# Notebooks — RAG Learning Journey
+# Notebooks — RAG from Scratch
 
-Step-by-step Jupyter notebooks that build a RAG system from scratch, without any high-level frameworks. Written to deeply understand what happens under the hood.
+Step-by-step Jupyter notebooks that build a complete RAG system without any high-level frameworks.
+The goal: understand what happens at every step before abstracting it away.
 
 ## Notebooks
 
-| Notebook | What You'll Learn |
-|---|---|
-| `01_data_ingestion.ipynb` | Load a PDF, split into sentence chunks, generate embeddings with SentenceTransformer, build a local vector store with PyTorch tensors, run semantic search |
-| `02_chunking_strategies.ipynb` | Compare fixed-size, sentence, semantic, and structural chunking — visualize chunk distributions and overlap |
+### 01 — Data Ingestion
+`01_data_ingestion.ipynb`
+
+Builds the full RAG pipeline from scratch:
+- **PDF parsing** with PyMuPDF (`fitz`) — extract clean text page by page
+- **Sentence chunking** — split into 10-sentence groups with 2-sentence overlap
+- **Embedding** — `all-mpnet-base-v2` via SentenceTransformers (768-dim, runs locally)
+- **Vector store** — PyTorch tensor store with `torch.topk` cosine similarity search
+- **Retrieval** — semantic search returning top-k most relevant chunks
+- **Generation** — LLM answer with retrieved context
+- **Evaluation** — visualize retrieved pages from the source PDF
+
+### 02 — Chunking Strategies
+`02_chunking_strategies.ipynb`
+
+Compares chunking approaches side by side:
+- Fixed-size character windows
+- Sentence-based chunking with overlap
+- Semantic chunking (split where meaning changes)
+- Structural chunking (paragraphs, sections)
+- Chunk size distribution visualization
+
+## Why No Frameworks?
+
+LangChain and LlamaIndex abstract away the details. These notebooks implement every step manually so you can see:
+- How embeddings are compared (dot product vs cosine)
+- What "retrieval" actually looks like in memory
+- Why chunk size matters for context quality
+- How page metadata is preserved through the pipeline
 
 ## Stack
 
-- **PDF parsing** — PyMuPDF (`fitz`)
-- **Chunking** — regex sentence splitter + spaCy
-- **Embeddings** — `all-mpnet-base-v2` via SentenceTransformers (local, no API key needed)
-- **Vector store** — PyTorch tensors + `torch.topk` cosine similarity
-- **Visualization** — matplotlib
+- `pymupdf` — PDF parsing
+- `sentence-transformers` — local embeddings (no API key needed)
+- `torch` — vector similarity search
+- `matplotlib` — visualization
+- `spacy` — sentence boundary detection
 
 ## Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # or .venv\Scripts\activate on Windows
 pip install pymupdf sentence-transformers torch matplotlib spacy jupyter
 python -m spacy download en_core_web_sm
 jupyter notebook
 ```
 
-> The notebooks use `../data/human-nutrition-text.pdf` as the source document.
-> Place any textbook-style PDF there to experiment with your own data.
+Place your PDF at `../data/` before running.

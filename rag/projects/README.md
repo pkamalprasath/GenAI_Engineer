@@ -1,18 +1,33 @@
-# Projects
+# RAG Projects
 
-End-to-end RAG applications built on top of the experiments and learning in this repo.
+Production-grade RAG applications built on top of the research done in the experiments module.
 
 ## Projects
 
-| Project | Stack | Description |
-|---|---|---|
-| [nutrition-rag-chat](./nutrition-rag-chat/) | Next.js · OpenAI · Supabase pgvector | Full-stack chat app — ask questions about a nutrition textbook, get cited answers with page references |
+### Nutrition RAG Chat
+[View Project →](./nutrition-rag-chat/)
 
-## What Makes These Production-Ready
+A full-stack chat application for querying a 1,200-page nutrition textbook with AI-powered, cited answers.
 
-- **Supabase pgvector** — managed vector store with cosine similarity search via SQL RPC
-- **OpenAI `text-embedding-3-small`** — 1536-dim embeddings, better than local models at a fraction of the cost
-- **GPT-4o-mini** — fast, cheap generation with strict RAG prompting
-- **Next.js App Router** — streaming-ready API routes, server-side env var protection
-- **Sentence-level chunking with overlap** — preserves context across chunk boundaries
-- **Metadata filtering** — multi-document support via `doc_id` and `source` fields
+**What makes it production-ready:**
+- Supabase pgvector — managed, scalable vector store with SQL-based similarity search
+- Server-side API route — API keys never exposed to the browser
+- Sentence-level chunking with overlap — preserves context at chunk boundaries
+- Metadata filtering — architecture supports multi-document RAG
+- Source citations — every answer includes page numbers from the original PDF
+- GPT-4o-mini — cost-efficient generation with high quality
+
+**Stack:** Next.js 16 · TypeScript · OpenAI · Supabase pgvector · Python ingestion
+
+**Architecture:**
+```
+User Query
+    |
+Next.js API Route (/api/chat)
+    |
+    +-- OpenAI text-embedding-3-small  -->  1536-dim query vector
+    |
+    +-- Supabase match_documents RPC   -->  top-15 chunks (cosine similarity)
+    |
+    +-- GPT-4o-mini                    -->  cited answer with page numbers
+```

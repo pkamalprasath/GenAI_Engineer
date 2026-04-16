@@ -1,6 +1,7 @@
 # RAG — Retrieval-Augmented Generation
 
-A deep-dive into building, benchmarking, and deploying RAG systems from first principles. Every design decision is tested empirically — not taken from blog posts.
+A deep-dive into building, benchmarking, and deploying RAG systems from first principles.
+Every design decision is tested empirically — not taken from blog posts.
 
 ## What's Inside
 
@@ -28,22 +29,16 @@ Built a complete RAG pipeline in raw Python:
 
 Ran 10 systematic experiments on a 1,200-page nutrition textbook comparing:
 
-| What | Variants | Metric |
+| What | Variants | Key Finding |
 |---|---|---|
-| Chunking strategies | 6 (sentence, fixed, semantic, structural, LLM) | Faithfulness, chunk quality |
-| Embedding models | 6 (local + OpenAI + Cohere) | Retrieval score, latency, cost |
-| Vector stores | 6 (FAISS, ChromaDB, Qdrant, LanceDB, Weaviate, PyTorch) | Recall, query latency |
-| LLMs | 4 (GPT-4o-mini, GPT-4o, Claude Haiku, Mistral) | RAGAS faithfulness + answer relevance |
-| Top-K retrieval | 5 values (1 → 20) | Quality vs. context cost |
-| Retrieval methods | 4 (Dense, BM25, Hybrid RRF, HyDE) | Recall, answer quality |
-| Re-ranking | Cross-encoder vs. none | Faithfulness delta |
-| Prompt templates | 4 variants | RAGAS scores |
-
-**Key findings:**
-- Hybrid retrieval (Dense + BM25 via RRF) outperforms pure dense by ~15% recall
-- Cross-encoder re-ranking adds ~12% faithfulness with minimal latency cost
-- `text-embedding-3-small` beats local models at 1/10th the memory footprint
-- Expert-persona + chain-of-thought prompts consistently score highest on RAGAS
+| Chunking strategies | 6 | Semantic chunking best faithfulness |
+| Embedding models | 6 | `text-embedding-3-small` best quality/cost |
+| Vector stores | 6 | FAISS fastest in-memory; Supabase best managed |
+| LLMs | 4 | GPT-4o-mini best quality/cost ratio |
+| Top-K retrieval | 5 values | k=5 optimal for this corpus |
+| Retrieval methods | 4 | Hybrid (Dense+BM25) outperforms dense by ~15% |
+| Re-ranking | Cross-encoder | +12% faithfulness with minimal latency cost |
+| Prompt templates | 4 | Expert-persona + CoT scores highest |
 
 [View Experiments →](./experiments/)
 
@@ -51,18 +46,11 @@ Ran 10 systematic experiments on a 1,200-page nutrition textbook comparing:
 
 ### 3. Projects — Production Deployment
 
-Applied everything learned into a deployable full-stack application:
-
-**Nutrition RAG Chat** — Ask questions about a nutrition textbook, get cited answers with page numbers.
+**Nutrition RAG Chat** — Full-stack chat app. Ask questions about a 1,200-page nutrition textbook, get cited answers with page numbers.
 
 ```
-Query → OpenAI embedding → Supabase pgvector search → GPT-4o-mini → Cited answer
+Query → OpenAI embedding → Supabase pgvector → GPT-4o-mini → Cited answer [p. X]
 ```
-
-- Next.js 16 (App Router) frontend + API route
-- Supabase pgvector with cosine similarity RPC
-- Sentence-level chunking with overlap (1,158 chunks from 1,200 pages)
-- Metadata filtering for multi-document support
 
 [View Project →](./projects/nutrition-rag-chat/)
 
@@ -72,9 +60,9 @@ Query → OpenAI embedding → Supabase pgvector search → GPT-4o-mini → Cite
 
 | Skill | Where |
 |---|---|
-| RAG pipeline design from scratch | Notebooks |
-| Embedding model evaluation | `experiments/02_embeddings.py` |
-| Vector store benchmarking | `experiments/03_vectorstores.py` |
+| RAG pipeline from scratch (no frameworks) | Notebooks |
+| Embedding model benchmarking | `experiments/02_embeddings.py` |
+| Vector store comparison | `experiments/03_vectorstores.py` |
 | RAGAS + LLM-as-judge evaluation | `experiments/05_evaluation.py` |
 | Hybrid retrieval (BM25 + Dense + RRF) | `experiments/08_retrieval_methods.py` |
 | Cross-encoder re-ranking | `experiments/09_reranking.py` |

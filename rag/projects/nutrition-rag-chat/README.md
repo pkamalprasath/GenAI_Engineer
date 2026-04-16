@@ -1,52 +1,65 @@
 # Nutrition RAG Chat
 
-A Retrieval-Augmented Generation (RAG) chat application built with Next.js, OpenAI, and Supabase. Ask questions about the Human Nutrition textbook and get cited, page-referenced answers.
+A production-ready Retrieval-Augmented Generation chat application.
+Ask any question about the Human Nutrition textbook and get a cited, page-referenced answer in seconds.
+
+## Demo
+
+> **Q:** What are water-soluble vitamins?
+>
+> **A:** Water-soluble vitamins dissolve in water and are not stored significantly in the body.
+> The primary ones include Vitamin C [1] (p. 594) and the B-vitamin group — Thiamine, Riboflavin,
+> Niacin, B6, B12, Folate, Biotin, and Pantothenic Acid [2] (p. 606)...
 
 ## Architecture
 
 ```
 User Query
-    │
-    ▼
-Next.js API Route (/api/chat)
-    │
-    ├── OpenAI text-embedding-3-small  →  1536-dim query vector
-    │
-    ├── Supabase match_documents RPC   →  top-15 relevant chunks (cosine similarity)
-    │
-    └── GPT-4o-mini                    →  answer with [1], [2] citations + page numbers
+    |
+    v
+Next.js API Route  (/api/chat)
+    |
+    +-- OpenAI text-embedding-3-small  -->  1536-dim query vector
+    |
+    +-- Supabase match_documents RPC   -->  top-15 chunks by cosine similarity
+    |
+    +-- GPT-4o-mini                    -->  answer with [1],[2] citations + page numbers
+    |
+    v
+Chat UI (Next.js App Router)
 ```
 
 ## Tech Stack
 
-| Layer | Tool |
+| Layer | Technology |
 |---|---|
-| Frontend | Next.js 16 (App Router) |
-| Embeddings | OpenAI `text-embedding-3-small` |
-| Vector Store | Supabase pgvector |
+| Frontend | Next.js 16 App Router · Tailwind CSS |
+| API | Next.js Route Handler (TypeScript) |
+| Embeddings | OpenAI `text-embedding-3-small` (1536-dim) |
+| Vector Store | Supabase pgvector (cosine similarity) |
 | LLM | OpenAI `gpt-4o-mini` |
-| Ingestion | Python + PyMuPDF + tiktoken |
+| Ingestion | Python · PyMuPDF · tiktoken |
 
 ## Project Structure
 
 ```
-rag-chat/
+nutrition-rag-chat/
 ├── app/
-│   ├── api/chat/route.ts   # RAG API endpoint
-│   ├── layout.tsx
+│   ├── api/chat/route.ts   # RAG pipeline — embed, retrieve, generate
 │   ├── page.tsx            # Chat UI
+│   ├── layout.tsx
 │   └── globals.css
-├── ingest.py               # PDF → chunk → embed → Supabase
-├── test_embeddings.py      # Probe Supabase retrieval
-├── .env.example
+├── ingest.py               # PDF -> chunks -> embeddings -> Supabase
+├── test_embeddings.py      # Test retrieval quality against Supabase
+├── .env.example            # Required environment variables
 └── package.json
 ```
 
 ## Setup
 
-### 1. Supabase
+### 1. Supabase — Create table and search function
 
-Create a table and RPC function in your Supabase project:
+Run this SQL in your Supabase project (SQL Editor):
 
 ```sql
 create extension if not exists vector;
@@ -59,6 +72,8 @@ create table public.chunks (
   metadata jsonb default '{}'::jsonb,
   embedding vector(1536)
 );
+
+create index on public.chunks using ivfflat (embedding vector_cosine_ops) with (lists = 100);
 
 create or replace function public.match_documents(
   query_embedding vector(1536),
@@ -79,35 +94,43 @@ end;
 $$;
 ```
 
-### 2. Environment Variables
+### 2. Environment variables
 
 ```bash
 cp .env.example .env.local
-# Fill in your keys in .env.local
+```
+
+Edit `.env.local`:
+```
+OPENAI_API_KEY=sk-...
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-service-role-key
 ```
 
 ### 3. Ingest the PDF
+
+Place `human-nutrition-text.pdf` in this directory, then:
 
 ```bash
 pip install pymupdf tiktoken supabase openai tqdm python-dotenv
 python ingest.py
 ```
 
-Place your `human-nutrition-text.pdf` in the `rag-chat/` directory before running.
+This will chunk the PDF into ~1,158 pieces, embed each with OpenAI, and upload to Supabase.
 
-### 4. Run the Web App
+### 4. Run the app
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000)
 
 ## Environment Variables
 
-| Variable | Description |
+| Variable | Where to Get It |
 |---|---|
-| `OPENAI_API_KEY` | OpenAI API key |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_KEY` | Supabase service role key (secret) |
+| `OPENAI_API_KEY` | [platform.openai.com](https://platform.openai.com) |
+| `SUPABASE_URL` | Supabase Dashboard → Project Settings → API |
+| `SUPABASE_KEY` | Supabase Dashboard → Project Settings → API → service_role |
