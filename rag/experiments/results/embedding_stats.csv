@@ -1,0 +1,7 @@
+id,model,backend,dims,embed_time_sec,top1_sim_proxy,status
+E1,all-mpnet-base-v2,st,768,1971.4,0.6905,ok
+E2,all-MiniLM-L6-v2,st,384,171.9,0.6903,ok
+E3,BAAI/bge-small-en-v1.5 (ST),st,384,528.7,0.8176,ok
+E4,text-embedding-3-small,openai,1536,10.0,0.6238,ok
+E5,bge-small FastEmbed,fastembed,0,0.0,0.0,skipped: fastembed not installable on Python 3.14
+E6,embed-english-light Cohere,cohere,0,0.0,0.0,skipped: no COHERE_API_KEY

@@ -1,0 +1,6 @@
+prompt_variant,avg_answer_words,avg_latency_sec,judge_score
+P1_Minimal,187,3.98,4.767
+P2_Notebook,214,4.5,4.8
+P3_ChainOfThought,230,4.44,4.5
+P4_ExpertPersona,181,3.68,4.633
+P5_Structured,171,3.65,4.667

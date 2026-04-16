@@ -1,0 +1,5 @@
+reranker,avg_rerank_ms,avg_latency_sec,judge_score,status
+RR0_NoReranker,0.0,4.89,4.8,ok
+RR1_MiniLM-L6,2715.6,4.21,4.7,ok
+RR2_MiniLM-L12,5068.0,4.31,4.8,ok
+RR3_BGE-base,21160.9,4.21,4.8,ok

@@ -1,0 +1,7 @@
+strategy,num_chunks,avg_chars,min_chars,max_chars,time_sec
+C1_sentence,1129,1199,226,6976,16.71
+C2_fixed_512,2933,512,181,512,0.05
+C3_fixed_1024,1467,1023,181,1024,0.04
+C4_semantic,3351,394,120,3780,310.83
+C5_structural,894,1441,200,12795,0.32
+C6_llm_based,3292,206,120,1763,1312.84

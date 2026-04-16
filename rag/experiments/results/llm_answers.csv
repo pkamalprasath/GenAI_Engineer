@@ -1,0 +1,305 @@
+llm,question,ground_truth,answer,latency_sec
+L1_claude-haiku,What are the main macronutrients and their primary functions in the body?,"The main macronutrients are carbohydrates, proteins, and fats. Carbohydrates provide energy, proteins build and repair tissues, and fats provide energy storage and support cell function.","# Main Macronutrients and Their Primary Functions
+
+There are three main classes of macronutrients, plus water, which are needed in large amounts by the body:
+
+## **Carbohydrates**
+Molecules composed of carbon, hydrogen, and oxygen that can be metabolically processed into cellular energy.
+
+## **Lipids**
+In addition to being a source of energy, lipids serve several critical functions:
+- Form a major component of cell membranes
+- Surround and protect organs (stored in fat-storing tissues)
+- Provide insulation to aid in temperature regulation
+- Regulate many other functions in the body
+
+## **Proteins**
+Macromolecules composed of chains of amino acids with multiple essential roles:
+- Provide structure to bones, muscles, and skin
+- Play a role in conducting most of the chemical reactions that take place in the body
+- Provide four kilocalories of energy per gram (though energy provision is not their most important function)
+- Scientists estimate over one hundred thousand different proteins exist within the human body
+
+## **Water**
+While water is a macronutrient required in large quantities, it does not yield calories. Its primary functions include:
+- Transporting substances in and out of the body
+- Enabling chemical reactions to occur
+- Cushioning organs
+- Regulating body temperature
+
+All macronutrients except water can be metabolically processed into cellular energy, which is measured in kilocalories (Calories).",5.78
+L1_claude-haiku,What is the role of dietary fiber in human health?,"Dietary fiber aids digestion, promotes satiety, regulates blood sugar, and supports healthy gut bacteria. It helps prevent constipation and may reduce risk of heart disease and type 2 diabetes.","# The Role of Dietary Fiber in Human Health
+
+Dietary fiber plays several important roles in supporting human health:
+
+## Disease Prevention
+According to the Dietary Guidelines Advisory Committee, there is sufficient scientific evidence demonstrating that diets high in fiber reduce the risk for obesity and diabetes, which are primary risk factors for cardiovascular disease. Additionally, specific types of fiber have been shown to provide targeted health benefits—for example, psyllium-seed husk (a functional fiber) has been scientifically proven to reduce blood-cholesterol levels, a claim approved by the FDA.
+
+## Digestive and Colon Health
+Dietary fiber actively supports digestion and optimizes colon health. Insoluble fiber, in particular, is effective in preventing constipation and reducing the development of diverticulosis and diverticulitis. Soluble fibers are more easily accessible to bacterial enzymes in the large intestine, allowing them to be broken down more extensively, while some breakdown of insoluble fibers also occurs through bacterial action.
+
+## Blood Sugar Regulation
+High-fiber meals can significantly slow down the carbohydrate absorption process compared to low-fiber meals, which helps regulate and stabilize blood glucose levels. This is an important benefit for managing metabolic health.
+
+## Weight Management
+Diets high in whole grains (which are naturally rich in fiber) have been repeatedly shown to decrease weight, contributing to overall weight management and obesity prevention.
+
+In summary, dietary fiber is crucial for preventing chronic diseases, maintaining digestive health, regulating blood sugar, and supporting healthy weight management.",4.07
+L1_claude-haiku,What are essential amino acids and why are they important?,"Essential amino acids cannot be synthesized by the body and must come from food. They are critical for protein synthesis, enzyme production, and many metabolic processes.","# Essential Amino Acids and Their Importance
+
+## What Are Essential Amino Acids?
+
+Essential amino acids are nine of the twenty naturally occurring amino acids that the human body cannot synthesize on its own, or cannot produce in sufficient quantities. These nine amino acids are:
+
+1. Histidine
+2. Isoleucine
+3. Leucine
+4. Lysine
+5. Methionine
+6. Phenylalanine
+7. Threonine
+8. Tryptophan
+9. Valine
+
+## Why They Are Important
+
+Essential amino acids are important for several critical reasons:
+
+1. **Dietary Requirement**: Since the body cannot manufacture them independently, essential amino acids must be obtained through diet. This makes them necessary components of any nutritious eating plan.
+
+2. **Protein Synthesis**: All twenty amino acids are required to make the over one hundred thousand different proteins found throughout the human body. Without the nine essential amino acids, the body cannot produce complete proteins.
+
+3. **Building and Maintenance**: Essential amino acids serve as primary construction materials for the body, helping to build and maintain bones, skin, hair, muscles, hormones, and antibodies.
+
+4. **Vital Functions**: Without adequate essential amino acids, the body cannot grow properly, break down or build macromolecules, or heal from wounds. These amino acids are crucial for the ""nourishment, renewal, and continuance of life.""
+
+Additionally, there are **conditionally essential amino acids** (arginine, cysteine, glutamine, glycine, proline, and tyrosine) that normally the body can produce but may require dietary supplementation during infancy, growth periods, or disease states.",3.86
+L1_claude-haiku,How does the body use glucose for energy?,Glucose is broken down through glycolysis and the citric acid cycle to produce ATP. Excess glucose is stored as glycogen in the liver and muscles.,"# How the Body Uses Glucose for Energy
+
+The body uses glucose for energy through a multi-stage process called **cellular respiration**, which captures and converts the chemical energy stored in glucose into a usable form.
+
+## The Process of Energy Extraction
+
+**Stage 1: Glycolysis**
+The breakdown of glucose begins with glycolysis, which occurs through a series of ten enzymatic reaction steps. During this stage, glucose is split into smaller molecules.
+
+**Stage 2: Mitochondrial Processing**
+The second stage takes place in the mitochondria (the energy factory organelles of the cell). Here, one carbon atom and two oxygen atoms are removed from the glucose molecules, releasing additional energy from the carbon bonds.
+
+## How Cells Capture and Use This Energy
+
+Cells break the chemical bonds between carbon atoms in glucose—bonds that were originally created by sunlight energy during photosynthesis. Rather than releasing this energy all at once in an uncontrolled ""explosion,"" cellular respiration uses many carefully regulated chemical reactions and enzymatic steps to **slowly and efficiently release and capture the energy** held within these bonds.
+
+The energy extracted from these carbon bonds is then transported to other areas of the mitochondria, where it is converted into **ATP (cellular energy in a form that cells can actually use** to perform their functions.
+
+This controlled process is far more efficient than uncontrolled burning, allowing cells to maximize the amount of usable energy they obtain from each glucose molecule.",4.39
+L1_claude-haiku,What are fat-soluble vitamins and what foods contain them?,"Fat-soluble vitamins are A, D, E, and K. They are found in fatty foods like liver, dairy, nuts, and oils, and require fat for absorption.","# Fat-Soluble Vitamins and Their Food Sources
+
+## What Are Fat-Soluble Vitamins?
+
+Fat-soluble vitamins are a group of four essential vitamins—**Vitamins A, D, E, and K**—classified as hydrophobic compounds because they dissolve in fat rather than water. These vitamins have several important characteristics:
+
+- **Location of action**: They are largely responsible for protecting cell membranes from free radical damage
+- **Absorption requirement**: They are absorbed in the small intestine along with dietary fat, meaning that meals very low in fat can impair their absorption
+- **Transport mechanism**: Once absorbed, they are packaged into chylomicrons and transported through the lymphatic system to the liver (unlike water-soluble vitamins which travel through blood vessels)
+
+## Food Sources of Fat-Soluble Vitamins
+
+Fat-soluble vitamins are **mainly found in foods containing fat**. However, some sources include:
+
+**Foods naturally containing fat-soluble vitamins:**
+- Foods containing dietary fat (animal-derived foods)
+- Green leafy vegetables (such as collards)
+- Orange and yellow vegetables (carrots, winter squash)
+- Tomatoes
+- Tangerines
+- Peas
+
+## Important Absorption Note
+
+To maximize absorption of fat-soluble vitamins, they should be **consumed with fat-containing foods**. For example, eating tomatoes with olive oil or salad dressing will enhance lycopene absorption. Additionally, processing foods to remove lipids also removes their fat-soluble vitamin content, which is why whole foods are preferable to heavily processed versions.",5.29
+L2_claude-sonnet,What are the main macronutrients and their primary functions in the body?,"The main macronutrients are carbohydrates, proteins, and fats. Carbohydrates provide energy, proteins build and repair tissues, and fats provide energy storage and support cell function.","# Main Macronutrients and Their Primary Functions
+
+The three main macronutrients are **carbohydrates, lipids (fats), and proteins**. Water is also considered a macronutrient because it's needed in large quantities, though it doesn't provide calories.
+
+## Carbohydrates
+Carbohydrates are molecules composed of carbon, hydrogen, and oxygen. They serve as a primary source of energy for the body and provide **four kilocalories of energy per gram**.
+
+## Lipids (Fats)
+Lipids have multiple essential functions in the body:
+- **Energy storage** - they are concentrated energy sources
+- Serve as a **major component of cell membranes**
+- **Surround and protect organs** in fat-storing tissues
+- Provide **insulation to aid in temperature regulation**
+- **Regulate many other functions** in the body
+
+## Proteins
+Proteins are macromolecules composed of chains of amino acids and provide **four kilocalories of energy per gram**. However, providing energy is not their most important function. Their primary roles include:
+- Providing **structure to bones, muscles, and skin**
+- Playing a role in **conducting most chemical reactions** that take place in the body
+- Scientists estimate that greater than 100,000 different proteins exist within the human body
+
+Proteins are aptly described as being ""of primary importance"" and are known as the ""workhorses"" of life.
+
+## Water
+Water comprises more than 60 percent of total body weight and is essential for:
+- **Transporting substances** in and out of the body
+- Enabling **chemical reactions** to occur
+- **Cushioning organs**
+- **Regulating body temperature**",8.3
+L2_claude-sonnet,What is the role of dietary fiber in human health?,"Dietary fiber aids digestion, promotes satiety, regulates blood sugar, and supports healthy gut bacteria. It helps prevent constipation and may reduce risk of heart disease and type 2 diabetes.","# The Role of Dietary Fiber in Human Health
+
+Dietary fiber plays multiple crucial roles in supporting human health across various body systems:
+
+## Disease Prevention
+
+Dietary fiber has strong protective effects against several chronic diseases. According to the Dietary Guidelines Advisory Committee, there is sufficient scientific evidence demonstrating that **high-fiber diets reduce the risk for obesity and diabetes, which are primary risk factors for cardiovascular disease**. Additionally, certain functional fibers like psyllium-seed husk have been scientifically shown to reduce blood-cholesterol levels, a benefit significant enough to receive FDA approval as a health claim.
+
+## Weight Management
+
+Diets high in whole grains and fiber have repeatedly been shown to **decrease weight**. This effect is partly due to fiber's impact on digestion—eating a high-fiber meal compared to a low-fiber meal can significantly slow down the absorption process, thereby affecting blood glucose levels in a beneficial way.
+
+## Digestive Health
+
+Fiber actively supports digestion and optimizes colon health in several ways:
+
+- **Insoluble fiber prevents constipation** and reduces the development of diverticulosis and diverticulitis
+- While humans don't produce enzymes to break down dietary fiber, **bacteria in the large intestine (colon) do**, supporting healthy gut microbiome function
+- Soluble fibers are more accessible to bacterial enzymes and can be broken down to a greater extent than insoluble fibers
+
+## Types and Sources
+
+Dietary fiber comes in two main categories:
+- **Soluble fibers** (like inulin, pectin, and guar gum) found in peas, beans, oats, barley, and rye
+- **Insoluble fibers** (like cellulose and lignin) found in whole-grain foods, flax, cauliflower, and avocados
+
+Both types contribute to overall health, with total dietary fiber intake being the sum of naturally occurring dietary fiber and added functional fiber.",9.41
+L2_claude-sonnet,What are essential amino acids and why are they important?,"Essential amino acids cannot be synthesized by the body and must come from food. They are critical for protein synthesis, enzyme production, and many metabolic processes.","# Essential Amino Acids and Their Importance
+
+## What Are Essential Amino Acids?
+
+Essential amino acids are nine specific amino acids that the human body **cannot synthesize on its own**, either at all or in sufficient quantities to meet physiological needs. Because the body cannot produce them adequately, these amino acids **must be obtained through diet**.
+
+The nine essential amino acids are:
+- Histidine
+- Isoleucine
+- Leucine
+- Lysine
+- Methionine
+- Phenylalanine
+- Threonine
+- Tryptophan
+- Valine
+
+## Why Are They Important?
+
+Essential amino acids are critically important for several reasons:
+
+### 1. **Building Blocks of Proteins**
+Amino acids are the fundamental building blocks that form proteins. The human body requires all twenty amino acids (including the nine essential ones) to construct the over one hundred thousand different proteins found in the body.
+
+### 2. **Vital Body Functions**
+Proteins built from these amino acids serve numerous crucial functions:
+- **Structural support**: Building and maintaining bones, muscles, skin, and hair
+- **Biochemical reactions**: Conducting most chemical reactions in the body
+- **Growth and repair**: Essential for growth, wound healing, and tissue renewal
+- **Hormone production**: Creating hormones and antibodies
+- **Macromolecule metabolism**: Breaking down and building macromolecules
+
+### 3. **Nutritional Quality**
+The nutritional value of a protein source is determined by which amino acids it contains and in what quantities. This is why obtaining all essential amino acids from your diet is crucial for maintaining health, supporting growth, and ensuring proper bodily function. Without adequate essential amino acids, the body cannot produce the proteins necessary for survival and optimal health.",8.52
+L2_claude-sonnet,How does the body use glucose for energy?,Glucose is broken down through glycolysis and the citric acid cycle to produce ATP. Excess glucose is stored as glycogen in the liver and muscles.,"# How the Body Uses Glucose for Energy
+
+The body uses glucose for energy through a carefully controlled process called **cellular respiration**, which occurs in multiple stages:
+
+## Primary Energy Source
+
+Glucose serves as the **primary fuel source** for cells throughout the body. Many cells prefer glucose over other energy sources like fatty acids, while some cells—such as red blood cells—can *only* use glucose to produce energy. The brain is particularly dependent on glucose, as it uses glucose exclusively to produce energy and function under normal conditions (except during extreme starvation).
+
+## The Energy Extraction Process
+
+The energy in glucose comes from the **chemical bonds between carbon atoms**. These high-energy bonds were originally created during photosynthesis using sunlight energy. When cells need energy, they break these bonds through a controlled process that captures the energy efficiently:
+
+### Stage 1: Glycolysis
+The breakdown of glucose begins with **glycolysis** (literally ""splitting of glucose""), which occurs through a series of ten enzymatic reaction steps. This initial stage breaks down the glucose molecule and begins releasing its stored energy.
+
+### Stage 2: Mitochondrial Processing
+The second stage occurs in the **mitochondria**—the cell's ""energy factories."" During this stage, one carbon atom and two oxygen atoms are removed from the glucose molecule, yielding additional energy. The energy captured from these carbon bonds is then converted into a form that cells can readily use to power their various functions.
+
+This controlled, step-by-step breakdown is much more efficient than simply burning glucose, allowing cells to capture energy without the explosive release that would occur in uncontrolled combustion.",9.69
+L2_claude-sonnet,What are fat-soluble vitamins and what foods contain them?,"Fat-soluble vitamins are A, D, E, and K. They are found in fatty foods like liver, dairy, nuts, and oils, and require fat for absorption.","# Fat-Soluble Vitamins: Definition and Food Sources
+
+## What Are Fat-Soluble Vitamins?
+
+Fat-soluble vitamins are a group of organic compounds that are hydrophobic (dissolved in fat rather than water) and include **Vitamins A, D, E, and K**. These vitamins are classified as ""fat-soluble"" because they are absorbed along with dietary fat in the small intestine. Once absorbed, they are packaged into chylomicrons (along with other fatty acids) and transported through the lymphatic system to the liver.
+
+## Key Characteristics
+
+- **Absorption**: These vitamins require the presence of dietary fat for optimal absorption. If a meal is very low in fat, the absorption of fat-soluble vitamins will be impaired.
+- **Location of Action**: Fat-soluble vitamins are largely responsible for protecting cell membranes from free radical damage.
+- **Functions**: They are especially important for good health and exhibit a variety of functions, from supporting vision and immune function to bone health and blood clotting.
+
+## Food Sources
+
+Fat-soluble vitamins are found in:
+
+### Foods Containing Fat:
+- **Animal-derived foods** (particularly for vitamin A as retinol)
+- Foods naturally containing fat where these vitamins are primarily located
+
+### Naturally Fat-Free Foods:
+- **Green leafy vegetables** (such as collards - containing 11.60 mg vitamin A per cup cooked)
+- **Carrots** (5.10 mg vitamin A per medium carrot, raw; also contain beta-carotene)
+- **Broccoli**
+- **Tomatoes** (contain lycopene)
+- **Winter squash** (5.70 mg vitamin A per cup, baked)
+- **Tangerines and peas** (in smaller amounts)
+
+### Important Note:
+While fat-soluble vitamins can be found in naturally fat-free foods like vegetables, **they are best absorbed when combined with foods containing fat**. For example, eating tomatoes with olive oil or salad dressing will facilitate lycopene absorption. This is why it's beneficial to consume these vegetables with healthy fats to maximize the bioavailability of these essential nutrients.",9.4
+L3_gpt4o-mini,What are the main macronutrients and their primary functions in the body?,"The main macronutrients are carbohydrates, proteins, and fats. Carbohydrates provide energy, proteins build and repair tissues, and fats provide energy storage and support cell function.","The main macronutrients are carbohydrates, lipids, proteins, and water. 
+
+1. **Carbohydrates**: Composed of carbon, hydrogen, and oxygen, carbohydrates serve primarily as a source of energy. They are metabolized into glucose, which is used by the body for energy. Carbohydrates also play a role in providing structure to cells.
+
+2. **Lipids**: These are fats that serve multiple functions in the body. Lipids are a major component of cell membranes, provide insulation and protection for organs, and are involved in the regulation of various functions. They also serve as an energy storage form.
+
+3. **Proteins**: Composed of chains of amino acids, proteins are essential for building and repairing tissues, including muscles, skin, and bones. They also catalyze biochemical reactions as enzymes and are involved in immune responses and hormone production.
+
+4. **Water**: While not a source of calories, water is critical for life. It constitutes more than 60% of body weight and is essential for transporting nutrients, regulating temperature, and participating in biochemical reactions. Water is necessary to maintain bodily functions and activities. 
+
+Together, these macronutrients are vital for energy production, growth, and overall health.",9.03
+L3_gpt4o-mini,What is the role of dietary fiber in human health?,"Dietary fiber aids digestion, promotes satiety, regulates blood sugar, and supports healthy gut bacteria. It helps prevent constipation and may reduce risk of heart disease and type 2 diabetes.","Dietary fiber plays a crucial role in human health through various mechanisms:
+
+1. **Digestive Health**: Dietary fiber, particularly insoluble fiber found in whole grains, helps to optimize colon health. It aids in digestion by preventing constipation and reducing the risk of developing conditions like diverticulosis and diverticulitis.
+
+2. **Weight Management**: High-fiber diets are associated with reduced body weight. Fiber-rich foods can promote satiety, leading to lower overall calorie intake.
+
+3. **Blood Sugar Regulation**: Consuming a high-fiber meal can slow down the absorption of carbohydrates, which helps maintain stable blood glucose levels. This can be particularly beneficial for individuals at risk of type 2 diabetes.
+
+4. **Lowering Cholesterol Levels**: Certain soluble fibers, such as psyllium, have been shown to effectively lower blood cholesterol levels, which is an important factor in cardiovascular health.
+
+5. **Overall Disease Prevention**: Diets high in fiber are linked to a reduced risk of obesity and diabetes, which are primary risk factors for cardiovascular diseases.
+
+Overall, including both dietary and functional fiber from a variety of sources contributes significantly to overall health and the prevention of various chronic diseases.",5.47
+L3_gpt4o-mini,What are essential amino acids and why are they important?,"Essential amino acids cannot be synthesized by the body and must come from food. They are critical for protein synthesis, enzyme production, and many metabolic processes.","Essential amino acids are a group of nine amino acids that the human body cannot synthesize in sufficient amounts, meaning they must be obtained directly from the diet. These amino acids include histidine, isoleucine, leucine, lysine, methionine, phenylalanine, threonine, tryptophan, and valine. 
+
+The importance of essential amino acids lies in their critical role as building blocks of proteins, which are necessary for numerous bodily functions. Proteins provide structure to cells and tissues, facilitate biochemical reactions, and contribute to the immune system. Without adequate intake of essential amino acids, the body cannot produce the proteins that are vital for growth, repair, and maintenance of tissues, leading to impaired bodily functions and health issues. Additionally, during periods of rapid growth, illness, or recovery, the demand for these amino acids can increase, making their dietary intake even more crucial.",3.66
+L3_gpt4o-mini,How does the body use glucose for energy?,Glucose is broken down through glycolysis and the citric acid cycle to produce ATP. Excess glucose is stored as glycogen in the liver and muscles.,"The body primarily uses glucose for energy through a process called cellular respiration, which consists of two stages: glycolysis and oxidative phosphorylation. 
+
+1. **Glycolysis**: This is the first stage that occurs in the cytoplasm of the cell. During glycolysis, one molecule of glucose is broken down into two molecules of pyruvate through a series of ten enzymatic reactions. This process generates a small amount of energy in the form of ATP (adenosine triphosphate) and NADH (nicotinamide adenine dinucleotide), which are crucial for energy metabolism.
+
+2. **Mitochondrial Processing**: After glycolysis, the pyruvate molecules enter the mitochondria, where further breakdown occurs. In the mitochondria, carbon and oxygen atoms are removed, and more energy is extracted from the remaining molecular structure. This stage is known as the citric acid cycle (or Krebs cycle) and it maximizes the energy extracted from glucose.
+
+3. **Energy Capture**: The energy released during the breakdown of glucose is captured as ATP, which serves as the primary energy currency of the cell. Cellular respiration allows for the controlled release of energy stored in glucose’s chemical bonds, ensuring efficiency and minimizing waste.
+
+Glucose is vitally important not only for energy production but also for other body functions. It is a preferred energy source for many cells, particularly brain cells and red blood cells, which rely exclusively on glucose for energy. When energy needs are met, excess glucose can be converted to glycogen for storage or transformed into fatty acids and stored as fat when glycogen stores are full.",6.38
+L3_gpt4o-mini,What are fat-soluble vitamins and what foods contain them?,"Fat-soluble vitamins are A, D, E, and K. They are found in fatty foods like liver, dairy, nuts, and oils, and require fat for absorption.","Fat-soluble vitamins are a group of vitamins that include Vitamins A, D, E, and K. These vitamins are characterized by their ability to dissolve in fats and oils, which allows them to be absorbed along with dietary fat in the small intestine. This absorption is optimized when these vitamins are consumed with fat-containing foods. 
+
+Foods that are rich in fat-soluble vitamins include:
+
+- **Vitamin A**: Found in animal-derived foods such as liver, fish oils, and dairy products, as well as in plant-based sources like carrots, green leafy vegetables, and sweet potatoes (in the form of carotenoids such as beta-carotene).
+- **Vitamin D**: Primarily obtained from fatty fish (like salmon and mackerel), fish liver oils, and fortified foods such as dairy products and cereals.
+- **Vitamin E**: Found in vegetable oils (such as wheat germ oil, sunflower oil), nuts, seeds, and green leafy vegetables.
+- **Vitamin K**: Present in green leafy vegetables (like spinach, kale, and broccoli), as well as in fermented foods and certain vegetable oils.
+
+These vitamins not only play essential roles in various biological functions, such as protecting cell membranes from oxidative damage, but they also require dietary fat for optimal absorption.",6.69

@@ -1,0 +1,13 @@
+anthropic
+supabase
+python-dotenv
+PyMuPDF
+tiktoken
+tqdm
+torch
+pandas
+sentence-transformers
+transformers
+huggingface-hub
+# datasets  # Commented out - causes pyiceberg build issues on Python 3.14
+# ragas      # Commented out - depends on scikit-network which fails on Python 3.14

@@ -1,0 +1,6 @@
+store,num_chunks,ingest_time_sec,avg_query_ms,p99_query_ms,avg_top1_similarity,status,error
+V1_FAISS,1129.0,1115.67,159.8,363.3,0.6905,ok,
+V2_ChromaDB,1129.0,811.54,166.8,541.1,0.6905,ok,
+V3_Qdrant,1129.0,1164.47,0.0,0.0,0.0,ok,
+V4_LanceDB,1129.0,938.46,237.1,613.6,0.381,ok,
+V5_Milvus_Lite,,,,,,build_failed,"<ConnectionConfigException: (code=1, message=milvus-lite is required for local database connections. Please install it with: pip install pymilvus[milvus_lite])>"

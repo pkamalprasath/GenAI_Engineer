@@ -1,0 +1,4 @@
+llm,avg_latency_sec,p99_latency_sec,questions_answered
+L1_claude-haiku,4.68,5.76,5
+L2_claude-sonnet,9.06,9.68,5
+L3_gpt4o-mini,6.25,8.94,5

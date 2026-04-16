@@ -1,0 +1,35 @@
+# --- PDF ---
+pymupdf
+
+# --- Chunking (no LangChain) ---
+spacy
+
+# --- Embeddings ---
+sentence-transformers        # E1 all-mpnet, E2 MiniLM, E3 BGE
+openai                       # E4 text-embedding-3-small
+fastembed                    # E5 BAAI/bge-small via Qdrant's fast CPU lib
+cohere                       # E6 embed-english-light-v3.0
+
+# --- Vector Stores (all free, local, no server) ---
+faiss-cpu                    # V1
+chromadb                     # V2
+qdrant-client                # V3 in-memory mode
+lancedb                      # V4 embedded
+pymilvus                     # V5 Milvus Lite (local file) — NOTE: milvus-lite not available on Windows/Python 3.14, will be skipped
+
+# --- LLMs (API only, no local download) ---
+anthropic                    # Claude claude-haiku-4-5 / claude-sonnet-4-5
+openai                       # GPT-4o-mini
+
+# --- Evaluation ---
+ragas
+datasets
+
+# --- Utils ---
+python-dotenv
+pandas
+matplotlib
+seaborn
+tqdm
+torch
+numpy

@@ -1,0 +1,5 @@
+method,avg_latency_sec,judge_score
+R1_Dense,4.48,4.833
+R2_BM25,4.15,4.733
+R3_Hybrid,4.34,4.767
+R4_HyDE,4.23,4.9
