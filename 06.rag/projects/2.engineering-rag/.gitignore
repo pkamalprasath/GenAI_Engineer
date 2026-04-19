@@ -1,0 +1,77 @@
+# ── Secrets ────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Testing / coverage ──────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.xml
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Jupyter ─────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Vector stores / databases ───────────────────────────────────────────────
+chroma_db/
+faiss.index/
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Data (large files — keep local, not in repo) ───────────────────────────
+data/extracted_images/
+data/images/
+data/*.pdf
+# Benchmark raw datasets (large downloads — see scripts/download_benchmarks.py)
+data/benchmarks/squad/
+data/benchmarks/hotpotqa/
+data/benchmarks/natural_questions/
+data/benchmarks/msmarco/
+data/benchmarks/ragas_synth/
+# Keep custom questions (small, hand-curated)
+!data/benchmarks/custom/
+!data/benchmarks/README.md
+*.pkl
+*.bin
+*.pt
+*.pth
+
+# ── OS / editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Results (keep .md reports, ignore raw data) ─────────────────────────────
+results/*.json
+results/*.csv
+
+# ── Streamlit ───────────────────────────────────────────────────────────────
+.streamlit/secrets.toml

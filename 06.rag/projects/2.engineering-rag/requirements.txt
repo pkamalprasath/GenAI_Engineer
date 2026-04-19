@@ -1,0 +1,49 @@
+# --- Core RAG ---
+langchain
+langchain-community
+langchain-openai
+langchain-experimental      # SemanticChunker (winner from experiments)
+
+# --- Document Parsing ---
+pypdf                       # text extraction (fast, reliable)
+pdfplumber                  # table extraction (grid-aware)
+pymupdf                     # image extraction from PDFs
+pillow                      # image resizing before GPT-4o
+pytesseract                 # OCR fallback for scanned PDFs
+
+# --- Embeddings ---
+sentence-transformers       # all-MiniLM-L6-v2 (winner: score 5.0, fastest)
+
+# --- Vector Store ---
+psycopg2-binary             # PostgreSQL Python driver
+pgvector                    # pgvector client for Python
+
+# --- LLM ---
+openai                      # GPT-4o-mini (winner: 4.933) + GPT-4o vision
+anthropic                   # Claude Haiku fallback (scored 4.6)
+
+# --- Evaluation ---
+ragas                       # faithfulness, context recall, answer relevance
+rank-bm25                   # BM25 (from experiments, available if needed)
+pandas
+matplotlib
+
+# --- API + UI ---
+fastapi
+uvicorn[standard]
+streamlit
+slowapi                     # rate limiting for FastAPI
+markdown                    # used in app.py for rendering responses
+
+# --- Observability ---
+langfuse>=4                 # LLM-native tracing (Langfuse Cloud free tier) — v4 API
+python-logging-loki         # ships Python logs to Grafana Cloud Loki
+
+# --- PII Guardrails ---
+presidio-analyzer           # PII detection (Microsoft, fully local)
+presidio-anonymizer         # PII redaction/replacement
+# After install: python -m spacy download en_core_web_sm
+
+# --- Utilities ---
+python-dotenv
+tqdm
