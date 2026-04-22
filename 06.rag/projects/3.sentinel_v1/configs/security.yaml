@@ -1,0 +1,76 @@
+# Security configuration — OWASP compliance, PII, rate limits.
+# All security parameters come from here, never from application code.
+
+owasp:
+  # Maximum characters accepted in any single input field
+  max_input_length: 5000
+  # Block these patterns — SQL injection, path traversal, script injection
+  blocked_patterns:
+    - "(?i)(select|insert|update|delete|drop|union|exec|xp_)\\s"        # SQL DML keywords
+    - "(?i)\\b(or|and)\\s+['\"\\d].*[=<>]"                             # OR/AND boolean attacks
+    - "(?i)\\b(sleep|benchmark|waitfor|pg_sleep)\\s*\\("               # Time-based SQL blind
+    - "(?i)\\bhaving\\s+\\d"                                            # HAVING clause injection
+    - "(?i)admin'\\s*--"                                                # Auth bypass pattern
+    - "\\.\\./|\\.\\.\\\\"                                              # Relative path traversal
+    - "(?i)/etc/(passwd|shadow|hosts|sudoers)"                          # Absolute Unix path
+    - "(?i)[A-Za-z]:\\\\[Ww]indows\\\\"                                # Absolute Windows path
+    - "<script[^>]*>|javascript:"                                       # XSS
+    - "\\$\\{|\\{\\{|<%"                                                # Template injection
+    - "(?i)ignore previous instructions|disregard all (safety|instructions)|new instructions"  # Prompt injection
+    - "(?i)bypass all guardrails|developer mode assistant|as a (language model|ai assistant).*ignore"  # Prompt jailbreak
+    - "(?i)os\\.system\\s*\\(|subprocess\\.|import os.*system"         # Code injection
+    - "(?i)file:///|http://(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0|169\\.254\\.|internal)"  # SSRF
+  # Strip these HTML tags from inputs before processing
+  strip_html: true
+
+pii:
+  enabled: true  # Overridden by PII_REDACTION_ENABLED env var
+  # Presidio entity types to detect and redact in user INPUTS
+  entities:
+    - PERSON
+    - EMAIL_ADDRESS
+    - PHONE_NUMBER
+    - US_SSN
+    - US_BANK_NUMBER
+    - CREDIT_CARD
+    - DATE_TIME          # Redact specific dates that could identify individuals
+    - LOCATION
+  # Narrower entity list for agent OUTPUT scanning — compliance reports legitimately
+  # contain locations, dates, and person-like terms (e.g. "Section 202.6", "Fair Lending")
+  output_entities:
+    - EMAIL_ADDRESS
+    - PHONE_NUMBER
+    - US_SSN
+    - US_BANK_NUMBER
+    - CREDIT_CARD
+  # Replacement tokens used in redacted text
+  replacements:
+    PERSON: "<PERSON>"
+    EMAIL_ADDRESS: "<EMAIL>"
+    PHONE_NUMBER: "<PHONE>"
+    US_SSN: "<SSN>"
+    US_BANK_NUMBER: "<ACCOUNT>"
+    CREDIT_CARD: "<CARD>"
+    DATE_TIME: "<DATE>"
+    LOCATION: "<LOCATION>"
+
+rate_limiting:
+  # Per-tenant limits — enforced at API middleware layer
+  requests_per_minute: 120       # Default; overridden by RATE_LIMIT_PER_MINUTE env var
+  requests_per_hour: 1200
+  burst_allowance: 20            # Extra requests allowed in a single burst
+
+# Context trust scores — from Ranjan Kumar's audit trail pattern
+# Higher score = more trusted as ground truth by agents
+trust_scores:
+  regulation_document: 0.95     # Official regulatory text
+  tool_response: 0.80           # Verified tool/DB output
+  past_investigation: 0.75      # Prior system finding
+  system_prompt: 0.90           # Agent soul file
+  user_input: 0.40              # Lowest trust — external, unverified
+
+audit:
+  # Audit log is append-only — no UPDATE or DELETE ever executed on this table
+  append_only: true
+  # Retain audit records for this many days (regulatory requirement)
+  retention_days: 2555           # ~7 years — matches financial record requirements
