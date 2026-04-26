@@ -1,0 +1,101 @@
+name: Tests & Quality Checks
+
+on: 
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install linting tools
+        run: |
+          pip install black ruff
+      
+      - name: Check code formatting with black
+        run: |
+          black --check . --exclude=".venv,notebooks,.git,__pycache__" || true
+      
+      - name: Lint with ruff
+        run: |
+          ruff check . || true
+
+  test-open-claw-slack-bot:
+    name: Test Slack Bot (04.open_claw_slack_bot)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd 04.open_claw_slack_bot
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Run tests
+        run: |
+          cd 04.open_claw_slack_bot
+          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
+
+  test-rag:
+    name: Test RAG Module (06.rag)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd 06.rag
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Run tests
+        run: |
+          cd 06.rag
+          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
+
+  test-sentinel:
+    name: Test SENTINEL (7.agentic_ai)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd 7.agentic_ai/2.sentinel_v2
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Run tests
+        run: |
+          cd 7.agentic_ai/2.sentinel_v2
+          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
