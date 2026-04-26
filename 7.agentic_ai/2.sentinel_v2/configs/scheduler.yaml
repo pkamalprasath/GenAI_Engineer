@@ -1,0 +1,10 @@
+proactive_investigations:
+  enabled: true
+  schedule: "0 2 * * *"      # 2 AM daily (cron syntax)
+  lookback_hours: 24          # Review decisions from the past 24 hours
+  tenants: []                 # Empty = all active tenants from DB; or list tenant IDs
+
+# Example: restrict to specific tenants
+# tenants:
+#   - bank-acme
+#   - bank-beta

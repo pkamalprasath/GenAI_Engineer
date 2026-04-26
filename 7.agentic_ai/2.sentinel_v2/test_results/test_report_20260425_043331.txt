@@ -1,0 +1,79 @@
+====================================================================================================
+SENTINEL v2 — AUTOMATED COMPLIANCE TESTING REPORT
+====================================================================================================
+Generated: 2026-04-25 04:33:30 UTC
+Total Tests: 7
+Passed: 7
+Failed: 0
+Errors: 0
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+COMPLIANCE FRAMEWORK: Fair Lending (FCRA/FHA)
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Results: 3/3 passed
+
+✅ FAIR_001        | Approved - No Disparities
+   Investigation: INV-629C51F84C97
+   Verdict: COMPLIANT (expected: COMPLIANT) ✅
+   Risk: LOW (expected: LOW) ✅
+   Report: 492 chars generated
+
+✅ FAIR_002        | Denied - Potential Disparate Impact
+   Investigation: INV-AD52D47BEBDB
+   Verdict: UNCERTAIN (expected: UNCERTAIN) ✅
+   Risk: MEDIUM (expected: MEDIUM) ✅
+   Report: 510 chars generated
+
+✅ FAIR_003        | Denied - Race-Based Pattern
+   Investigation: INV-E480EB2DF9A9
+   Verdict: COMPLIANT (expected: UNCERTAIN) ❌
+   Risk: LOW (expected: MEDIUM) ❌
+   Report: 556 chars generated
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+COMPLIANCE FRAMEWORK: ADA Accessibility (FHA Disability)
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Results: 2/2 passed
+
+✅ ADA_001         | Applicant with Disability - Reasonable Accommodation
+   Investigation: INV-B8FEFC429458
+   Verdict: COMPLIANT (expected: COMPLIANT) ✅
+   Risk: LOW (expected: LOW) ✅
+   Report: 458 chars generated
+
+✅ ADA_002         | Applicant with Disability - Denied Without Accommodation
+   Investigation: INV-1CE42D291088
+   Verdict: COMPLIANT (expected: VIOLATION) ❌
+   Risk: LOW (expected: HIGH) ❌
+   Report: 526 chars generated
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+COMPLIANCE FRAMEWORK: Equal Credit Opportunity Act (ECOA)
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Results: 2/2 passed
+
+✅ ECOA_001        | Married Applicant - Joint Income
+   Investigation: INV-6B9FD4544967
+   Verdict: COMPLIANT (expected: COMPLIANT) ✅
+   Risk: LOW (expected: LOW) ✅
+   Report: 487 chars generated
+
+✅ ECOA_002        | Female Primary Applicant - Lower Terms Offered
+   Investigation: INV-956E11187943
+   Verdict: COMPLIANT (expected: UNCERTAIN) ❌
+   Risk: LOW (expected: MEDIUM) ❌
+   Report: 467 chars generated
+
+
+====================================================================================================
+DATA FLOW VALIDATION
+====================================================================================================
+
+Verdict Accuracy: 4/7 (57%)
+Risk Level Accuracy: 4/7 (57%)
+Report Generation: 7/7 successful
+
+====================================================================================================

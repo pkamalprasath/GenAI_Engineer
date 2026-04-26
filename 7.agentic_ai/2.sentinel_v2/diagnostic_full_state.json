@@ -1,0 +1,19 @@
+{
+  "investigation_id": "INV-545D8F2A4EF9",
+  "status": "failed",
+  "compliance_verdict": null,
+  "regulatory_risk": null,
+  "bias_detected": false,
+  "report_confidence": 0.0,
+  "total_cost_usd": 0.0,
+  "final_report": null,
+  "hitl_required": false,
+  "case_count": 0,
+  "discovery_confidence": 0.0,
+  "evidence_count": 0,
+  "investigation_sufficient": null,
+  "bias_confidence": 0.0,
+  "agent_events": [],
+  "error_log": [],
+  "heartbeats": []
+}

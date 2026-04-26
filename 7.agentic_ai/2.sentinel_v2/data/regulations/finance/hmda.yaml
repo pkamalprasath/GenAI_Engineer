@@ -1,0 +1,30 @@
+regulation_name: HMDA
+full_name: "Home Mortgage Disclosure Act"
+jurisdiction: US
+effective_date: "1975-12-31"
+domain: finance
+sections:
+  - section: "12 U.S.C. § 2803 — Maintenance of Records and Public Disclosure"
+    text: |
+      Each covered institution shall compile and make available to the public, on
+      request, in accordance with regulations of the Bureau, data on the ethnicity,
+      race, sex, and annual income of mortgage applicants and borrowers, the type of
+      loan, the property location, and the final disposition of each application for
+      a mortgage loan. Such data shall be compiled for each calendar year.
+
+  - section: "12 U.S.C. § 2803(b) — Loan Register"
+    text: |
+      Each covered institution shall make its loan register available to the public
+      following the end of each calendar year. The register shall contain the data
+      enumerated in subsection (a), itemized by census tract. When a mortgagor
+      exercises a right of rescission, the institution shall delete the corresponding
+      entry from the register.
+
+  - section: "12 C.F.R. § 1003.4 — Compilation of Reportable Data"
+    text: |
+      A financial institution shall collect data regarding applications for covered
+      loans, including the following: the application date; the loan type; the loan
+      purpose; whether the application is a preapproval request; the construction
+      method; the occupancy type; the loan amount; the action taken and action taken
+      date; the property state, county, and census tract; and the ethnicity, race,
+      sex, age, and income of the applicant and co-applicant.

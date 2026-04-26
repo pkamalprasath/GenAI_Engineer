@@ -1,0 +1,39 @@
+regulation_name: ECOA
+full_name: "Equal Credit Opportunity Act"
+jurisdiction: US
+effective_date: "1974-10-28"
+domain: finance
+sections:
+  - section: "15 U.S.C. § 1691(a)"
+    text: |
+      It shall be unlawful for any creditor to discriminate against any applicant,
+      with respect to any aspect of a credit transaction on the basis of race, color,
+      religion, national origin, sex or marital status, or age (provided the applicant
+      has the capacity to contract); because all or part of the applicant's income
+      derives from any public assistance program; or because the applicant has in good
+      faith exercised any right under the Consumer Credit Protection Act.
+
+  - section: "15 U.S.C. § 1691(b)"
+    text: |
+      It shall not constitute discrimination for purposes of this subchapter for a
+      creditor to make an inquiry of marital status if such inquiry is for the purpose
+      of ascertaining the creditor's rights and remedies applicable to the particular
+      extension of credit and not to discriminate in a determination of credit-worthiness.
+
+  - section: "15 U.S.C. § 1691(d) — Adverse Action Notice"
+    text: |
+      Each applicant against whom adverse action is taken shall be entitled to a
+      statement of reasons for such action from the creditor. A creditor satisfies
+      this obligation by providing a statement of reasons in writing as a matter of
+      course to applicants against whom adverse action is taken, or by giving written
+      notification of adverse action which discloses the applicant's right to a
+      statement of reasons within thirty days after receipt by the creditor of a
+      request made within sixty days after such notification.
+
+  - section: "12 C.F.R. § 202.6 — Rules Concerning Evaluation of Applications"
+    text: |
+      A creditor shall not take race, color, religion, national origin, or sex into
+      account in any system of evaluating the creditworthiness of applicants. A creditor
+      may consider age in a credit scoring system that is demonstrably and statistically
+      sound, provided that the system is not based on a factor that has an adverse impact
+      on a prohibited basis and is otherwise permissible under applicable law.

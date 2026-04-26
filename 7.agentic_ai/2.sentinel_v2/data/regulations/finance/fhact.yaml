@@ -1,0 +1,31 @@
+regulation_name: FHAct
+full_name: "Fair Housing Act"
+jurisdiction: US
+effective_date: "1968-04-11"
+domain: finance
+sections:
+  - section: "42 U.S.C. § 3605 — Discrimination in Residential Real Estate Transactions"
+    text: |
+      It shall be unlawful for any person or other entity whose business includes
+      engaging in residential real estate-related transactions to discriminate against
+      any person in making available such a transaction, or in the terms or conditions
+      of such a transaction, because of race, color, national origin, religion, sex,
+      handicap, or familial status.
+
+  - section: "42 U.S.C. § 3605(b) — Definition"
+    text: |
+      As used in this section, the term residential real estate-related transaction
+      means the making or purchasing of loans or providing other financial assistance
+      for purchasing, constructing, improving, repairing, or maintaining a dwelling;
+      or the selling, brokering, or appraising of residential real property.
+
+  - section: "24 C.F.R. § 100.120 — Discriminatory Practices in Lending"
+    text: |
+      It shall be unlawful for any person or entity engaged in the making of loans
+      or in the provision of other financial assistance for the acquisition, construction,
+      rehabilitation, repair, or maintenance of dwellings to deny any person access to
+      or membership or participation in any multiple-listing service, real estate brokers'
+      organization or other service, organization, or facility relating to the business of
+      selling or renting dwellings, or to discriminate against any person in the terms or
+      conditions of such access, membership, or participation, because of race, color,
+      national origin, religion, sex, handicap, or familial status.

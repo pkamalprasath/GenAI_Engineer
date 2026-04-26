@@ -1,0 +1,125 @@
+# SENTINEL v2 Docker Compose — Phase 4 service split (Supabase edition)
+#
+# Services:
+#   - redis: task queue backend for arq
+#   - ollama: local LLM (llama3.2:3b for classification)
+#   - api: FastAPI REST endpoint (port 8000)
+#   - worker: background job processor (scales horizontally)
+#   - scheduler: proactive investigation scheduler
+#   - dashboard: Streamlit monitoring UI (port 8501)
+#
+# Database: Supabase PostgreSQL (via DATABASE_URL from .env)
+# Network: sentinel-net (internal, no external access)
+
+x-common-env: &common-env
+  DATABASE_URL: ${DATABASE_URL}
+  REDIS_URL: redis://redis:6379
+  OPENAI_API_KEY: ${OPENAI_API_KEY}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+  LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY}
+  LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+services:
+  # ── Redis (Phase 4: task queue) ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: sentinel-redis
+    networks:
+      - sentinel-net
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ── API Service (Phase 4) ──────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-api
+    networks:
+      - sentinel-net
+    ports:
+      - "8003:8000"
+    environment:
+      <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    command: uvicorn sentinel.api.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # ── Worker (Phase 4: async job processor) ──────────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-worker
+    networks:
+      - sentinel-net
+    environment:
+      <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: arq sentinel.worker.main.WorkerSettings
+    restart: unless-stopped
+    deploy:
+      replicas: 1  # Scale to N workers: docker-compose up -d --scale worker=3
+
+  # ── Scheduler (Phase 4: proactive scheduler) ───────────────────────────────
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-scheduler
+    networks:
+      - sentinel-net
+    environment:
+      <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: python -m sentinel.scheduler.main
+    restart: unless-stopped
+
+  # ── Dashboard (Streamlit monitoring UI) ────────────────────────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-dashboard
+    networks:
+      - sentinel-net
+    ports:
+      - "8501:8501"
+    environment:
+      <<: *common-env
+    depends_on:
+      - api
+    command: streamlit run sentinel/dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+    restart: unless-stopped
+
+networks:
+  sentinel-net:
+    driver: bridge
+    internal: true  # No external access to internal network
+
+volumes:
+  redis_data:
+    driver: local

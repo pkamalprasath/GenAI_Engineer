@@ -1,0 +1,34 @@
+regulation_name: FCRA
+full_name: "Fair Credit Reporting Act"
+jurisdiction: US
+effective_date: "1970-04-25"
+domain: finance
+sections:
+  - section: "15 U.S.C. § 1681b — Permissible Purposes"
+    text: |
+      A consumer reporting agency may furnish a consumer report under the following
+      circumstances and no other: in response to the order of a court having jurisdiction
+      to issue such an order; in accordance with the written instructions of the consumer
+      to whom it relates; to a person which it has reason to believe intends to use the
+      information in connection with a credit transaction involving the consumer on whom
+      the information is to be furnished and involving the extension of credit to, or
+      review or collection of an account of, the consumer.
+
+  - section: "15 U.S.C. § 1681m — Adverse Action Requirements"
+    text: |
+      If any person takes any adverse action with respect to any consumer that is based
+      in whole or in part on any information contained in a consumer report, the person
+      shall provide oral, written, or electronic notice of the adverse action to the
+      consumer; provide to the consumer written or electronic disclosure of a numerical
+      credit score if a numerical credit score was used in making the credit decision;
+      and provide to the consumer the name, address, and telephone number of the consumer
+      reporting agency that furnished the report to the person.
+
+  - section: "15 U.S.C. § 1681c — Requirements Relating to Information in Consumer Reports"
+    text: |
+      A consumer reporting agency shall not furnish any consumer report containing
+      information related to cases under title 11 or under the Bankruptcy Act that,
+      from the date of entry of the order for relief or the date of adjudication,
+      antedate the report by more than 10 years. No consumer reporting agency shall
+      make any consumer report containing accounts placed for collection or charged to
+      profit and loss which antedate the report by more than seven years.

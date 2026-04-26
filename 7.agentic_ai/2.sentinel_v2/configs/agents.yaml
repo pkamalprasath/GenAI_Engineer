@@ -1,0 +1,68 @@
+# Agent behavior configuration — timeouts, token budgets, thresholds.
+# All agent parameters come from here. Nothing is hardcoded in agent code.
+
+agents:
+  orchestrator:
+    max_iterations: 5           # Hard cap — prevents infinite loops
+    heartbeat_timeout_seconds: 60  # If agent silent > 60s → mark stuck
+
+  discovery:
+    timeout_seconds: 45
+    token_budget: 4000
+    min_case_confidence: 0.0    # Cases below this score are excluded (0.0 = accept all)
+    max_cases_returned: 50      # Cap to avoid downstream token explosion (raise for production)
+
+    # Classifier backend — controls which pipeline stages run
+    # "llm"    → original: all candidates sent to llama3.2:3b (baseline)
+    # "bert"   → BM25 + DistilBERT only, no LLM call at all
+    # "hybrid" → BM25 → DistilBERT → llama3.2:3b for borderline scores only (recommended)
+    classifier_backend: hybrid    # hybrid = BERT + LLM for borderline cases
+    bert_model: distilbert-base-uncased  # swap to nlpaueb/legal-bert-base-uncased for legal domain
+    bm25_top_k: 50                       # BM25 pre-filter: keep top-K before BERT re-ranking
+    bert_auto_relevant_threshold: 0.75   # Score >= 0.75 → auto-include
+    bert_auto_irrelevant_threshold: 0.35 # Score <= 0.35 → auto-exclude
+    # Scores between thresholds are passed to llama3.2:3b for final judgment
+
+  investigation:
+    timeout_seconds: 90
+    token_budget: 8000
+    max_graph_depth: 5          # Max hops in provenance graph traversal
+    max_retries: 2              # Retry if provenance chain incomplete
+
+  legal_analysis:
+    timeout_seconds: 90
+    token_budget: 8000
+    max_regulations_loaded: 5   # Top-K regulations retrieved per query
+
+  bias_detection:
+    timeout_seconds: 60
+    token_budget: 6000
+    minimum_sample_size: 30          # Statistical significance floor
+    disparity_alert_threshold: 0.15  # Flag if group approval rate gap > 15%
+
+    # Anomaly detection backend
+    # "statistical" → disparity thresholds only (original)
+    # "isolation_forest" → scikit-learn IsolationForest on full feature matrix
+    # "hybrid" → statistical thresholds first; IsolationForest for additional anomalies (recommended)
+    anomaly_backend: hybrid
+    isolation_forest_contamination: 0.05  # Expected anomaly fraction (5% = 25 of 500 cases)
+    isolation_forest_n_estimators: 100    # Number of trees — more = more accurate, slower
+    isolation_forest_random_state: 42     # Deterministic — same anomalies every run
+
+    # LLM interpretation: when does Haiku get called?
+    # "always"       → original behavior: always call Haiku
+    # "edge_cases"   → only when IsolationForest finds anomalies disparity doesn't explain
+    # "never"        → rule-based verdict only (fastest, least nuanced)
+    llm_interpretation: edge_cases
+
+  report_generation:
+    timeout_seconds: 120
+    token_budget: 12000
+    auto_resolve_confidence: 0.85  # Below this → force HITL before finalizing
+
+# HITL escalation triggers — any of these forces human review
+hitl_triggers:
+  - confidence_below: 0.65
+  - risk_level_in: ["HIGH", "CRITICAL"]
+  - bias_detected: true
+  - investigation_iterations_exceeded: true
