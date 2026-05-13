@@ -18,7 +18,7 @@ Every design decision is benchmarked, not assumed.
 | [01.NLP](./01.nlp) | Foundations (Word2Vec, RNNs, ANNs) | Learning | 3 files | 17 notebooks |
 | [02.LangChain](./02.langchain) | 15+ LLM patterns (LCEL, RAG, Agents) | Reference | 17 files | 22 notebooks |
 | [03.Guardrails](./03.guardrails) | AI safety & red-teaming | Advanced | 18 files | 14 notebooks |
-| [04.OpenClaw Slack Bot](./OpenClaw) | **Production agent** (10+ tools) | **Production** | **81 files** | Full tests |
+| [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch) | **Production agent** (10+ tools, proprietary architecture) | **Production** | **81 files** | Full tests |
 | [06.RAG](./06.rag) | **Production deep-dive** (multimodal) | **Production** | **61 files** | 10 experiments |
 | [7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (7-agent system) | **Production** | **198 files** | Kubernetes-ready |
 | [8.slm_from_scratch](./8.slm_from_scratch) | Small Language Models (LoRA, GPT-2, BioGPT, Build-from-Scratch) | Production | **54 files** | 4 independent projects |
@@ -93,9 +93,9 @@ Standard RAG returns one or the other. **This system retrieves all three and syn
 
 ---
 
-### 3. OpenClaw: Production Multi-Tool Slack Agent
+### 3. OpenClaw: Proprietary Agent Architecture Built from Scratch
 
-**Location:** [OpenClaw](./OpenClaw)
+**Location:** [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch)
 
 Real production system deployed to Slack workspace with 81 Python files and full test coverage.
 
@@ -153,7 +153,7 @@ Four independent ML projects demonstrating parameter efficiency, large-scale tra
 - [03.Guardrails](./03.guardrails): AI safety fundamentals (injection, hallucination, PII)
 
 **Step 3: Build Production Systems**
-- [OpenClaw](./OpenClaw): Real agent with memory, scheduling, MCP
+- [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch): Real agent with memory, scheduling, MCP (proprietary architecture)
 - [06.rag](./06.rag): Systematic benchmarking → production multimodal RAG
 - [7.agentic_ai](./7.agentic_ai): Enterprise compliance system (7-agent orchestration)
 
@@ -200,7 +200,7 @@ pip install -r requirements.txt
 streamlit run app.py
 
 # Run OpenClaw Slack Bot
-cd OpenClaw/open_claw_slack_bot
+cd 4.openclaw-built_from_scratch/open_claw_slack_bot
 poetry install
 poetry run python src/main.py
 ```
