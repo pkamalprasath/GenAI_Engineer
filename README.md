@@ -9,26 +9,27 @@ Every design decision is benchmarked, not assumed.
 
 ---
 
-## 📊 Portfolio at a Glance
+## Portfolio at a Glance
 
 **63,332 lines of production Python code** | **378 Python files** | **57 Jupyter notebooks** | **7 major projects** | **3 production systems**
 
 | Project | Focus | Status | Code | Impact |
 |---------|-------|--------|------|--------|
-| [🧬 01.NLP](./01.nlp) | Foundations (Word2Vec, RNNs, ANNs) | 📚 Learning | 3 files | 17 notebooks |
-| [⛓️ 02.LangChain](./02.langchain) | 15+ LLM patterns (LCEL, RAG, Agents) | 📚 Reference | 17 files | 22 notebooks |
-| [🛡️ 03.Guardrails](./03.guardrails) | AI safety & red-teaming | 🔬 Advanced | 18 files | 14 notebooks |
-| [🤖 04.Slack Bot](./04.open_claw_slack_bot) | **Production agent** (10+ tools) | ✅ **Production** | **81 files** | Full tests |
-| [📚 06.RAG](./06.rag) | **Production deep-dive** (multimodal) | ✅ **Production** | **61 files** | 10 experiments |
-| [🔍 7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (7-agent system) | ✅ **Production** | **198 files** | Kubernetes-ready |
+| [01.NLP](./01.nlp) | Foundations (Word2Vec, RNNs, ANNs) | Learning | 3 files | 17 notebooks |
+| [02.LangChain](./02.langchain) | 15+ LLM patterns (LCEL, RAG, Agents) | Reference | 17 files | 22 notebooks |
+| [03.Guardrails](./03.guardrails) | AI safety & red-teaming | Advanced | 18 files | 14 notebooks |
+| [04.OpenClaw Slack Bot](./OpenClaw) | **Production agent** (10+ tools) | **Production** | **81 files** | Full tests |
+| [06.RAG](./06.rag) | **Production deep-dive** (multimodal) | **Production** | **61 files** | 10 experiments |
+| [7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (7-agent system) | **Production** | **198 files** | Kubernetes-ready |
+| [8.slm_from_scratch](./8.slm_from_scratch) | Small Language Models (LoRA, GPT-2, BioGPT, Build-from-Scratch) | Production | **54 files** | 4 independent projects |
 
 ---
 
-## 🏆 Flagship Projects
+## Flagship Projects
 
-### 1️⃣ SENTINEL: Multi-Agent Compliance Automation
+### 1. SENTINEL: Multi-Agent Compliance Automation
 
-**📍 [7.agentic_ai](./7.agentic_ai/2.sentinel_v2)**
+**Location:** [7.agentic_ai](./7.agentic_ai/2.sentinel_v2)
 
 Production system for compliance automation using 7 orchestrated AI agents.
 
@@ -45,24 +46,24 @@ Production system for compliance automation using 7 orchestrated AI agents.
 - W3C PROV-O provenance graphs with SHA-256 tamper detection
 
 **Production Features:**
-- ✅ Kubernetes-ready (health probes, graceful shutdown)
-- ✅ Multi-tenant isolation with audit trails
-- ✅ Input/output guardrails (security boundaries)
-- ✅ Observability with LangFuse cost tracking
-- ✅ Rate limiting, structured logging, error recovery
+- [OK] Kubernetes-ready (health probes, graceful shutdown)
+- [OK] Multi-tenant isolation with audit trails
+- [OK] Input/output guardrails (security boundaries)
+- [OK] Observability with LangFuse cost tracking
+- [OK] Rate limiting, structured logging, error recovery
 
 ---
 
-### 2️⃣ RAG Deep-Dive: Multimodal Retrieval at Scale
+### 2. RAG Deep-Dive: Multimodal Retrieval at Scale
 
-**📍 [06.rag/projects/2.engineering-rag](./06.rag/projects/2.engineering-rag/)**
+**Location:** [06.rag/projects/2.engineering-rag](./06.rag/projects/2.engineering-rag/)
 
 Production RAG system handling text, tables, and images simultaneously.
 
 **Problem Solved:**
 When an engineer asks *"What torque for M12 bolts near the motor, and what PPE applies?"* — the answer spans multiple modalities:
 - Spec table (torque value)
-- Text procedure (installation steps)  
+- Text procedure (installation steps)
 - Image caption (safety diagram)
 
 Standard RAG returns one or the other. **This system retrieves all three and synthesizes a cited answer.**
@@ -92,37 +93,55 @@ Standard RAG returns one or the other. **This system retrieves all three and syn
 
 ---
 
-### 3️⃣ Slack AI Agent: Production Multi-Tool System
+### 3. OpenClaw: Production Multi-Tool Slack Agent
 
-**📍 [04.open_claw_slack_bot](./04.open_claw_slack_bot/)**
+**Location:** [OpenClaw](./OpenClaw)
 
 Real production system deployed to Slack workspace with 81 Python files and full test coverage.
 
 **Features:**
-- ✅ **Multi-tool integration** (10+ connected tools)
-- ✅ **Conversation memory** (long-running context)
-- ✅ **MCP server integration** (extensible architecture)
-- ✅ **Scheduled tasks** (APScheduler)
-- ✅ **Full test suite** (unit + integration)
+- [OK] **Multi-tool integration** (10+ connected tools)
+- [OK] **Conversation memory** (long-running context)
+- [OK] **MCP server integration** (extensible architecture)
+- [OK] **Scheduled tasks** (APScheduler)
+- [OK] **Full test suite** (unit + integration)
+
+**Architecture:** Proprietary 5-layer design built from scratch for Slack optimization
 
 **Shows:** Full-stack production thinking (not just proof-of-concept)
 
 ---
 
-## 🎯 What This Portfolio Demonstrates
+### 4. SLM Portfolio: Small Language Models from Fundamentals
 
-| Capability | Evidence | Level |
-|---|---|---|
-| **Systematic thinking** | 10 RAG experiments with benchmarks | ⭐⭐⭐⭐⭐ |
-| **Full-stack development** | Backend (FastAPI) + Frontend (Streamlit/Next.js) + DevOps (Docker) | ⭐⭐⭐⭐⭐ |
-| **Production architecture** | OWASP security, observability (Langfuse), scaling (async/jobs) | ⭐⭐⭐⭐⭐ |
-| **AI/ML expertise** | LangChain, LangGraph, vector search, prompt engineering, agents | ⭐⭐⭐⭐⭐ |
-| **Business acumen** | ROI analysis, cost optimization, compliance automation | ⭐⭐⭐⭐⭐ |
-| **Code quality** | Type hints, error handling, structured logging | ⭐⭐⭐⭐☆ |
+**Location:** [8.slm_from_scratch](./8.slm_from_scratch)
+
+Four independent ML projects demonstrating parameter efficiency, large-scale training, domain specialization, and foundational AI architecture.
+
+**Projects:**
+- **Finance_SLM:** Parameter-efficient LoRA fine-tuning (0.78 F1 with 0.3% trainable parameters)
+- **GPT2:** Large-scale training pipeline (10B token FineWeb dataset)
+- **BioGPT:** Domain-specialized NLP (biomedical applications)
+- **Build_SLM:** Transformer implementation from scratch (pure fundamentals)
+
+**Shows:** Complete ML engineering expertise from fundamentals to production
 
 ---
 
-## 📚 Project Details
+## What This Portfolio Demonstrates
+
+| Capability | Evidence | Level |
+|---|---|---|
+| **Systematic thinking** | 10 RAG experiments with benchmarks | Expert |
+| **Full-stack development** | Backend (FastAPI) + Frontend (Streamlit/Next.js) + DevOps (Docker) | Expert |
+| **Production architecture** | OWASP security, observability (Langfuse), scaling (async/jobs) | Expert |
+| **AI/ML expertise** | LangChain, LangGraph, vector search, prompt engineering, agents | Expert |
+| **Business acumen** | ROI analysis, cost optimization, compliance automation | Expert |
+| **Code quality** | Type hints, error handling, structured logging | Advanced |
+
+---
+
+## Project Details
 
 ### The Journey: Foundations → Experiments → Production
 
@@ -134,13 +153,16 @@ Real production system deployed to Slack workspace with 81 Python files and full
 - [03.Guardrails](./03.guardrails): AI safety fundamentals (injection, hallucination, PII)
 
 **Step 3: Build Production Systems**
-- [04.open_claw_slack_bot](./04.open_claw_slack_bot): Real agent with memory, scheduling, MCP
+- [OpenClaw](./OpenClaw): Real agent with memory, scheduling, MCP
 - [06.rag](./06.rag): Systematic benchmarking → production multimodal RAG
 - [7.agentic_ai](./7.agentic_ai): Enterprise compliance system (7-agent orchestration)
 
+**Step 4: ML Engineering Depth**
+- [8.slm_from_scratch](./8.slm_from_scratch): Parameter efficiency, infrastructure, specialization, fundamentals
+
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **LLMs & APIs:**  
 Claude Sonnet/Haiku (Anthropic) · GPT-4o/GPT-4o-mini (OpenAI) · Ollama · AWS Bedrock · Groq
@@ -162,7 +184,7 @@ PostgreSQL · Docker · Kubernetes · Supabase · Redis · SQLite · Neo4j
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Each project is self-contained:
 
@@ -176,24 +198,29 @@ python -m uvicorn sentinel.api.main:app --port 8003
 cd 06.rag/projects/2.engineering-rag
 pip install -r requirements.txt
 streamlit run app.py
+
+# Run OpenClaw Slack Bot
+cd OpenClaw/open_claw_slack_bot
+poetry install
+poetry run python src/main.py
 ```
 
 See individual project READMEs for detailed setup.
 
 ---
 
-## 📋 Professional Standards
+## Professional Standards
 
-- ✅ **Licensed:** MIT (see [LICENSE](LICENSE))
-- ✅ **Documented:** [CHANGELOG.md](CHANGELOG.md), [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md)
-- ✅ **Tested:** Tests in projects with `.github/workflows/tests.yml`
-- ✅ **Versioned:** Semantic versioning with git tags (v1.0, v2.0, v3.0)
-- ✅ **Type Safe:** Type hints throughout codebase
-- ✅ **Observable:** Structured logging, cost tracking, health probes
+- [OK] **Licensed:** MIT (see [LICENSE](LICENSE))
+- [OK] **Documented:** [CHANGELOG.md](CHANGELOG.md), [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md)
+- [OK] **Tested:** Tests in projects with `.github/workflows/tests.yml`
+- [OK] **Versioned:** Semantic versioning with git tags (v1.0, v2.0, v3.0)
+- [OK] **Type Safe:** Type hints throughout codebase
+- [OK] **Observable:** Structured logging, cost tracking, health probes
 
 ---
 
-## 💡 Key Insights
+## Key Insights
 
 ### Why RAG Benchmarking Matters
 Most RAG tutorials don't benchmark. I did:
@@ -221,7 +248,7 @@ This shows: "I can own a feature end-to-end."
 
 ---
 
-## 🎓 Hiring Manager's View
+## Hiring Manager's View
 
 > **"This portfolio demonstrates:**
 > - Exceptional breadth (NLP → LLMs → production systems)
@@ -229,12 +256,13 @@ This shows: "I can own a feature end-to-end."
 > - Production mindset (security, observability, scaling)
 > - Business understanding (ROI, cost optimization, compliance)
 > - Real systems (not toy projects)
+> - ML engineering depth (LoRA, training infrastructure, domain specialization)
 >
 > **Hire: YES"**
 
 ---
 
-## 📞 Questions?
+## Questions?
 
 - **Architecture:** See individual project [ARCHITECTURE.md](./7.agentic_ai/2.sentinel_v2/ARCHITECTURE.md)
 - **Setup:** See individual project [SETUP.md](./7.agentic_ai/2.sentinel_v2/SETUP.md)
@@ -251,4 +279,4 @@ This shows: "I can own a feature end-to-end."
 
 **Repository:** https://github.com/pkamalprasath/GenAI_Engineer  
 **Licensed:** MIT (see [LICENSE](LICENSE))  
-**Last Updated:** April 26, 2026
+**Last Updated:** May 2026
