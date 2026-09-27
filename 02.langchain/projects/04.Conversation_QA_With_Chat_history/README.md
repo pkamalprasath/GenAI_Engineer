@@ -68,7 +68,7 @@ Chat History Stored (per session)
 ## 📦 Project Structure
 
 ```text
-app.py                # Main Streamlit application
+01.app.py                # Main Streamlit application
 .env                  # Environment variables (HF_TOKEN, etc.)
 venv/                 # Virtual environment
 
@@ -94,7 +94,7 @@ pip install langchain-community langchain-groq langchain-huggingface
 
 3.Run the app
 
-streamlit run app.py
+streamlit run 01.app.py
 
 
 How It Works (Step-by-Step)

@@ -35,7 +35,7 @@ LLM formats into natural language answer
 
 ```
 12.QA_with_GraphDB/
-├── experiments.ipynb
+├── 01.experiments.ipynb
 ├── .env.example
 └── README.md
 ```
@@ -50,7 +50,7 @@ cp .env.example .env
 pip install -r requirements.txt
 
 # 3. Launch Jupyter
-jupyter notebook experiments.ipynb
+jupyter notebook 01.experiments.ipynb
 ```
 
 ## Environment Variables

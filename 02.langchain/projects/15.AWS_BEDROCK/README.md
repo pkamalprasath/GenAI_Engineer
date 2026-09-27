@@ -29,7 +29,7 @@ AWS Bedrock provides serverless access to foundation models from Anthropic, Amaz
 
 ```
 15.AWS_BEDROCK/
-├── Program.ipynb      # Bedrock experiments notebook
+├── 01.Program.ipynb      # Bedrock experiments notebook
 ├── requirements.txt   # Bedrock-specific dependencies
 └── README.md
 ```
@@ -66,7 +66,7 @@ pip install -r requirements.txt
 ### 4. Run the notebook
 
 ```bash
-jupyter notebook Program.ipynb
+jupyter notebook 01.Program.ipynb
 ```
 
 ## Environment Variables

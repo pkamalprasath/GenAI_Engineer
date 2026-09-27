@@ -29,53 +29,9 @@ Evaluation & Generation
  Analysis
 ```
 
-## Component 1: Custom Tokenizer
+## Component 1: Tokenizer
 
-### Byte-Pair Encoding (BPE)
-
-```python
-# Start with individual bytes
-vocab = set(text.encode('utf-8'))  # ~256 unique bytes
-
-# Iteratively merge frequent pairs
-for iteration in range(num_merges):
-    pair_freq = count_pair_frequencies(tokens)
-    most_common = max(pair_freq)
-    merge(most_common)
-    vocab.add(merged_token)
-```
-
-### Tokenization Process
-
-```
-Input: "hello world"
-
-Encode: [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100]
-
-Apply merges: [104, 101, 108_108, 111_32, 119, 111, 114, 108_100]
-
-Final tokens: [hello, world] with IDs
-```
-
-### Implementation Breakdown
-
-```
-Phase 1: Character-level tokenization
- Split text into characters
- Create initial vocabulary (256 tokens)
- Store vocab as dict {token_id: bytes}
-
-Phase 2: Iterative merging
- Count pair frequencies
- Find most common pair
- Merge pairs new token
- Repeat N times (vocab_size grows)
-
-Phase 3: Encoding/Decoding
- Encode: text token IDs
- Decode: token IDs text
- Handle unknown tokens
-```
+The notebook uses the GPT-2 byte-pair-encoding tokenizer from `tiktoken` (50,257 tokens) rather than training its own. Each story is encoded to token IDs and written to memory-mapped `train.bin` / `validation.bin` arrays, so batches can be sampled without loading the whole dataset into RAM.
 
 ## Component 2: Embeddings
 
@@ -265,26 +221,16 @@ Output Linear: (batch, seq, vocab_size)
 Logits Softmax Probabilities
 ```
 
-### Model Size Variants
+### Configuration Used
 
 ```
-Tiny SLM (Learning):
- hidden_dim: 128
- num_layers: 3
- num_heads: 4
- Total: 2M params
-
-Small SLM (Practice):
- hidden_dim: 256
- num_layers: 6
- num_heads: 8
- Total: 10M params
-
-Medium SLM (Research):
- hidden_dim: 512
- num_layers: 12
- num_heads: 12
- Total: 50M params
+vocab_size: 50,257 (GPT-2 tokenizer via tiktoken)
+block_size: 128
+n_layer:    6
+n_head:     6
+n_embd:     384
+dropout:    0.1
+Total:      ~30M params (computed; mostly the token embedding)
 ```
 
 ## Training: Language Modeling
@@ -328,11 +274,13 @@ For each epoch:
 
 ### Loss Progression
 
+Measured in the notebook (evaluated every 500 iterations):
+
 ```
-Epoch 1: loss = 5.0  (near-random)
-Epoch 2: loss = 4.2  (learning patterns)
-Epoch 3: loss = 3.5  (improving)
-Epoch 5: loss = 2.8  (converging)
+Step    500: train 9.47 | val 9.48
+Step  5,000: train 4.30 | val 4.31
+Step 10,000: train 3.18 | val 3.19
+Step 19,500: train 2.39 | val 2.40
 ```
 
 ## Evaluation
@@ -366,45 +314,8 @@ temperature = 1.0 balanced
 temperature = 2.0 uncertain (flat distribution)
 ```
 
-## Hyperparameter Exploration
-
-### Learning Rate Impact
-
-```
-LR = 1e-5:  Converges slowly, stable
-LR = 1e-4:  Good convergence, stable
-LR = 1e-3:  Fast convergence, may diverge
-LR = 1e-2:  Diverges (loss increases)
-```
-
-### Model Size Impact
-
-```
-2M params:  Trains in 10 min, limited capability
-10M params: Trains in 30 min, good learning
-50M params: Trains in 2 hours, best results
-```
-
 ## File Organization
 
 ```
-src/
- tokenizer.py Custom BPE implementation
- model.py SLM architecture (from scratch)
- dataset.py Data loading & preprocessing
- training.py Training loop
- evaluation.py Perplexity & generation
-
-config/
- training_config.py Hyperparameters
-
-scripts/
- train.py Training entry point
- generate.py Text generation
+notebooks/01_Build_SLM_from_Scratch_Main.ipynb   # tokenization, model, training, loss plots, generation
 ```
-
----
-
-**Educational Level**: Beginner to Intermediate  
-**Emphasis**: Understanding over abstraction  
-**Last Updated**: May 2026

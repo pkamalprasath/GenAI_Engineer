@@ -11,17 +11,17 @@ Every design decision is benchmarked, not assumed.
 
 ## Portfolio at a Glance
 
-**63,332 lines of production Python code** | **378 Python files** | **57 Jupyter notebooks** | **7 major projects** | **3 production systems**
+**~65,600 lines of Python** | **403 Python files** | **61 Jupyter notebooks** | **7 project areas** | **3 tested systems (900+ automated tests in CI)**
 
 | Project | Focus | Status | Code | Impact |
 |---------|-------|--------|------|--------|
 | [01.nlp](./01.nlp) | Foundations (Word2Vec, RNNs, ANNs) | Learning | 3 files | 17 notebooks |
 | [02.langchain](./02.langchain) | 15+ LLM patterns (LCEL, RAG, Agents) | Reference | 17 files | 22 notebooks |
 | [03.guardrails](./03.guardrails) | AI safety & red-teaming | Advanced | 18 files | 14 notebooks |
-| [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch) | **Proprietary agent architecture** (10+ tools) | **Production** | **81 files** | Full tests |
+| [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch) | **Slack agent built without a framework** (17 tools) | **Production** | **80 files** | 267 unit tests |
 | [06.rag](./06.rag) | **Production deep-dive** (multimodal) | **Production** | **61 files** | 10 experiments |
-| [7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (7-agent system) | **Production** | **198 files** | Kubernetes-ready |
-| [8.slm_from_scratch](./8.slm_from_scratch) | Small Language Models (LoRA, GPT-2, BioGPT, Build-from-Scratch) | Production | **54 files** | 4 independent projects |
+| [7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (6-agent LangGraph system) | **Production** | **198 files** | 500+ tests across v1 and v2 |
+| [8.slm_from_scratch](./8.slm_from_scratch) | Small Language Models (LoRA, GPT-2, BioGPT, Build-from-Scratch) | Learning | **26 files** | 4 training notebooks with outputs |
 
 ---
 
@@ -31,22 +31,21 @@ Every design decision is benchmarked, not assumed.
 
 **Location:** [7.agentic_ai](./7.agentic_ai/2.sentinel_v2)
 
-Production system for compliance automation using 7 orchestrated AI agents.
+Production system for compliance automation using 6 AI agents orchestrated in an 11-node LangGraph workflow.
 
 **Key Metrics:**
-- **Cost:** $0.002/investigation (99% cheaper than manual)
+- **Cost (estimated):** about $0.002 in API tokens per investigation
 - **Speed:** 45 seconds autonomous + 5 min human review (vs. 40+ hours manual)
-- **ROI:** Break-even at 15 investigations (~$500K/year for enterprises)
 
 **Architecture:**
-- 7-agent LangGraph orchestration (discovery, investigation, legal, bias, evidence, report, audit)
+- LangGraph orchestration of 6 agents (discovery, investigation, legal, bias, report, audit), with legal, bias and investigation running in parallel and an evidence-assembly fan-in step
 - FastAPI backend + Streamlit dashboard
 - Background job queue (arq + Redis)
 - PostgreSQL with pgvector (HNSW vector search)
 - W3C PROV-O provenance graphs with SHA-256 tamper detection
 
 **Production Features:**
-- [OK] Kubernetes-ready (health probes, graceful shutdown)
+- [OK] Health-check endpoints and graceful shutdown for container deployment
 - [OK] Multi-tenant isolation with audit trails
 - [OK] Input/output guardrails (security boundaries)
 - [OK] Observability with LangFuse cost tracking
@@ -108,12 +107,12 @@ Not an implementation of an existing framework. Built completely from first prin
 - [OK] **Conversation memory** (long-running context)
 - [OK] **MCP server integration** (extensible architecture)
 - [OK] **Scheduled tasks** (APScheduler)
-- [OK] **Full test suite** (11/11 integration tests passing)
+- [OK] **Test suite** (267 unit tests, run in CI)
 
 **Architecture Layers:**
 1. Slack Integration — Event handling and response formatting
 2. Middleware & Security — Validation, rate limiting, input protection
-3. Agent Orchestrator — LangGraph-based decision making
+3. Agent Orchestrator — native Claude tool-use (ReAct) loop, no agent framework
 4. Memory & Services — Conversation context and storage
 5. Integration Framework — Unified API wrappers (GitHub, Notion, Slack)
 
@@ -128,10 +127,10 @@ Not an implementation of an existing framework. Built completely from first prin
 Four independent ML projects demonstrating parameter efficiency, large-scale training, domain specialization, and foundational AI architecture.
 
 **Projects:**
-- **Finance_SLM:** Parameter-efficient LoRA fine-tuning (0.78 F1 with 0.3% trainable parameters, 333x parameter reduction)
-- **GPT2:** Large-scale training pipeline (10B token FineWeb dataset, multi-GPU support)
-- **BioGPT:** Domain-specialized NLP (biomedical applications, 88% F1 vs 68% with general model)
-- **Build_SLM:** Transformer implementation from scratch (pure fundamentals, no frameworks)
+- **Finance_SLM:** 64M-parameter model pretrained on financial text, then LoRA (written from scratch), adapter, prefix and full fine-tuning compared by trainable parameters. F1 not yet measured; see its README.
+- **GPT2:** GPT-2 124M pretraining on FineWeb-Edu with 8-GPU DDP, following Karpathy's build-nanoGPT (2,000 steps run, val loss 3.67)
+- **BioGPT:** 27M-parameter model pretrained on PubMed with the BioGPT vocabulary, then soft-prompt fine-tuned on cancer hallmarks (HoC macro F1 0.42, from 0.003)
+- **Build_SLM:** ~30M-parameter GPT written in PyTorch and pretrained on TinyStories (val loss 2.40)
 
 **Shows:** Complete ML engineering expertise from fundamentals to production
 
@@ -165,7 +164,7 @@ Four independent ML projects demonstrating parameter efficiency, large-scale tra
 **Step 3: Build Production Systems**
 - [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch): Proprietary architecture with real agent (memory, scheduling, MCP)
 - [06.rag](./06.rag): Systematic benchmarking → production multimodal RAG
-- [7.agentic_ai](./7.agentic_ai): Enterprise compliance system (7-agent orchestration)
+- [7.agentic_ai](./7.agentic_ai): Enterprise compliance system (6-agent LangGraph orchestration)
 
 **Step 4: ML Engineering Depth**
 - [8.slm_from_scratch](./8.slm_from_scratch): Parameter efficiency, infrastructure, specialization, fundamentals

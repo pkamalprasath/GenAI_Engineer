@@ -27,8 +27,8 @@ project-folder/
 │── scaler.pkl # StandardScaler used during training
 │── label_encoder_gender.pkl # Saved label encoder for Gender
 │── onehot_encoder_geo.pkl # Saved OneHotEncoder for Geography
-│── streamlit_app.py # Streamlit UI for predictions
-│── train_model.ipynb # Notebook for training the model
+│── 03.streamlit_regression.py # Streamlit UI for predictions
+│── 01.Regression_problem.ipynb # Notebook for training the model
 │── dataset.csv # Input dataset
 │── requirements.txt # Project dependencies
 └── README.md # Project documentation
@@ -86,11 +86,11 @@ model.save('regression_model.h5')
 Save encoders and scaler using pickle
 To reproduce the model training, open:
 
-Regression_problem.ipynb
+01.Regression_problem.ipynb
 
 ### Running the Streamlit App
 Run the following command:
-streamlit run streamlit_regression.py
+streamlit run 03.streamlit_regression.py
 
 This will open a local URL (e.g., http://localhost:8501 ) where you can:
 Select Geography and Gender

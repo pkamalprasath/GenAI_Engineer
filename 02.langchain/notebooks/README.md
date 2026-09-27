@@ -12,12 +12,12 @@ Step-by-step tutorial notebooks covering core LangChain concepts. Work through t
 | 04 | [04_chatbot.ipynb](04_chatbot.ipynb) | Basic chatbot with memory | `ChatGroq`, `ChatMessageHistory` |
 | 05 | [05_chat_prompts.ipynb](05_chat_prompts.ipynb) | Prompt engineering | `ChatPromptTemplate`, `SystemMessage`, `HumanMessage` |
 | 06 | [06_chroma_db.ipynb](06_chroma_db.ipynb) | ChromaDB vector store | `Chroma`, similarity search, persistence |
-| 07 | [07_faiss.ipynb](07_faiss.ipynb) | FAISS vector store | `FAISS`, `save_local`, `load_local` |
-| 08 | [08_lcel.ipynb](08_lcel.ipynb) | LangChain Expression Language | `\|` operator, `RunnablePassthrough`, `RunnableLambda` |
-| 09 | [09_conversational_qa.ipynb](09_conversational_qa.ipynb) | Conversational RAG | `create_history_aware_retriever`, `RunnableWithMessageHistory` |
+| 07 | [07_conversational_qa.ipynb](07_conversational_qa.ipynb) | Conversational RAG | `create_history_aware_retriever`, `RunnableWithMessageHistory` |
+| 08 | [08_faiss.ipynb](08_faiss.ipynb) | FAISS vector store | `FAISS`, `save_local`, `load_local` |
+| 09 | [09_lcel.ipynb](09_lcel.ipynb) | LangChain Expression Language | `\|` operator, `RunnablePassthrough`, `RunnableLambda` |
 | 10 | [10_summarization.ipynb](10_summarization.ipynb) | Summarization chains | `load_summarize_chain`, stuff / map-reduce / refine |
 | 11 | [11_tool_agents.ipynb](11_tool_agents.ipynb) | Agents with tools | `create_react_agent`, `AgentExecutor`, tool decorators |
-| 12 | [12_genai_project_1.ipynb](12_genai_project_1.ipynb) | End-to-end project | Full pipeline combining multiple concepts |
+| 12 | [12_genai_project_1.ipynb](12_genai_project_1.ipynb) · [12_genai_project_2.py](12_genai_project_2.py) | End-to-end project | Full pipeline combining multiple concepts |
 
 ## Setup
 

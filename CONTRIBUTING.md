@@ -146,7 +146,7 @@ pytest tests/ -v
 pytest tests/ --cov=sentinel
 
 # Specific test
-pytest tests/test_agent.py::test_memory_persistence -v
+pytest tests/unit/test_agent/test_orchestrator.py -v
 ```
 
 ### Writing Tests
@@ -154,13 +154,11 @@ pytest tests/test_agent.py::test_memory_persistence -v
 Create tests in the project's `tests/` folder:
 
 ```
-tests/
+tests/                      # e.g. 4.openclaw-built_from_scratch/open_claw_slack_bot/tests
 ├── unit/
-│   ├── test_memory_manager.py
-│   └── test_scheduler.py
+│   ├── test_memory/test_manager.py
+│   └── test_services/test_reminder.py
 └── integration/
-    ├── test_slack_integration.py
-    └── test_database.py
 ```
 
 Example test:

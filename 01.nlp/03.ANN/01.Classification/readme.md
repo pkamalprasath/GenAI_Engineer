@@ -31,8 +31,8 @@ Classification/
 │── scaler.pkl # StandardScaler used during training
 │── label_encoder_gender.pkl # LabelEncoder for Gender
 │── onehot_encoder_geo.pkl # OneHotEncoder for Geography
-│── streamlit_churn_app.py # Streamlit web app
-│── churn_training.ipynb # Notebook used for training the ANN
+│── 03.streamlit_classification.py # Streamlit web app
+│── 01.classification_problem.ipynb # Notebook used for training the ANN
 │── dataset.csv # Input dataset
 │── requirements.txt # Dependencies
 └── README.md # Project documentation
@@ -127,11 +127,11 @@ model.save('regression_model.h5')
 Save encoders and scaler using pickle
 To reproduce the model training, open:
 
-classification_problem.ipynb
+01.classification_problem.ipynb
 
 ### Running the Streamlit App
 Run the following command:
-streamlit run streamlit_classification.py
+streamlit run 03.streamlit_classification.py
 
 ### Example Prediction Output
 Churn Probability: 0.78

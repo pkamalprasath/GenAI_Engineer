@@ -19,7 +19,7 @@ Covers loading and running HuggingFace models for text generation and embeddings
 
 ```
 9.WithHuggingface/
-├── experiments.ipynb
+├── 01.experiments.ipynb
 └── README.md
 ```
 
@@ -34,7 +34,7 @@ cp ../../.env.example .env
 pip install -r requirements.txt
 
 # 3. Launch Jupyter
-jupyter notebook experiments.ipynb
+jupyter notebook 01.experiments.ipynb
 ```
 
 ## Key Concepts

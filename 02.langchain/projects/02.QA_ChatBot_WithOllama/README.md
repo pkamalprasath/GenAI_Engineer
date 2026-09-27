@@ -38,7 +38,7 @@ ollama list
 
 ```
 2.QA_ChatBot_WithOllama/
-├── app.py
+├── 01.app.py
 ├── .env.example
 └── README.md
 ```
@@ -53,7 +53,7 @@ ollama serve
 pip install -r requirements.txt
 
 # 3. Run the app
-streamlit run app.py
+streamlit run 01.app.py
 ```
 
 Open your browser at `http://localhost:8501`

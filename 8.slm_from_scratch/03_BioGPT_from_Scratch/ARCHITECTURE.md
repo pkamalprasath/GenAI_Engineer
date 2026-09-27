@@ -3,36 +3,32 @@
 ## System Overview
 
 ```
-BioMedical Corpus (PubMed abstracts + papers)
-
-Preprocessing (Entity recognition, tokenization)
-
-GPT-2 Base Model (pretrained)
-
-Domain Fine-Tuning Loop
- Forward pass
- Language modeling loss
- Domain-specific metrics
- Parameter updates
-
-Evaluation (Perplexity + BioNER F1)
-
-Production Deployment
+PubMed baseline XML (titles + abstracts)
+        |
+Moses tokenizer cleanup -> BioGPT BPE (bpecodes + dict.txt)
+        |
+Pretraining from random weights (6-layer GPT, 27M params, 120K iterations)
+        |
+Soft-prompt fine-tuning on HoC (Hallmarks of Cancer), label-token-constrained decoding
+        |
+Evaluation: per-class precision / recall / F1 on the HoC test split
 ```
+
+All of this is implemented in `notebooks/01_BioGPT_from_Scratch_Main.ipynb`.
 
 ## Model Architecture
 
-### Base Model: GPT-2
+### Model: GPT-style decoder (trained from scratch)
 
 ```
-Embedding Dim       | 768
-Num Heads           | 12
-Num Layers          | 12
-FFN Hidden          | 3072
-Vocabulary Size     | 50,257 (+ biomedical tokens)
-Context Window      | 1024 tokens
-Total Parameters    | 85M
-Fine-tuning Params  | 5-10% (task-specific)
+Embedding Dim       | 384
+Num Heads           | 6
+Num Layers          | 6
+FFN Hidden          | 1536
+Vocabulary Size     | BioGPT BPE vocabulary (microsoft/BioGPT dict.txt)
+Context Window      | 128 tokens
+Total Parameters    | 27M
+Fine-tuning         | soft-prompt embeddings on HoC
 ```
 
 ### Domain-Specific Enhancements
@@ -283,27 +279,5 @@ Inference:
 ## File Organization
 
 ```
-src/
- model.py BioGPT model definition
- dataset.py Biomedical data handling
- training.py Fine-tuning loop
- evaluation.py Domain metrics
- biomed_utils.py Entity recognition, processing
-
-config/
- model_config.py Model architecture
- training_config.py Fine-tuning hyperparameters
-
-scripts/
- train.py Training entry point
- evaluate.py Evaluation entry point
- generate.py Text generation & inference
-
-docs/
- DOMAIN_GUIDE.md Biomedical NLP guide
+notebooks/01_BioGPT_from_Scratch_Main.ipynb   # data prep, model, pretraining, HoC fine-tuning and evaluation
 ```
-
----
-
-**Status**: Production-Ready  
-**Last Updated**: May 2026
