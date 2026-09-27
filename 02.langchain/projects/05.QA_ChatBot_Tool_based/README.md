@@ -26,7 +26,7 @@ Uses a LangChain/LangGraph ReAct agent with external search tools to answer ques
 
 ```
 5.QA_ChatBot_Tool_based/
-├── app.py
+├── 01.app.py
 └── README.md
 ```
 
@@ -37,7 +37,7 @@ Uses a LangChain/LangGraph ReAct agent with external search tools to answer ques
 pip install -r requirements.txt
 
 # Run the app
-streamlit run app.py
+streamlit run 01.app.py
 ```
 
 Enter your Groq API key in the sidebar to start.

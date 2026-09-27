@@ -2,7 +2,7 @@
 
 Production-grade implementation of the OpenClaw proprietary agent architecture designed for intelligent Slack applications.
 
-Status: Production Ready | All Features Complete | Tests: 11/11 Passing
+Status: Production Ready | All Features Complete | Tests: 267 unit tests passing in CI
 
 ---
 
@@ -33,7 +33,7 @@ Each layer implements specific responsibilities:
 - Input validation and injection prevention
 
 **Layer 3: Agent Orchestrator**
-- LangGraph-based decision making
+- Native Claude tool-use (ReAct) loop: no agent framework
 - Tool selection and execution
 - Context composition from memory and RAG
 
@@ -109,7 +109,7 @@ open_claw_slack_bot/
 
  tests/
  unit/ Unit tests
- integration/ Integration tests (11/11 passing)
+ integration/ Unit tests (267) and integration tests
 
  config/ Configuration management
  docs/ Technical documentation
@@ -158,7 +158,7 @@ Direct Interaction:
 
 ## Testing
 
-Test Suite: 11/11 integration tests passing
+Test Suite: 267 unit tests plus 9 integration checks, all passing
 
 Run Tests:
 ```bash

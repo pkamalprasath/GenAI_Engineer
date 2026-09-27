@@ -21,8 +21,8 @@ Uses a LangChain SQL agent backed by a Groq LLM to convert natural language ques
 
 ```
 6.QA_Chat_With_Sqldb/
-├── app.py          # Main Streamlit app
-├── Sqlite.py       # Script to create the student.db SQLite database
+├── 02.app.py          # Main Streamlit app
+├── 01.Sqlite.py       # Script to create the student.db SQLite database
 └── README.md
 ```
 
@@ -30,13 +30,13 @@ Uses a LangChain SQL agent backed by a Groq LLM to convert natural language ques
 
 ```bash
 # 1. Generate the sample SQLite database
-python Sqlite.py
+python 01.Sqlite.py
 
 # 2. Install dependencies (from repo root)
 pip install -r requirements.txt
 
 # 3. Run the app
-streamlit run app.py
+streamlit run 02.app.py
 ```
 
 Enter your Groq API key in the sidebar, then choose either the local SQLite database or connect to MySQL.
@@ -61,7 +61,7 @@ Displayed in Streamlit chat UI
 
 | Option | Details |
 |---|---|
-| SQLite (local) | Uses `student.db` — created by running `Sqlite.py` |
+| SQLite (local) | Uses `student.db` — created by running `01.Sqlite.py` |
 | MySQL (remote) | Provide host, user, password, database name in sidebar |
 
 ## Key Learnings

@@ -7,41 +7,32 @@ A comprehensive collection of four independent ML projects demonstrating experti
 ## Projects Overview
 
 ### 1. Finance_SLM_from_Scratch
-Parameter-Efficient Fine-Tuning for Financial Sentiment Classification
+Pretraining and parameter-efficient fine-tuning for financial sentiment
 
-- Result: 0.78 F1 with 0.3% trainable parameters (98.7% of full fine-tuning performance)
-- Techniques: LoRA, Adapter Tuning, Prefix Tuning
-- Key Achievement: 333x parameter reduction vs full fine-tuning
-- Status: Production-ready
+- Model: 64M-parameter decoder pretrained on financial text (validation loss 2.20)
+- Techniques: LoRA (written from scratch), adapter tuning, prefix tuning, simulated QLoRA, full fine-tuning
+- Status: Fine-tuning runs show near-zero validation loss (likely label leakage); F1 not yet measured
 - [Project Details](./01_Finance_SLM_from_Scratch/)
 
 ### 2. GPT2_from_Scratch
-Large-Scale Language Model Training Infrastructure
+GPT-2 (124M) pretraining on FineWeb-Edu, following Karpathy's build-nanoGPT
 
-- Dataset: 10B tokens from FineWeb
-- Model: 85M parameters with multi-GPU support
-- Features: Streaming pipelines, checkpoint management, resumable training
-- Benchmark: HellaSwag evaluation
-- Status: Complete
+- Setup: 8-GPU DistributedDataParallel, 0.5M-token batches, flash attention
+- Run: 2,000 of 19,073 planned steps; validation loss 3.67, HellaSwag 26.0%
 - [Project Details](./02_GPT2_from_Scratch/)
 
 ### 3. BioGPT_from_Scratch
-Domain-Specialized NLP Model for Biomedical Applications
+BioGPT-style biomedical model pretrained from scratch
 
-- Application: Biomedical entity recognition and relation extraction
-- Specialization: Domain vocabulary expansion, fine-tuning on PubMed abstracts
-- Results: 88% F1 on biomedical NER (vs 68% with general model)
-- Status: Complete
+- Model: 27M parameters, PubMed abstracts, BioGPT BPE vocabulary; validation loss 3.47
+- Fine-tuning: soft prompt on HoC (cancer hallmarks); macro F1 0.42, up from 0.003
 - [Project Details](./03_BioGPT_from_Scratch/)
 
 ### 4. Build_SLM_from_Scratch
-Transformer Implementation from First Principles
+A small GPT written in PyTorch and pretrained on TinyStories
 
-- Implementation: BPE tokenizer, multi-head self-attention, feed-forward networks
-- Variants: 2M, 10M, 50M parameter models
-- Approach: No high-level abstractions, pure mathematical foundations
-- Purpose: Deep understanding of transformer internals
-- Status: Complete
+- Model: ~30M parameters (6 layers, 6 heads, 384-dim), GPT-2 tokenizer
+- Result: validation loss 2.40 after 20,000 iterations; generates short stories
 - [Project Details](./04_Build_SLM_from_Scratch/)
 
 ---
@@ -98,17 +89,12 @@ Detailed setup instructions in each project's README.
 
 ## Project Structure
 
-```
-project_folder/
- README.md - Project overview
- ARCHITECTURE.md - Technical design details
- requirements.txt - Dependencies with pinned versions
- 
- src/ - Source code modules
- config/ - Configuration classes
- scripts/ - Entry points (train, evaluate)
- notebooks/ - Jupyter experiments (optional)
-```
+| Project | Where the code is |
+|---|---|
+| 01_Finance_SLM_from_Scratch | `src/` (model, LoRA, dataset, training, evaluation), `scripts/`, `config/`, plus the notebook run |
+| 02_GPT2_from_Scratch | `src/` (training loop, FineWeb loader, HellaSwag, inference), `train_gpt2_runpod.py`, plus the notebook run |
+| 03_BioGPT_from_Scratch | `notebooks/` (all code, with outputs) |
+| 04_Build_SLM_from_Scratch | `notebooks/` (all code, with outputs) |
 
 ---
 
@@ -117,10 +103,7 @@ project_folder/
 Each project includes:
 - README.md: Overview and quick start
 - ARCHITECTURE.md: Technical design and implementation
-- Type hints throughout source code
-- Professional documentation
-
-For detailed portfolio overview: [README_PORTFOLIO.md](./README_PORTFOLIO.md)
+- notebooks/: the training run, with outputs
 
 ---
 

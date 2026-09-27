@@ -108,6 +108,7 @@ async def run(state: InvestigationState, session: AsyncSession) -> dict:
                             hash_pairs.append((nid, content["content_hash"]))
 
             # Single batch query for all hash verifications
+            tampered: list[str] = []
             if hash_pairs:
                 hash_results = await store.verify_hashes_batch(hash_pairs, tenant_id)
                 tampered = [nid for nid, valid in hash_results.items() if not valid]
@@ -116,6 +117,9 @@ async def run(state: InvestigationState, session: AsyncSession) -> dict:
                         '{"event":"tamper_detected","count":%d,"node_ids":%s}',
                         len(tampered), str(tampered[:5]),
                     )
+
+            # Computed before the provenance write so the audit record gets the real count
+            broken = detect_broken_chains(graph, case_ids)
 
             # ── Write provenance Activity + Agent nodes + edges to DB ─────────
             denied_cases   = [ev for ev in evidence_items if "DENIED"   in ev.get("description","").upper()]
@@ -133,7 +137,7 @@ async def run(state: InvestigationState, session: AsyncSession) -> dict:
                     "cases_analyzed":    len(case_ids),
                     "denied_count":      len(denied_cases),
                     "approved_count":    len(approved_cases),
-                    "tampered_nodes":    len(tampered) if 'tampered' in dir() else 0,
+                    "tampered_nodes":    len(tampered),
                     "pipeline_version":  "sentinel-v1",
                 },
             )
@@ -158,12 +162,12 @@ async def run(state: InvestigationState, session: AsyncSession) -> dict:
                     "evidence_count":  len(set(ev.get("provenance_node_id","") for ev in evidence_items)),
                     "denied_count":    len(denied_cases),
                     "approved_count":  len(approved_cases),
-                    "broken_chains":   len(broken) if 'broken' in dir() else 0,
+                    "broken_chains":   len(broken),
                     "inputs_summary":  query or f"Analyzed {len(case_ids)} cases",
                     "outputs_summary": (
                         f"{len(case_ids)} cases reviewed — "
                         f"{len(denied_cases)} denials, {len(approved_cases)} approvals. "
-                        f"{'Tampered nodes detected.' if ('tampered' in dir() and tampered) else 'All hashes verified.'}"
+                        f"{'Tampered nodes detected.' if tampered else 'All hashes verified.'}"
                     ),
                 },
             )
@@ -189,7 +193,6 @@ async def run(state: InvestigationState, session: AsyncSession) -> dict:
             # ── End provenance write ───────────────────────────────────────────
 
             # Use Haiku to assess if investigation is sufficient
-            broken = detect_broken_chains(graph, case_ids)
             sufficient = len(evidence_items) >= 3 and len(broken) < len(case_ids) * 0.5
 
             # Build denial reason summary for the LLM

@@ -1,27 +1,23 @@
-# Finance SLM: Parameter-Efficient Fine-Tuning for Financial Sentiment Classification
+# Finance SLM: Pretraining and Parameter-Efficient Fine-Tuning for Financial Sentiment
 
-A comprehensive implementation of parameter-efficient fine-tuning techniques applied to a GPT-2 style language model for financial sentiment classification. This project demonstrates Low-Rank Adaptation (LoRA), Adapter tuning, and Prefix tuning approaches, achieving competitive results while minimizing trainable parameters.
+A GPT-style decoder written from scratch in PyTorch, pretrained on financial text, then fine-tuned for three-class financial sentiment (bearish, bullish, neutral) with several methods: LoRA (implemented from scratch in `src/lora.py`), adapter tuning, prefix tuning, simulated QLoRA, and full fine-tuning. The full run, with outputs, is in `notebooks/01_Finance_SLM_Training_Evaluation.ipynb`.
 
-## Problem Statement
+## Use Case
+- **Dataset**: [zeroshot/twitter-financial-news-sentiment](https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment) (9,543 train / 2,388 validation examples loaded)
+- **Classes**: Bearish, Bullish, Neutral
+- **Model in the notebook run**: 63.8M-parameter decoder (A100 40 GB, Google Colab)
 
-Large language models (LLMs) are computationally expensive to fine-tune. Traditional full fine-tuning requires updating all model parameters, which is impractical for resource-constrained environments. This project explores **parameter-efficient fine-tuning** techniques that achieve comparable performance while training only 0.3-0.6% of model parameters.
+## Measured Results (from the notebook outputs)
 
-### Use Case
-- **Domain**: Financial sentiment classification
-- **Dataset**: Twitter Financial News Sentiment (11,932 examples)
-- **Classes**: Negative, Neutral, Positive
-- **Model**: GPT-2 style decoder-only transformer (85M parameters)
+| Stage | What was measured |
+|---|---|
+| Pretraining on financial text | 20,000 iterations, final validation loss 2.20 (random-guess baseline 10.82) |
+| LoRA | 540,672 trainable parameters (0.84%) |
+| Adapter tuning | 25,600 trainable parameters (0.04%) |
+| Prefix tuning | 12,633,088 trainable parameters (19.8%) |
+| Full fine-tuning | 63,823,360 trainable parameters (100%) |
 
-## Results Summary
-
-| Technique | F1 Score | Trainable Params | Training Time |
-|-----------|----------|-----------------|---------------|
-| LoRA | 0.78 | 0.3% | ~45 min |
-| Adapter Tuning | 0.74 | 0.6% | ~50 min |
-| Prefix Tuning | 0.71 | 0.5% | ~48 min |
-| Full Fine-Tuning | 0.79 | 100% | ~180 min |
-
-**Key Insight**: LoRA achieves 98.7% of full fine-tuning performance while reducing trainable parameters by 333x.
+**Open issue:** every fine-tuning method reaches a validation loss of about 0.0000 within one or two epochs. On a noisy three-class sentiment task that almost always means the label is leaking into the model's input, so these runs cannot be used to compare methods yet. The notebook also never computes F1 or accuracy on held-out data. Next steps: check the prompt and target construction for leakage, then report macro-F1 per method on the validation split.
 
 ## Technical Approach
 
@@ -31,7 +27,7 @@ Large language models (LLMs) are computationally expensive to fine-tune. Traditi
   - Sentence tokenization
   - Prompt template: `"Sentiment: {text}. Answer: "`
   - Label token extraction at position 0 (negative), 2430 (neutral), 3231 (positive)
-- **Split**: 80% train (9,938), 20% validation (2,486)
+- **Split**: 9,543 train / 2,388 validation (as loaded in the notebook run)
 
 ### 2. Model Architecture
 - **Base**: GPT-2 style decoder-only transformer
@@ -164,18 +160,6 @@ label_position = len(prompt_tokens) + len(sentence_tokens)
 logits = logits[0, label_position, :]  # Extract at label position
 predicted_class = torch.argmax(logits)  # Predict class
 ```
-
-## Performance Analysis
-
-### F1 Score Breakdown by Class
-- **Negative**: 0.76
-- **Neutral**: 0.81 (best performance)
-- **Positive**: 0.75
-
-### Why LoRA Outperforms Adapters
-1. **Parameter Efficiency**: Adapters use dense bottleneck layers (less efficient)
-2. **Gradient Flow**: LoRA maintains original parameter gradients (better optimization)
-3. **Inference Speed**: LoRA can merge weights into original model (no overhead)
 
 ## Bug Fixes & Lessons Learned
 

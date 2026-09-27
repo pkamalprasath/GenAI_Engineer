@@ -297,12 +297,12 @@ class TestChunker:
             images=[],
         ))
 
-        # Mock the SemanticChunker so we don't need OpenAI
+        # Mock the SemanticChunker so no embedding model is downloaded
         mock_lc_doc = MagicMock()
         mock_lc_doc.page_content = "The gearbox requires regular oil changes for optimal performance."
 
         with patch("src.ingest.chunker.SemanticChunker") as MockSC, \
-             patch("src.ingest.chunker.OpenAIEmbeddings"):
+             patch("src.ingest.chunker.HuggingFaceEmbeddings"):
             MockSC.return_value.create_documents.return_value = [mock_lc_doc]
 
             image_captions = [{"page": 1, "index": 0, "caption": "Wiring diagram for motor M1."}]
@@ -376,7 +376,9 @@ class TestImageCaptioner:
         img_bytes = self._make_png_bytes(200, 200)
         images = [{"page": 1, "bytes": img_bytes, "index": 0, "width": 200, "height": 200}]
 
-        with patch("src.ingest.image_captioner.OpenAI") as MockOpenAI:
+        with patch("src.ingest.image_captioner.HAS_OPENAI", True), \
+             patch("src.ingest.image_captioner.PII_REDACTION_ENABLED", False), \
+             patch("openai.OpenAI") as MockOpenAI:
             mock_resp = MagicMock()
             mock_resp.choices[0].message.content = "DECORATIVE_IMAGE"
             MockOpenAI.return_value.chat.completions.create.return_value = mock_resp
@@ -392,7 +394,9 @@ class TestImageCaptioner:
         img_bytes = self._make_png_bytes(300, 300)
         images = [{"page": 2, "bytes": img_bytes, "index": 0, "width": 300, "height": 300}]
 
-        with patch("src.ingest.image_captioner.OpenAI") as MockOpenAI:
+        with patch("src.ingest.image_captioner.HAS_OPENAI", True), \
+             patch("src.ingest.image_captioner.PII_REDACTION_ENABLED", False), \
+             patch("openai.OpenAI") as MockOpenAI:
             mock_resp = MagicMock()
             mock_resp.choices[0].message.content = "This is a wiring diagram showing panel B2."
             MockOpenAI.return_value.chat.completions.create.return_value = mock_resp
@@ -410,7 +414,9 @@ class TestImageCaptioner:
         img_bytes = self._make_png_bytes(200, 200)
         images = [{"page": 1, "bytes": img_bytes, "index": 0, "width": 200, "height": 200}]
 
-        with patch("src.ingest.image_captioner.OpenAI") as MockOpenAI:
+        with patch("src.ingest.image_captioner.HAS_OPENAI", True), \
+             patch("src.ingest.image_captioner.PII_REDACTION_ENABLED", False), \
+             patch("openai.OpenAI") as MockOpenAI:
             MockOpenAI.return_value.chat.completions.create.side_effect = Exception("API error")
             results = caption_images(images, "manual.pdf", tmp_path)
 
@@ -844,38 +850,47 @@ class TestCRAG:
         assert confidence == "low"
         assert len(filtered) == 2  # fallback: return all
 
-    def test_score_chunks_sets_relevant(self):
-        """When LLM returns RELEVANT, crag_score should be 1.0."""
+    def test_score_chunks_uses_one_batched_llm_call(self):
+        """All chunks are scored in a single LLM call, labels mapped in order."""
         from src.retrieval.crag import score_chunks
 
-        input_chunks = [{"id": 1, "content": "M12 bolt torque is 85 Nm."}]
+        chunks = [{"id": 1, "content": "M12 bolt torque is 85 Nm."},
+                  {"id": 2, "content": "Color coding for pipes."},
+                  {"id": 3, "content": "Torque table, p.95"}]
+        with patch("src.retrieval.crag._call_llm",
+                   return_value="1. RELEVANT\n2. IRRELEVANT\n3. AMBIGUOUS") as llm:
+            scored = score_chunks("What is M12 torque?", chunks)
 
-        with patch("src.retrieval.crag._score_one_chunk", return_value="relevant"):
-            scored = score_chunks("What is M12 torque?", input_chunks)
+        assert llm.call_count == 1
+        assert [c["relevance"] for c in scored] == ["relevant", "irrelevant", "ambiguous"]
+        assert [c["crag_score"] for c in scored] == [1.0, 0.0, 0.5]
 
-        assert scored[0]["relevance"] == "relevant"
-        assert scored[0]["crag_score"] == 1.0
-
-    def test_score_chunks_sets_irrelevant(self):
-        """When LLM returns IRRELEVANT, crag_score should be 0.0."""
+    def test_score_chunks_strips_contextual_prefix(self):
+        """The [file — section, p.N] prefix is removed before scoring."""
         from src.retrieval.crag import score_chunks
 
-        input_chunks = [{"id": 1, "content": "Color coding for pipes."}]
+        chunk = {"id": 1, "content": "[pump.pdf — Seals, p.12]\nMechanical seal max 95 C"}
+        with patch("src.retrieval.crag._call_llm", return_value="1. RELEVANT") as llm:
+            score_chunks("seal temperature?", [chunk])
 
-        with patch("src.retrieval.crag._score_one_chunk", return_value="irrelevant"):
-            scored = score_chunks("What is M12 torque?", input_chunks)
+        prompt = llm.call_args.args[0]
+        assert "Mechanical seal max 95 C" in prompt
+        assert "pump.pdf" not in prompt
 
-        assert scored[0]["relevance"] == "irrelevant"
-        assert scored[0]["crag_score"] == 0.0
-
-    def test_score_one_chunk_defaults_ambiguous_on_failure(self):
-        """LLM failure during scoring should default to 'ambiguous'."""
-        from src.retrieval.crag import _score_one_chunk
+    def test_score_chunks_defaults_ambiguous_on_failure(self):
+        """LLM failure should mark every chunk ambiguous, not crash retrieval."""
+        from src.retrieval.crag import score_chunks
 
         with patch("src.retrieval.crag._call_llm", side_effect=Exception("LLM down")):
-            result = _score_one_chunk("test query", "test passage")
+            scored = score_chunks("q", [{"id": 1, "content": "a"}, {"id": 2, "content": "b"}])
 
-        assert result == "ambiguous"
+        assert [c["relevance"] for c in scored] == ["ambiguous", "ambiguous"]
+
+    def test_parse_batch_response_pads_and_ignores_noise(self):
+        from src.retrieval.crag import _parse_batch_response
+
+        raw = "Here are the scores:\n1) irrelevant\n2. Relevant"
+        assert _parse_batch_response(raw, 3) == ["irrelevant", "relevant", "ambiguous"]
 
     def test_score_does_not_mutate_original_chunks(self):
         """score_chunks should not mutate the input list."""
@@ -884,10 +899,9 @@ class TestCRAG:
         original = [{"id": 1, "content": "test"}]
         original_copy = [dict(c) for c in original]
 
-        with patch("src.retrieval.crag._score_one_chunk", return_value="relevant"):
+        with patch("src.retrieval.crag._call_llm", return_value="1. RELEVANT"):
             score_chunks("q", original)
 
-        # Original should be unchanged
         assert original[0] == original_copy[0]
 
 
@@ -1051,22 +1065,29 @@ class TestGenerator:
         call_args = mock_llm.call_args
         assert call_args[0][2] == TEXT_LLM   # third positional arg = model
 
-    def test_image_chunk_uses_vision_llm(self, tmp_path):
-        """Image chunk should route to VISION_LLM (gpt-4o)."""
-        from src.generation.generator import generate
-        from configs.settings import VISION_LLM
+    def test_image_chunks_are_forwarded_to_the_llm(self, tmp_path):
+        """Image chunks are passed to the (vision-capable) generation model."""
+        from src.generation.generator import generate, HAS_ANTHROPIC
+        from configs.settings import TEXT_LLM, TEXT_LLM_STRONG
 
+        image_chunk = self._image_chunk(tmp_path)
         with patch("src.generation.generator._call_llm", return_value="Diagram shows...") as mock_llm, \
              patch("src.generation.generator._check_grounding", return_value="SUPPORTED"):
+            response = generate("What does the diagram show?", [image_chunk], "high")
 
-            response = generate(
-                "What does the diagram show?",
-                [self._image_chunk(tmp_path)],
-                "high"
-            )
+        prompt, image_chunks, model = mock_llm.call_args[0]
+        assert image_chunks == [image_chunk]
+        assert model == (TEXT_LLM_STRONG if HAS_ANTHROPIC else TEXT_LLM)
+        assert response.answer == "Diagram shows..."
 
-        call_args = mock_llm.call_args
-        assert call_args[0][2] == VISION_LLM
+    def test_text_only_chunks_send_no_images(self):
+        from src.generation.generator import generate
+
+        with patch("src.generation.generator._call_llm", return_value="Answer.") as mock_llm, \
+             patch("src.generation.generator._check_grounding", return_value="SUPPORTED"):
+            generate("query", [self._text_chunk()], "high")
+
+        assert mock_llm.call_args[0][1] is None
 
     def test_self_rag_supported_emits_answer(self):
         """When Self-RAG says SUPPORTED, answer should be returned without retry."""

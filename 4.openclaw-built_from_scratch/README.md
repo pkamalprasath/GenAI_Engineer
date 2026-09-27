@@ -2,7 +2,7 @@
 
 Proprietary multi-layer agent architecture designed and built from scratch for intelligent Slack applications.
 
-Status: Production Ready | All Features Complete | Tests: 11/11 Passing | Python 3.11+
+Status: Production Ready | All Features Complete | Tests: 267 unit tests passing in CI | Python 3.11+
 
 ---
 
@@ -34,7 +34,7 @@ OpenClaw uses a 5-layer architecture with clear separation of concerns:
 - Token management
 
 **Layer 3: Agent Orchestrator**
-- LangGraph-based decision making
+- Native Claude tool-use (ReAct) loop: no agent framework
 - Tool selection and execution
 - Context composition (memory + RAG)
 - Response generation
@@ -118,7 +118,7 @@ openclaw-architecture/
  mcp_servers/ Layer 5: Integrations
  slack/ Layer 1: Slack integration
  utils/ Helper utilities
- tests/ Integration tests (11/11 passing)
+ tests/ Unit tests (267) and integration tests
  docs/ Technical documentation
  config/ Configuration management
 ```
@@ -177,7 +177,7 @@ Learning Materials:
 
 ## Testing
 
-All tests passing: 11/11 integration tests
+All tests passing: 267 unit tests (pytest tests/) plus 9 integration checks (test_integration.py)
 
 Run tests:
 ```bash

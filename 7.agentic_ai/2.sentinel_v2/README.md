@@ -98,7 +98,7 @@ A compliance manager submits a plain-English query. Six specialized agents run a
 └──────────────────────────┬──────────────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
-│             LangGraph State Machine  (9 nodes)                   │
+│             LangGraph State Machine  (11 nodes)                  │
 │                                                                   │
 │  discovery → investigation → legal ──┐                           │
 │                             bias ────┤ fan-out / fan-in          │
@@ -251,7 +251,7 @@ sentinel/
 │   │   └── report_agent.py           # Synthesis + output guard validation
 │   │
 │   ├── graph/
-│   │   ├── builder.py                # Compiles 9-node LangGraph + PostgreSQL checkpoint
+│   │   ├── builder.py                # Compiles 11-node LangGraph + PostgreSQL checkpoint
 │   │   └── edges.py                  # Routing: auto-resolve vs HITL escalation
 │   │
 │   ├── provenance/

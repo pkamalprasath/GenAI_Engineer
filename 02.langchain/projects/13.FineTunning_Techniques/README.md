@@ -10,10 +10,10 @@ Full fine-tuning of LLMs requires enormous GPU memory. PEFT techniques like LoRA
 
 | Technique | Notebook / File | Description |
 |---|---|---|
-| **LoRA** | `LoRa_experiments.ipynb` | Low-Rank Adaptation — adds trainable rank-decomposition matrices |
-| **QLoRA** | `QLoRa_experiments.ipynb` | Quantized LoRA — 4-bit quantization + LoRA for minimal GPU usage |
-| **LoRA (Colab)** | `LoRA_colab_experiments.ipynb` | LoRA experiments designed for Google Colab |
-| **Lamini** | `Lamini.py` | Fine-tuning via the Lamini API (managed fine-tuning service) |
+| **LoRA** | `01.LoRa_experiments.ipynb` | Low-Rank Adaptation — adds trainable rank-decomposition matrices |
+| **QLoRA** | `03.QLoRa_experiments.ipynb` | Quantized LoRA — 4-bit quantization + LoRA for minimal GPU usage |
+| **LoRA (Colab)** | `02.LoRA_colab_experiments.ipynb` | LoRA experiments designed for Google Colab |
+| **Lamini** | `04.Lamini.py` | Fine-tuning via the Lamini API (managed fine-tuning service) |
 
 ## Tech Stack
 
@@ -29,10 +29,10 @@ Full fine-tuning of LLMs requires enormous GPU memory. PEFT techniques like LoRA
 
 ```
 13.FineTunning_Techniques/
-├── LoRa_experiments.ipynb       # LoRA from scratch
-├── QLoRa_experiments.ipynb      # QLoRA with 4-bit quantization
-├── LoRA_colab_experiments.ipynb # LoRA notebook for Google Colab
-├── Lamini.py                    # Lamini API fine-tuning
+├── 01.LoRa_experiments.ipynb       # LoRA from scratch
+├── 03.QLoRa_experiments.ipynb      # QLoRA with 4-bit quantization
+├── 02.LoRA_colab_experiments.ipynb # LoRA notebook for Google Colab
+├── 04.Lamini.py                    # Lamini API fine-tuning
 └── README.md
 ```
 

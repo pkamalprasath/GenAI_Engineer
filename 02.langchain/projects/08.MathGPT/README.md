@@ -28,7 +28,7 @@ Uses three custom tools combined with a Groq LLM inside a LangGraph ReAct (Reaso
 
 ```
 8.MathGPT/
-├── app.py
+├── 01.app.py
 └── README.md
 ```
 
@@ -39,7 +39,7 @@ Uses three custom tools combined with a Groq LLM inside a LangGraph ReAct (Reaso
 pip install -r requirements.txt
 
 # Run the app
-streamlit run app.py
+streamlit run 01.app.py
 ```
 
 Enter your Groq API key in the sidebar to start.

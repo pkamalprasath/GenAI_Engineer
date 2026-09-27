@@ -107,7 +107,7 @@ venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 
 4️⃣ Run the app
-python -m streamlit run app.py
+python -m streamlit run 01.app.py
 
 🔑 API Key Requirement
 

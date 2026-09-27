@@ -41,7 +41,7 @@ Answer
 
 ```
 PDFQuery_LangChain/
-├── PDFQuery_LangChain.ipynb
+├── 01.PDFQuery_LangChain.ipynb
 ├── budget_speech.pdf           # Sample document (Indian Budget Speech)
 └── README.md
 ```
@@ -56,7 +56,7 @@ cp .env.example .env
 pip install -r requirements.txt
 
 # 3. Launch Jupyter
-jupyter notebook PDFQuery_LangChain.ipynb
+jupyter notebook 01.PDFQuery_LangChain.ipynb
 ```
 
 ## Key Concepts

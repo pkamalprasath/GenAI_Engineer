@@ -91,7 +91,7 @@ pytest tests/integration -v
 pytest tests/ -v
 
 # Specific test:
-pytest tests/test_discovery_agent.py::test_bm25_filtering -v
+pytest tests/unit/test_classifiers.py -v
 ```
 
 ### Writing New Tests
@@ -102,10 +102,10 @@ Create tests in `tests/` matching the source structure:
 tests/
 ├── unit/
 │   ├── test_guardrails.py
-│   └── test_provenance_store.py
+│   └── test_provenance.py
 └── integration/
-    ├── test_discovery_agent.py
-    └── test_investigation_pipeline.py
+    ├── test_full_graph.py
+    └── test_hitl_flow.py
 ```
 
 Example test:

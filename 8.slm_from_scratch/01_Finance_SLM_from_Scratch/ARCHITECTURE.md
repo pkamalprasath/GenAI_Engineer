@@ -7,7 +7,7 @@ HuggingFace Dataset
 
 Data Pipeline (Tokenization)
 
-GPT-2 Model (85M params)
+GPT-style model (163M with the src/ default config; 64M in the notebook run)
 
 LoRA/Adapter/Prefix Injection
 
@@ -93,7 +93,7 @@ Number of Layers         12              n_layer
 FFN Dimension            3,072           4 Ã hidden_dim
 Attention Dropout        0.1             Regularization
 Residual Dropout         0.1             Regularization
-Total Parameters         85M             Pre-training size
+Total Parameters         163M / 64M      src/ default config / notebook run
 Trainable (LoRA)         250K            0.3% of original
 ```
 

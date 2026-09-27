@@ -1,180 +1,54 @@
-# GPT-2 Training from Scratch
+# GPT-2 (124M) Pretraining from Scratch
 
-Complete implementation of GPT-2 model training from scratch using the FineWeb dataset. This project demonstrates transformer architecture fundamentals, efficient data loading, and language model training best practices.
+Pretraining a GPT-2 small model (124M parameters) from random weights on the FineWeb-Edu 10B-token sample, following Andrej Karpathy's [build-nanoGPT](https://github.com/karpathy/build-nanogpt). The training code in `src/` is adapted from that repository, and `train_gpt2_runpod.py` is a variant for RunPod single- or multi-GPU runs.
 
-## Project Overview
+## What was run
 
-**Goal**: Build and train a GPT-2 style language model from scratch  
-**Dataset**: FineWeb (web-scale high-quality text)  
-**Model Size**: 85M parameters (GPT-2 small)  
-**Framework**: PyTorch + Transformers
+The notebook clones build-nanoGPT, downloads the pre-tokenized FineWeb-Edu shards, and trains with `torchrun` on 8 GPUs. The run stopped at **step 2,000 of the 19,073 planned** (about 1B of the 10B tokens, roughly 10% of one epoch).
 
-## Key Features
+| Measured in the notebook | Value |
+|---|---|
+| Parameters | 124,354,560 decayed + 121,344 non-decayed (≈124M) |
+| Training loss | 10.96 at step 0 → 3.71 at step 1,999 |
+| Validation loss | 3.67 |
+| HellaSwag accuracy | 26.0% (2,612 / 10,042; random is 25%) |
+| Throughput | ≈43K tokens/sec |
 
-- Custom data pipeline for efficient streaming
-- Multi-GPU training support
-- Evaluation with HellaSwag benchmark
-- Inference utilities with sampling
-- Checkpointing and resumable training
+HellaSwag is barely above chance at this point, which is expected this early. The fully trained GPT-2 124M reaches about 29–30%.
 
-##� Project Structure
+## Files
 
 ```
 02_GPT2_from_Scratch/
- README.md
- ARCHITECTURE.md
- requirements.txt
- LICENSE
- .gitignore
-�
- notebooks/
-� 01_GPT2_from_Scratch_Main.ipynb
-�
- src/
-� __init__.py
-� train_gpt2.py          (Main training script)
-� fineweb.py             (Data loading)
-� hellaswag.py           (Evaluation)
-� inference.py           (Inference utilities)
-�
- config/
-� __init__.py
-� training_config.py
-�
- scripts/
-� __init__.py
-� train.py               (Training entry point)
-� evaluate.py            (Evaluation entry point)
-�
- docs/
- ARCHITECTURE.md
- DEPLOYMENT.md
+├── notebooks/01_GPT2_from_Scratch_Main.ipynb   # the run above, with outputs
+├── src/
+│   ├── train_gpt2.py        # model + DDP training loop (adapted from build-nanoGPT)
+│   ├── fineweb.py           # downloads and tokenizes FineWeb-Edu into shards
+│   ├── hellaswag.py         # HellaSwag evaluation
+│   └── inference.py         # text generation from a checkpoint
+├── train_gpt2_runpod.py     # RunPod variant (single GPU or torchrun)
+├── ARCHITECTURE.md · DISTRIBUTED_TRAINING.md · PARAMETER_TUNING.md · RUNPOD_CONFIG.md
+└── requirements.txt
 ```
 
-## Quick Start
+## Run it
 
-### 1. Setup
 ```bash
-cd 02_GPT2_from_Scratch
-python -m venv .venv
-.venv\Scripts\activate
 pip install -r requirements.txt
+python src/fineweb.py                                       # writes edu_fineweb10B/ shards
+torchrun --standalone --nproc_per_node=8 src/train_gpt2.py  # multi-GPU
+python train_gpt2_runpod.py                                 # or a single GPU
 ```
 
-### 2. Train
-```bash
-python scripts/train.py \
-    --batch_size 64 \
-    --learning_rate 6e-4 \
-    --num_iterations 100000
-```
+## Training setup (from `src/train_gpt2.py`)
 
-### 3. Evaluate
-```bash
-python scripts/evaluate.py \
-    --checkpoint best_model.pt
-```
-
-### 4. Inference
-```python
-from src.inference import generate_text
-
-generated = generate_text(
-    prompt="The future of AI",
-    max_tokens=100
-)
-print(generated)
-```
-
-## Technical Details
-
-### Model Architecture
-- **Embedding Dimension**: 768
-- **Attention Heads**: 12
-- **Layers**: 12
-- **Context Window**: 1024 tokens
-- **Vocabulary**: 50,257 (GPT-2 tokenizer)
-
-### Training Configuration
-- **Optimizer**: AdamW
-- **Learning Rate**: 6e-4 (with cosine decay)
-- **Batch Size**: 64 (with gradient accumulation)
-- **Warmup Steps**: 2,000
-- **Total Steps**: 100,000
-
-### Data Pipeline
-- **Source**: FineWeb dataset (10B tokens)
-- **Preprocessing**: Tokenization with GPT-2 tokenizer
-- **Efficiency**: Streaming + memory-mapped files
-
-### Evaluation
-- **HellaSwag**: 4-way multiple choice benchmark
-- **Perplexity**: Validation set monitoring
-- **Checkpoint**: Best model saved based on validation loss
-
-## Expected Results
-
-| Metric | Value |
-|--------|-------|
-| Validation Perplexity | ~20-25 |
-| HellaSwag Accuracy | ~32-35% (2x random) |
-| Training Time | ~24-48 hours (single A100) |
-| Final Checkpoint Size | ~340 MB |
-
-## Key Implementation Details
-
-### Efficient Data Loading
-```python
-# Streaming data from FineWeb
-for batch in dataloader:
-    tokens = batch['input_ids']  # (batch_size, seq_len)
-    logits = model(tokens)
-    loss = compute_loss(logits, tokens)
-```
-
-### Multi-GPU Training
-```python
-# Distributed data parallel
-model = torch.nn.parallel.DistributedDataParallel(model)
-```
-
-### Gradient Accumulation
-```python
-# Effective batch size = batch_size * accumulation_steps
-loss = loss / accumulation_steps
-loss.backward()
-```
-
-## Requirements
-
-- Python 3.10+
-- PyTorch 2.0+
-- CUDA 11.8+ (for GPU training)
-- 24GB+ GPU memory (recommended)
-
-See `requirements.txt` for all dependencies.
-
-##� Learning Outcomes
-
-By studying this project, you'll understand:
-1. **Transformer architecture** from ground up
-2. **Large-scale data handling** and preprocessing
-3. **Distributed training** with PyTorch
-4. **Model checkpointing** and resumable training
-5. **Evaluation metrics** for language models
+- 12 layers, 12 heads, 768-dim embeddings, 1,024-token context, 50,257-token vocabulary (padded to 50,304)
+- Batch of 524,288 tokens per step (micro-batch 64 × 1,024, with gradient accumulation across GPUs)
+- AdamW, max learning rate 6e-4 with 954 warmup steps and cosine decay to 6e-5
+- Flash attention (`scaled_dot_product_attention`), DistributedDataParallel, HellaSwag and validation checks during training
 
 ## References
 
-- [Language Models are Unsupervised Multitask Learners](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) - GPT-2 Paper
-- [FineWeb Dataset](https://huggingface.co/datasets/HuggingFaceFW/fineweb) - Data source
-- [HellaSwag Benchmark](https://rowanzellers.com/hellaswag/) - Evaluation
-
-## License
-
-MIT License - See LICENSE file
-
----
-
-**Status**: Complete & Functional  
-**Last Updated**: May 2026  
-**Author**: Kamal Prasath
+- [build-nanoGPT](https://github.com/karpathy/build-nanogpt) by Andrej Karpathy (source of the training code)
+- [Language Models are Unsupervised Multitask Learners](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (GPT-2 paper)
+- [FineWeb-Edu](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu) · [HellaSwag](https://rowanzellers.com/hellaswag/)

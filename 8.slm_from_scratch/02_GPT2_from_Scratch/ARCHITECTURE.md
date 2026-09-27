@@ -3,11 +3,11 @@
 ## System Overview
 
 ```
-FineWeb Dataset (10B tokens)
+FineWeb-Edu sample (10B tokens)
 
 Data Pipeline (Tokenization + Streaming)
 
-GPT-2 Model (85M parameters)
+GPT-2 Model (124M parameters)
 
 Training Loop (AdamW optimizer)
  Forward pass
@@ -31,9 +31,9 @@ Embedding Dim       | 768
 Num Heads           | 12
 Num Layers          | 12
 FFN Hidden          | 3072
-Vocabulary Size     | 50,257
+Vocabulary Size     | 50,257 (padded to 50,304)
 Context Window      | 1024 tokens
-Total Parameters    | 85M
+Total Parameters    | 124M
 ```
 
 ### Transformer Block Structure
@@ -311,21 +311,10 @@ for step in range(max_tokens):
 ## File Organization
 
 ```
-src/
- train_gpt2.py Main training script
- fineweb.py Data loading from FineWeb
- hellaswag.py HellaSwag evaluation
- inference.py Sampling and generation
-
-config/
- training_config.py Hyperparameters
-
-scripts/
- train.py Entry point for training
- evaluate.py Entry point for evaluation
+notebooks/01_GPT2_from_Scratch_Main.ipynb   # the training run, with outputs
+src/train_gpt2.py                           # model + DDP training loop (adapted from build-nanoGPT)
+src/fineweb.py                              # FineWeb-Edu download and tokenization
+src/hellaswag.py                            # HellaSwag evaluation
+src/inference.py                            # text generation
+train_gpt2_runpod.py                        # RunPod single/multi-GPU variant
 ```
-
----
-
-**Status**: Complete & Documented  
-**Last Updated**: May 2026

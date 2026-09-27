@@ -1,101 +1,82 @@
 name: Tests & Quality Checks
 
-on: 
+on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
-  code-quality:
-    name: Code Quality Checks
+  lint:
+    name: Lint (syntax errors and undefined names)
     runs-on: ubuntu-latest
-    
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Install linting tools
-        run: |
-          pip install black ruff
-      
-      - name: Check code formatting with black
-        run: |
-          black --check . --exclude=".venv,notebooks,.git,__pycache__" || true
-      
-      - name: Lint with ruff
-        run: |
-          ruff check . || true
+      - run: pip install ruff
+      # Blocking: only checks that catch code which cannot run
+      - run: ruff check --select E9,F63,F7,F82 --target-version py311 --exclude "*.ipynb" .
 
-  test-open-claw-slack-bot:
-    name: Test Slack Bot (04.open_claw_slack_bot)
+  openclaw:
+    name: OpenClaw Slack agent
     runs-on: ubuntu-latest
-    
+    defaults:
+      run:
+        working-directory: 4.openclaw-built_from_scratch/open_claw_slack_bot
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          cd 04.open_claw_slack_bot
-          pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
-      - name: Run tests
-        run: |
-          cd 04.open_claw_slack_bot
-          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
+          cache: pip
+      - run: pip install -e . pytest pytest-asyncio
+      - run: pytest tests -q
 
-  test-rag:
-    name: Test RAG Module (06.rag)
+  engineering-rag:
+    name: Engineering RAG (with pgvector)
     runs-on: ubuntu-latest
-    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: raguser
+          POSTGRES_PASSWORD: ragpass
+          POSTGRES_DB: ragdb
+        ports: [ "5432:5432" ]
+        options: >-
+          --health-cmd "pg_isready -U raguser -d ragdb"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: 06.rag/projects/2.engineering-rag
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          cd 06.rag
-          pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
-      - name: Run tests
-        run: |
-          cd 06.rag
-          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
+          cache: pip
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements.txt pytest
+      - run: pytest tests -q
 
-  test-sentinel:
-    name: Test SENTINEL (7.agentic_ai)
+  sentinel:
+    name: SENTINEL ${{ matrix.version }}
     runs-on: ubuntu-latest
-    
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [ 1.sentinel_v1, 2.sentinel_v2 ]
+    defaults:
+      run:
+        working-directory: 7.agentic_ai/${{ matrix.version }}
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          cd 7.agentic_ai/2.sentinel_v2
-          pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      
-      - name: Run tests
-        run: |
-          cd 7.agentic_ai/2.sentinel_v2
-          if [ -d tests ]; then pip install pytest && pytest tests/ -v; fi
+          cache: pip
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements.txt pytest pytest-asyncio
+      - run: pytest tests -q

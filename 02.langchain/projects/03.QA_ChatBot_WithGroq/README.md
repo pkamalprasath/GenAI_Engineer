@@ -41,7 +41,7 @@ Answer (context-grounded only)
 
 ```
 3.QA_ChatBot_WithGroq/
-├── app.py
+├── 01.app.py
 ├── research_papers/
 │   ├── Attention.pdf
 │   └── LLM.pdf
@@ -59,7 +59,7 @@ cp .env.example .env
 pip install -r requirements.txt
 
 # 3. Run the app
-streamlit run app.py
+streamlit run 01.app.py
 ```
 
 ## How to Use

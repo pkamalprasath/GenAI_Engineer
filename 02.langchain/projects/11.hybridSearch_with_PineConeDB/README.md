@@ -35,7 +35,7 @@ User Query
 
 ```
 11.hybridSearch_with_PineConeDB/
-├── experiments.ipynb
+├── 01.experiments.ipynb
 └── README.md
 ```
 
@@ -50,7 +50,7 @@ cp ../../.env.example .env
 pip install -r requirements.txt
 
 # 3. Launch Jupyter
-jupyter notebook experiments.ipynb
+jupyter notebook 01.experiments.ipynb
 ```
 
 ## Environment Variables

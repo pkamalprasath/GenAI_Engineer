@@ -10,8 +10,8 @@ LangGraph extends LangChain by enabling **stateful**, **cyclical** agent flows �
 
 | Notebook | Description |
 |---|---|
-| `chatbot.ipynb` | Basic LangGraph chatbot — `START → chatbot → END` |
-| `With_tools.ipynb` | LangGraph chatbot with tool-calling and conditional edges |
+| `01.chatbot.ipynb` | Basic LangGraph chatbot — `START → chatbot → END` |
+| `02.With_tools.ipynb` | LangGraph chatbot with tool-calling and conditional edges |
 
 ## Architecture (Basic Chatbot)
 
@@ -54,8 +54,8 @@ END (when no more tool calls)
 
 ```
 14.QA_chatbot_WithLangraph/
-├── chatbot.ipynb       # Simple start→chatbot→end graph
-├── With_tools.ipynb    # Graph with tool-calling loop
+├── 01.chatbot.ipynb       # Simple start→chatbot→end graph
+├── 02.With_tools.ipynb    # Graph with tool-calling loop
 └── README.md
 ```
 

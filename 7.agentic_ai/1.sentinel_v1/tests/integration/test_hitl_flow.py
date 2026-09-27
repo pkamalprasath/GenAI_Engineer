@@ -1,141 +1,108 @@
 """
 Integration tests for HITL escalation + resume flow.
-Validates: graph pauses at hitl_node, state persists, POST /resolve resumes.
-Requires: docker compose up -d
-LLMs mocked — no API cost.
 
-Run with: make test-integration
+Runs the real compiled LangGraph with an in-memory checkpointer. Agents and the
+DB session are stubbed, so no Postgres, Ollama or LLM API is needed.
+
+Validates: high-risk results route to hitl_review, the graph pauses via
+interrupt(), state survives in the checkpointer, and resuming with the human
+decision completes the investigation with reviewer_id preserved.
 """
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import Command
 
 from sentinel.state.investigation_state import make_initial_state
+from tests.integration.graph_stubs import stub_agents
 
 pytestmark = pytest.mark.asyncio
 
 
-class TestHITLEscalation:
-    """HITL flow: high-risk investigation → interrupt → human resolve → resume → complete."""
+def _state(inv_id: str = "HITL-TEST-001"):
+    return make_initial_state(
+        investigation_id=inv_id,
+        tenant_id="bank-acme",
+        query="Review Q1 2024 credit decisions",
+        date_range={"from": "2024-01-01", "to": "2024-03-31"},
+        domain="finance",
+    )
 
-    @pytest.fixture
-    def hitl_state(self):
-        """State that will trigger HITL escalation (CRITICAL risk)."""
-        state = make_initial_state(
-            investigation_id="HITL-TEST-001",
-            tenant_id="bank-acme",
-            query="Review Q1 2024 credit decisions",
-            date_range={"from": "2024-01-01", "to": "2024-03-31"},
-            domain="finance",
-        )
-        state["relevant_case_ids"] = ["CASE-0001", "CASE-0002"]
-        state["case_count"] = 2
-        state["investigation_sufficient"] = True
-        state["regulatory_risk"] = "CRITICAL"   # Triggers HITL
-        state["bias_detected"] = True
-        state["bias_confidence"] = 0.92
+
+class TestHITLRouting:
+    """Routing decisions that send an investigation to human review."""
+
+    def test_critical_risk_routes_to_hitl(self):
+        from sentinel.graph.edges import route_after_evidence_assembly
+        state = _state()
         state["compliance_verdict"] = "VIOLATION"
-        state["draft_report"] = "Preliminary: Systemic bias pattern detected in CT-001 to CT-030."
-        return state
+        state["regulatory_risk"] = "CRITICAL"
+        assert route_after_evidence_assembly(state) == "hitl"
 
-    def test_hitl_required_flag_set_for_critical_risk(self, hitl_state):
-        """High-risk state should result in hitl_required=True after evidence assembly."""
+    def test_bias_detected_routes_to_hitl(self):
         from sentinel.graph.edges import route_after_evidence_assembly
-        route = route_after_evidence_assembly(hitl_state)
-        assert route == "hitl"
-
-    def test_hitl_required_flag_set_for_bias_detected(self):
-        """Bias detection above threshold also triggers HITL."""
-        from sentinel.graph.edges import route_after_evidence_assembly
-        state = make_initial_state("HITL-002", "t1", "q", {}, "finance")
-        state["investigation_sufficient"] = True
+        state = _state()
+        state["compliance_verdict"] = "COMPLIANT"
         state["regulatory_risk"] = "MEDIUM"
-        state["bias_detected"] = True  # Any bias → human review
-        route = route_after_evidence_assembly(state)
-        assert route == "hitl"
+        state["bias_detected"] = True
+        assert route_after_evidence_assembly(state) == "hitl"
 
-    async def test_hitl_node_sets_pending_human_status(self, hitl_state):
-        """hitl_node should update status to pending_human and set hitl_required."""
-        from sentinel.graph.builder import hitl_node
-        result = await hitl_node(hitl_state)
-        assert result.get("status") == "pending_human" or result.get("hitl_required") is True
+    def test_no_verdict_and_no_evidence_routes_to_hitl(self):
+        from sentinel.graph.edges import route_after_evidence_assembly
+        assert route_after_evidence_assembly(_state()) == "hitl"
 
-    def test_human_decision_approve_routes_to_complete(self):
-        """After human approves, graph should route to complete."""
-        from sentinel.graph.edges import route_after_hitl_review
-        state = make_initial_state("HITL-003", "t1", "q", {}, "finance")
-        state["human_decision"] = "approve"
-        state["reviewer_id"] = "reviewer-001"
-        route = route_after_hitl_review(state)
-        assert route == "report"  # Human approved → generate final report
-
-    def test_human_decision_reject_routes_to_failed(self):
-        """After human rejects, graph should close investigation."""
-        from sentinel.graph.edges import route_after_hitl_review
-        state = make_initial_state("HITL-004", "t1", "q", {}, "finance")
-        state["human_decision"] = "reject"
-        state["reviewer_id"] = "reviewer-001"
-        route = route_after_hitl_review(state)
-        assert route in ("complete", "failed")
-
-    def test_pending_state_without_human_decision_stays_blocked(self):
-        """No human_decision → graph should NOT proceed."""
-        from sentinel.graph.edges import route_after_hitl_review
-        state = make_initial_state("HITL-005", "t1", "q", {}, "finance")
-        state["status"] = "pending_human"
-        state["human_decision"] = None  # Not yet resolved
-        # Should stay in HITL — not route to report or complete
-        route = route_after_hitl_review(state)
-        assert route in ("hitl", "pending")
+    def test_after_human_review_always_completes(self):
+        """The human made the call, so routing after review always ends the run."""
+        from sentinel.graph.edges import route_after_hitl
+        for decision in ("approve_draft", "close_investigation", ""):
+            state = _state()
+            state["human_decision"] = decision
+            assert route_after_hitl(state) == "complete"
 
 
-class TestEscalationStateIntegrity:
-    """State must be complete and unmodified after HITL pause/resume cycle."""
+class TestHITLNode:
+    async def test_hitl_node_applies_human_decision(self):
+        """hitl_node returns the reviewer's decision and marks the run complete."""
+        from sentinel.graph import builder
+        human = {"response": "approve_draft", "reviewer_id": "compliance-officer-007"}
+        with patch.object(builder, "interrupt", return_value=human) as mock_interrupt:
+            result = await builder.hitl_node(_state())
 
-    async def test_reviewer_id_preserved_after_resume(self):
-        """reviewer_id set during HITL must be present in final state."""
-        from sentinel.graph.edges import route_after_hitl_review
-        state = make_initial_state("INT-HITL-001", "bank-acme", "q", {}, "finance")
-        state["human_decision"] = "approve"
-        state["reviewer_id"] = "compliance-officer-007"
-        state["status"] = "pending_human"
-
-        # Simulate the resume — route should proceed
-        route = route_after_hitl_review(state)
-        assert route in ("report", "complete")
-
-    async def test_hitl_reason_preserved_in_state(self):
-        """hitl_reason must be carried forward and appear in final report context."""
-        state = make_initial_state("INT-HITL-002", "bank-acme", "q", {}, "finance")
-        state["hitl_required"] = True
-        state["hitl_reason"] = "CRITICAL regulatory_risk with bias_detected=True"
-        state["human_decision"] = "approve"
-        state["reviewer_id"] = "reviewer-001"
-
-        assert state["hitl_reason"] == "CRITICAL regulatory_risk with bias_detected=True"
-
-    async def test_cost_log_includes_hitl_metadata(self):
-        """HITL wait time should be logged (no LLM cost but metadata recorded)."""
-        state = make_initial_state("INT-HITL-003", "bank-acme", "q", {}, "finance")
-        state["hitl_required"] = True
-        # HITL itself has no LLM cost — cost_log unchanged from pre-HITL state
-        assert state["total_cost_usd"] == 0.0
+        payload = mock_interrupt.call_args.args[0]
+        assert payload["investigation_id"] == "HITL-TEST-001"
+        assert "approve_draft" in payload["action_options"]
+        assert result["status"] == "complete"
+        assert result["hitl_required"] is False
+        assert result["reviewer_id"] == "compliance-officer-007"
+        assert result["human_decision"] == "approve_draft"
 
 
-class TestCheckpointerIntegration:
-    """Checkpointer allows state to survive process restart between HITL pause and resume."""
+class TestHITLPauseAndResume:
+    """End-to-end through the compiled graph: pause at interrupt, then resume."""
 
-    async def test_memory_saver_checkpoints_state(self):
-        """MemorySaver (test substitute for PostgresSaver) should store and retrieve state."""
-        from langgraph.checkpoint.memory import MemorySaver
-        checkpointer = MemorySaver()
-        # Verify checkpointer is usable (no errors on instantiation)
-        assert checkpointer is not None
-
-    async def test_graph_builds_with_memory_saver(self):
-        """Graph should compile successfully with MemorySaver in test environment."""
+    async def test_graph_pauses_then_resumes_with_reviewer(self):
         from sentinel.graph.builder import build_graph
-        graph = build_graph(use_memory_saver=True)
-        assert graph is not None
+
+        with stub_agents(regulatory_risk="CRITICAL", bias_detected=True) as calls:
+            graph = build_graph().compile(checkpointer=MemorySaver())
+            config = {"configurable": {"thread_id": "HITL-E2E-001"}}
+
+            paused = await graph.ainvoke(_state("HITL-E2E-001"), config)
+            assert "__interrupt__" in paused, "graph should pause for human review"
+            snapshot = await graph.aget_state(config)
+            assert snapshot.next == ("hitl_review",)
+            assert snapshot.values["tenant_id"] == "bank-acme"
+            assert "report" not in calls  # high risk skips auto-report
+
+            final = await graph.ainvoke(
+                Command(resume={"response": "approve_draft", "reviewer_id": "reviewer-001"}),
+                config,
+            )
+
+        assert final["status"] == "complete"
+        assert final["reviewer_id"] == "reviewer-001"
+        assert final["human_decision"] == "approve_draft"
+        assert final["tenant_id"] == "bank-acme"
