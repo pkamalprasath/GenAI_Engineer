@@ -45,24 +45,49 @@ class TestAgentOrchestrator:
         prompt = self.orchestrator._build_system_prompt(context)
         assert "past conversations" in prompt
 
+    def test_extract_text_joins_text_blocks(self):
+        tool_block = MagicMock(type="tool_use")
+        text_a = MagicMock(type="text", text="Here is")
+        text_b = MagicMock(type="text", text="my response")
+        response = MagicMock(content=[text_a, tool_block, text_b])
+        assert self.orchestrator._extract_text(response) == "Here is\nmy response"
+
+    def test_extract_text_empty_falls_back(self):
+        response = MagicMock(content=[])
+        assert "no response" in self.orchestrator._extract_text(response).lower()
+
     @pytest.mark.asyncio
-    async def test_process_response_text_only(self):
-        mock_response = MagicMock()
-        text_block = MagicMock()
-        text_block.type = "text"
-        text_block.text = "Here is my response"
-        mock_response.content = [text_block]
+    async def test_react_loop_executes_tool_then_answers(self):
+        tool_call = MagicMock(type="tool_use", id="tu_1", input={"channel_id": "C1"})
+        tool_call.name = "list_channels"
+        first = MagicMock(content=[tool_call])
+        final = MagicMock(content=[MagicMock(type="text", text="You have 3 channels")])
+        self.orchestrator.client.messages.create = AsyncMock(side_effect=[first, final])
+        self.orchestrator.tool_registry.execute_tool = AsyncMock(return_value={"count": 3})
 
-        result = await self.orchestrator._process_response(mock_response)
-        assert result == "Here is my response"
+        messages = [{"role": "user", "content": "how many channels?"}]
+        answer = await self.orchestrator._react_loop("sys", messages, tools=[{"name": "list_channels"}])
+
+        assert answer == "You have 3 channels"
+        self.orchestrator.tool_registry.execute_tool.assert_awaited_once_with("list_channels", channel_id="C1")
+        tool_result = messages[-1]["content"][0]
+        assert tool_result["type"] == "tool_result" and tool_result["tool_use_id"] == "tu_1"
 
     @pytest.mark.asyncio
-    async def test_process_response_empty(self):
-        mock_response = MagicMock()
-        mock_response.content = []
+    async def test_react_loop_returns_tool_errors_to_claude(self):
+        tool_call = MagicMock(type="tool_use", id="tu_2", input={})
+        tool_call.name = "create_github_issue"
+        first = MagicMock(content=[tool_call])
+        final = MagicMock(content=[MagicMock(type="text", text="GitHub is unavailable")])
+        self.orchestrator.client.messages.create = AsyncMock(side_effect=[first, final])
+        self.orchestrator.tool_registry.execute_tool = AsyncMock(side_effect=RuntimeError("503"))
 
-        result = await self.orchestrator._process_response(mock_response)
-        assert "no response" in result.lower()
+        messages = [{"role": "user", "content": "file an issue"}]
+        answer = await self.orchestrator._react_loop("sys", messages, tools=[{"name": "x"}])
+
+        assert answer == "GitHub is unavailable"
+        tool_result = messages[-1]["content"][0]
+        assert tool_result["is_error"] is True and "503" in tool_result["content"]
 
     @pytest.mark.asyncio
     async def test_process_message_error_handling(self):

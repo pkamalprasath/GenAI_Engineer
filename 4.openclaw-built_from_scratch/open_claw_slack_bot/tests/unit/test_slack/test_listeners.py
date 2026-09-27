@@ -1,109 +1,86 @@
 """
 Tests for Slack event listeners.
+
+Routing design: the message listener answers DMs only; @mentions in channels are
+handled by the app_mention listener, so the bot never replies twice.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from src.slack.listeners.messages import handle_message_event
+import pytest
+
 from src.slack.listeners.mentions import handle_app_mention
+from src.slack.listeners.messages import handle_message_event
+
+BOT = "U0BOT12345"  # real Slack IDs are uppercase letters and digits
+
+
+def _event(text: str, channel: str = "C1234567890", **extra) -> dict:
+    return {"text": text, "user": "U1234567890", "channel": channel,
+            "ts": "1234567890.123456", **extra}
+
+
+def _orchestrator(reply: str = "Agent reply"):
+    orch = MagicMock()
+    orch.process_message = AsyncMock(return_value=reply)
+    return orch
 
 
 class TestMessageListener:
     @pytest.mark.asyncio
     async def test_ignores_bot_messages(self):
-        event = {
-            "text": "Bot message",
-            "user": "U123",
-            "channel": "C1234567890",
-            "ts": "1234567890.123456",
-            "bot_id": "B123",
-        }
         say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
-
-        await handle_message_event(event, say, client, logger)
+        await handle_message_event(_event("Bot message", bot_id="B123"), say, AsyncMock(), MagicMock())
         say.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_responds_to_dm(self):
-        event = {
-            "text": "Hello bot",
-            "user": "U1234567890",
-            "channel": "D1234567890",  # DM channel starts with D
-            "ts": "1234567890.123456",
-        }
-        say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
+    async def test_dm_is_answered_by_agent_in_thread(self):
+        say, orch = AsyncMock(), _orchestrator("Hi there")
+        with patch("src.slack.listeners.messages.get_orchestrator", return_value=orch):
+            await handle_message_event(_event("Hello bot", channel="D1234567890"), say, AsyncMock(), MagicMock())
 
-        await handle_message_event(event, say, client, logger)
-        say.assert_called_once()
+        orch.process_message.assert_awaited_once()
+        assert orch.process_message.await_args.kwargs["user_message"] == "Hello bot"
+        say.assert_awaited_once_with(text="Hi there", thread_ts="1234567890.123456")
 
     @pytest.mark.asyncio
-    async def test_ignores_non_mention_channel_message(self):
-        event = {
-            "text": "Random channel message without mention",
-            "user": "U1234567890",
-            "channel": "C1234567890",
-            "ts": "1234567890.123456",
-        }
+    async def test_ignores_plain_channel_message(self):
         say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
-
-        await handle_message_event(event, say, client, logger)
+        await handle_message_event(_event("Random message"), say, AsyncMock(), MagicMock())
         say.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_responds_to_mention(self):
-        event = {
-            "text": "Hey <@U_BOT_ID> what is up?",
-            "user": "U1234567890",
-            "channel": "C1234567890",
-            "ts": "1234567890.123456",
-        }
+    async def test_channel_mention_left_to_mention_listener(self):
         say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
-
-        await handle_message_event(event, say, client, logger)
-        say.assert_called_once()
+        await handle_message_event(_event(f"Hey <@{BOT}> what is up?"), say, AsyncMock(), MagicMock())
+        say.assert_not_called()  # handle_app_mention answers it instead
 
 
 class TestMentionListener:
     @pytest.mark.asyncio
-    async def test_handles_empty_mention(self):
-        event = {
-            "text": "<@U_BOT_ID>",
-            "user": "U1234567890",
-            "channel": "C1234567890",
-            "ts": "1234567890.123456",
-        }
-        say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
+    async def test_empty_mention_shows_help(self):
+        say, orch = AsyncMock(), _orchestrator()
+        with patch("src.slack.listeners.mentions.get_orchestrator", return_value=orch):
+            await handle_app_mention(_event(f"<@{BOT}>"), say, AsyncMock(), MagicMock())
 
-        await handle_app_mention(event, say, client, logger)
-        say.assert_called_once()
-        # Check it mentions help
-        call_kwargs = say.call_args[1]
-        assert "help" in call_kwargs["text"].lower() or "bot-help" in call_kwargs["text"]
+        orch.process_message.assert_not_called()
+        say.assert_awaited_once()
+        assert "/bot-help" in say.await_args.kwargs["text"]
 
     @pytest.mark.asyncio
-    async def test_handles_mention_with_text(self):
-        event = {
-            "text": "<@U_BOT_ID> summarize the channel",
-            "user": "U1234567890",
-            "channel": "C1234567890",
-            "ts": "1234567890.123456",
-        }
-        say = AsyncMock()
-        client = AsyncMock()
-        logger = MagicMock()
+    async def test_mention_text_goes_to_agent_without_bot_id(self):
+        say, orch = AsyncMock(), _orchestrator("Here is the summary")
+        with patch("src.slack.listeners.mentions.get_orchestrator", return_value=orch):
+            await handle_app_mention(_event(f"<@{BOT}> summarize the channel"), say, AsyncMock(), MagicMock())
 
-        await handle_app_mention(event, say, client, logger)
-        say.assert_called_once()
-        call_kwargs = say.call_args[1]
-        assert "summarize the channel" in call_kwargs["text"]
+        assert orch.process_message.await_args.kwargs["user_message"] == "summarize the channel"
+        say.assert_awaited_once_with(text="Here is the summary", thread_ts="1234567890.123456")
+
+    @pytest.mark.asyncio
+    async def test_agent_failure_sends_apology(self):
+        say, orch = AsyncMock(), _orchestrator()
+        orch.process_message.side_effect = RuntimeError("API down")
+        with patch("src.slack.listeners.mentions.get_orchestrator", return_value=orch):
+            await handle_app_mention(_event(f"<@{BOT}> hello"), say, AsyncMock(), MagicMock())
+
+        assert "encountered an error" in say.await_args.kwargs["text"]

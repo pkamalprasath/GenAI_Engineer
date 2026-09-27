@@ -83,17 +83,18 @@ class TestValidateTextLength:
         with pytest.raises(InvalidInputError):
             validate_text_length("x" * 5000, max_length=4000)
 
-    def test_empty_text(self):
-        with pytest.raises(InvalidInputError):
-            validate_text_length("")
+    def test_empty_text_returns_empty_string(self):
+        # Documented design: callers treat absent text as "", so no exception
+        assert validate_text_length("") == ""
+        assert validate_text_length(None) == ""
 
 
 class TestSanitizeText:
-    def test_removes_script_tags(self):
-        dirty = "<script>alert('xss')</script>"
-        clean = sanitize_text(dirty)
-        assert "<script>" not in clean
-        assert "alert" in clean
+    def test_preserves_slack_angle_bracket_syntax(self):
+        # Documented design: no HTML escaping, because Slack mentions and links
+        # use angle brackets. Script tags are caught by detect_injection_attempt.
+        text = "ping <@U123ABC> in <#C456|general> see <https://example.com|docs>"
+        assert sanitize_text(text) == text
 
     def test_removes_control_characters(self):
         dirty = "hello\x00world\x08test"
@@ -101,10 +102,9 @@ class TestSanitizeText:
         assert "\x00" not in clean
         assert "\x08" not in clean
 
-    def test_normalizes_whitespace(self):
-        dirty = "hello    world"
-        clean = sanitize_text(dirty)
-        assert clean == "hello world"
+    def test_trims_edges_but_keeps_internal_whitespace(self):
+        # Internal spacing is kept so pasted code and lists are not mangled
+        assert sanitize_text("  def f():\n    return 1  ") == "def f():\n    return 1"
 
     def test_empty_string(self):
         assert sanitize_text("") == ""
