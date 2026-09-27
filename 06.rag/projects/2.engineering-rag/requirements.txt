@@ -3,6 +3,7 @@ langchain
 langchain-community
 langchain-openai
 langchain-experimental      # SemanticChunker (winner from experiments)
+langchain-huggingface       # HuggingFaceEmbeddings for SemanticChunker (src/ingest/chunker.py)
 
 # --- Document Parsing ---
 pypdf                       # text extraction (fast, reliable)

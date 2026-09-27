@@ -62,9 +62,12 @@ CREATE TABLE IF NOT EXISTS chunks (
     embedding   vector({EMBED_DIM})
 );
 
-CREATE INDEX IF NOT EXISTS chunks_embedding_idx
-    ON chunks USING ivfflat (embedding vector_cosine_ops)
-    WITH (lists = 100);
+-- HNSW, not IVFFlat: this schema is created before any rows are ingested, and an
+-- IVFFlat index built on an empty table has no useful centroids (searches can
+-- return nothing). HNSW needs no training data. The DROP migrates old databases.
+DROP INDEX IF EXISTS chunks_embedding_idx;
+CREATE INDEX IF NOT EXISTS chunks_embedding_hnsw_idx
+    ON chunks USING hnsw (embedding vector_cosine_ops);
 
 CREATE INDEX IF NOT EXISTS chunks_doc_id_idx
     ON chunks (doc_id);
