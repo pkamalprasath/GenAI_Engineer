@@ -20,14 +20,14 @@ Production-grade version with:
 - Microservices architecture (API + Worker + Scheduler)
 - Async/await processing (non-blocking)
 - Background job queue (arq/Redis)
-- HNSW vector indexes (10x faster search)
+- HNSW vector indexes (pgvector)
 - Automated audit trail (SR 11-7, GDPR compliant)
-- Real-time streaming API
-- Kubernetes-ready health probes
+- Real-time progress streaming (server-sent events)
+- Health-check endpoint and graceful shutdown
 
 **Key Improvements:**
-- 99% cheaper discovery (BM25→BERT→LLM hybrid)
-- 10x faster semantic search (HNSW)
+- Cheaper discovery: BM25 → DistilBERT filter, LLM only for borderline cases
+- Approximate nearest-neighbour search with HNSW indexes
 - Asynchronous API (non-blocking)
 - Automated compliance audit trail
 - Enhanced provenance (source documentation + content hashes)

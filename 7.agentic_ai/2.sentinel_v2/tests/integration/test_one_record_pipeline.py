@@ -177,12 +177,10 @@ async def test_discovery_date_range_sql_format(one_record_state, one_record_db, 
 
     assert "date_from" in captured_params, "SQL must include date_from param"
     assert "date_to" in captured_params, "SQL must include date_to param"
-    assert captured_params["date_from"] == "2024-01-03 00:00:00", (
-        f"Expected '2024-01-03 00:00:00', got '{captured_params.get('date_from')}'"
-    )
-    assert captured_params["date_to"] == "2024-01-10 23:59:59", (
-        f"Expected '2024-01-10 23:59:59', got '{captured_params.get('date_to')}'"
-    )
+    # asyncpg needs real datetime objects, not strings; the end date covers the whole day
+    from datetime import datetime
+    assert captured_params["date_from"] == datetime(2024, 1, 3, 0, 0, 0)
+    assert captured_params["date_to"] == datetime(2024, 1, 10, 23, 59, 59)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

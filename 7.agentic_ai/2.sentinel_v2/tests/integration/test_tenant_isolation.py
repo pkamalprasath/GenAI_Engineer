@@ -73,31 +73,35 @@ class TestNamespaceVerification:
 
 
 class TestRecordListVerification:
-    """verify_record_list() validates bulk results from DB queries."""
+    """verify_record_list() validates bulk results from DB queries (fails closed)."""
 
     def test_all_correct_tenant_passes(self):
         records = [
-            {"namespace": "sentinel://bank-acme/decision_record/CASE-0001"},
-            {"namespace": "sentinel://bank-acme/decision_record/CASE-0002"},
+            {"case_id": "CASE-0001", "tenant_id": "bank-acme"},
+            {"case_id": "CASE-0002", "tenant_id": "bank-acme"},
         ]
-        # Should not raise
-        verify_record_list(records, expected_tenant_id="bank-acme")
+        verify_record_list(records, tenant_id="bank-acme")  # should not raise
 
     def test_mixed_tenants_raises(self):
         records = [
-            {"namespace": "sentinel://bank-acme/decision_record/CASE-0001"},
-            {"namespace": "sentinel://other-bank/decision_record/CASE-0002"},
+            {"case_id": "CASE-0001", "tenant_id": "bank-acme"},
+            {"case_id": "CASE-0002", "tenant_id": "other-bank"},
         ]
         with pytest.raises(IsolationBreachError):
-            verify_record_list(records, expected_tenant_id="bank-acme")
+            verify_record_list(records, tenant_id="bank-acme")
 
     def test_empty_list_passes(self):
-        verify_record_list([], expected_tenant_id="bank-acme")
+        verify_record_list([], tenant_id="bank-acme")
 
-    def test_record_without_namespace_raises(self):
-        records = [{"case_id": "CASE-0001"}]  # Missing namespace field
-        with pytest.raises((IsolationBreachError, KeyError)):
-            verify_record_list(records, expected_tenant_id="bank-acme")
+    def test_record_without_tenant_raises(self):
+        records = [{"case_id": "CASE-0001"}]  # missing tenant_id must not slip through
+        with pytest.raises(IsolationBreachError):
+            verify_record_list(records, tenant_id="bank-acme")
+
+    def test_custom_tenant_field(self):
+        records = [{"case_id": "CASE-0001", "org": "bank-acme"}]
+        verify_record_list(records, tenant_id="bank-acme", tenant_id_field="org")
+
 
 
 class TestProvenanceStoreTenantIsolation:

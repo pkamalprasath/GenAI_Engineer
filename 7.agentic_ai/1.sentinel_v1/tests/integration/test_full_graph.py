@@ -1,18 +1,17 @@
 """
 Integration tests for the full LangGraph investigation pipeline.
-Requires: docker compose up -d (PostgreSQL)
-LLM calls are mocked — no API cost, deterministic outputs.
+Agents and the DB session are stubbed (tests/integration/graph_stubs.py),
+so no Postgres, Ollama or LLM API is needed.
 
 Run with: make test-integration
 """
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-import pytest_asyncio
 
 from sentinel.state.investigation_state import make_initial_state
+from tests.integration.graph_stubs import stub_agents
 
 
 # All integration tests are async
@@ -32,50 +31,46 @@ class TestFullInvestigationPipeline:
             domain="finance",
         )
 
-    @patch("sentinel.agents.discovery_agent._OLLAMA_SEMAPHORE")
-    @patch("sentinel.agents.discovery_agent.OllamaLLM")
-    @patch("sentinel.agents.investigation_agent.AsyncAnthropic")
-    @patch("sentinel.agents.legal_agent.AsyncAnthropic")
-    @patch("sentinel.agents.bias_detection_agent.AsyncAnthropic")
-    @patch("sentinel.agents.report_agent.AsyncAnthropic")
-    async def test_graph_runs_to_completion(
-        self, mock_report_llm, mock_bias_llm, mock_legal_llm,
-        mock_inv_llm, mock_ollama_cls, mock_semaphore, initial_state
-    ):
-        """Graph should transition from queued → complete without exceptions."""
-        _configure_mocks(
-            mock_report_llm, mock_bias_llm, mock_legal_llm,
-            mock_inv_llm, mock_ollama_cls
-        )
-
+    async def test_graph_runs_to_completion(self, initial_state):
+        """Low-risk run: discovery -> parallel fan-out -> report -> audit -> complete."""
+        from langgraph.checkpoint.memory import MemorySaver
         from sentinel.graph.builder import build_graph
-        graph = build_graph(use_memory_saver=True)
 
-        result = await graph.ainvoke(initial_state)
+        with stub_agents() as calls:
+            graph = build_graph().compile(checkpointer=MemorySaver())
+            result = await graph.ainvoke(
+                initial_state, {"configurable": {"thread_id": "INT-TEST-001"}}
+            )
 
-        assert result["status"] in ("complete", "pending_human")
+        assert result["status"] == "complete"
         assert result["tenant_id"] == "bank-acme"
         assert result["investigation_id"] == "INT-TEST-001"
+        assert result["compliance_verdict"] == "COMPLIANT"
+        assert result["relevant_case_ids"] == ["CASE-0001", "CASE-0002"]
+        # Fan-out: all three parallel agents ran, then fan-in to report and audit
+        assert {"investigation", "legal", "bias"} <= set(calls)
+        assert calls.index("report") > max(calls.index(n) for n in ("investigation", "legal", "bias"))
+        assert calls[-1] == "report"  # v1 has no audit agent (added in v2)
 
-    @patch("sentinel.agents.discovery_agent.OllamaLLM")
-    async def test_discovery_populates_case_ids(self, mock_ollama_cls, initial_state):
-        """After discovery node runs, relevant_case_ids must be populated."""
-        mock_chain = AsyncMock()
-        mock_chain.ainvoke = AsyncMock(return_value={
-            "relevant_case_ids": ["CASE-0001", "CASE-0002"],
-            "case_count": 2,
-            "discovery_confidence": 0.85,
-        })
-        mock_ollama_cls.return_value = MagicMock()
+    @pytest.mark.xfail(strict=True, reason=(
+        "Known v1 bug: discovery always fans out to legal and bias agents, even with "
+        "no cases. Fixed in sentinel_v2 by the investigate_fanout node."
+    ))
+    async def test_no_cases_skips_investigation(self, initial_state):
+        """Discovery finding nothing ends at no_cases without running the agents."""
+        from langgraph.checkpoint.memory import MemorySaver
+        from sentinel.graph.builder import build_graph
 
-        from sentinel.agents.discovery_agent import discovery_node
-        with patch("sentinel.agents.discovery_agent._build_chain", return_value=mock_chain):
-            with patch("sentinel.agents.discovery_agent._fetch_candidate_cases",
-                       new=AsyncMock(return_value=[])):
-                result = await discovery_node(initial_state)
+        with stub_agents(case_count=0) as calls:
+            graph = build_graph().compile(checkpointer=MemorySaver())
+            result = await graph.ainvoke(
+                initial_state, {"configurable": {"thread_id": "INT-TEST-002"}}
+            )
 
-        assert "relevant_case_ids" in result
-        assert isinstance(result["relevant_case_ids"], list)
+        assert calls == ["discovery"]
+        assert result["status"] == "complete"
+        assert result["compliance_verdict"] == "COMPLIANT"
+        assert "No relevant cases" in result["final_report"]
 
     async def test_state_tenant_id_preserved_through_pipeline(self, initial_state):
         """Tenant ID must never change during pipeline execution."""
@@ -124,7 +119,7 @@ class TestGraphEdgeRouting:
         state["case_count"] = 0
         state["discovery_confidence"] = 0.0
         route = route_after_discovery(state)
-        assert route == "complete"  # Nothing found — skip investigation
+        assert route == "no_cases"  # Nothing found — skip investigation
 
     def test_route_after_discovery_with_cases(self):
         from sentinel.graph.edges import route_after_discovery
@@ -138,16 +133,17 @@ class TestGraphEdgeRouting:
         from sentinel.graph.edges import route_after_evidence_assembly
         state = make_initial_state("INV-004", "t1", "query", {}, "finance")
         state["regulatory_risk"] = "CRITICAL"
-        state["investigation_sufficient"] = True
+        state["compliance_verdict"] = "VIOLATION"
         route = route_after_evidence_assembly(state)
         assert route == "hitl"
 
     def test_route_after_evidence_sufficient_goes_to_report(self):
         from sentinel.graph.edges import route_after_evidence_assembly
         state = make_initial_state("INV-005", "t1", "query", {}, "finance")
-        state["investigation_sufficient"] = True
+        state["compliance_verdict"] = "COMPLIANT"
         state["regulatory_risk"] = "LOW"
         state["bias_detected"] = False
+        state["discovery_confidence"] = 0.9  # above the 0.65 HITL floor
         route = route_after_evidence_assembly(state)
         assert route == "report"
 
@@ -165,36 +161,3 @@ class TestGraphEdgeRouting:
         state["final_report"] = "Complete compliance report..."
         route = route_after_report(state)
         assert route == "complete"
-
-
-# ── Helpers ────────────────────────────────────────────────────────────────────
-
-def _configure_mocks(mock_report_llm, mock_bias_llm, mock_legal_llm,
-                     mock_inv_llm, mock_ollama_cls):
-    """Wire up all mock LLM clients with deterministic responses."""
-    # Anthropic clients — used by investigation, legal, bias, report agents
-    for mock_cls in [mock_report_llm, mock_bias_llm, mock_legal_llm, mock_inv_llm]:
-        instance = AsyncMock()
-        mock_response = MagicMock()
-        mock_response.content = [MagicMock(
-            text='{"investigation_sufficient": true, "compliance_verdict": "UNCERTAIN",'
-                 '"regulatory_risk": "LOW", "bias_detected": false,'
-                 '"applicable_regulations": ["ECOA Section 202.6"],'
-                 '"legal_citations": [], "report_confidence": 0.85,'
-                 '"final_report": "Investigation complete. No violations found.",'
-                 '"bias_dimensions_checked": [], "statistical_findings": [],'
-                 '"bias_confidence": 0.0}'
-        )]
-        mock_response.usage = MagicMock(input_tokens=500, output_tokens=200)
-        instance.messages.create = AsyncMock(return_value=mock_response)
-        mock_cls.return_value = instance
-
-    # Ollama — used by discovery agent
-    mock_ollama_instance = MagicMock()
-    mock_chain = AsyncMock()
-    mock_chain.ainvoke = AsyncMock(return_value={
-        "relevant_case_ids": ["CASE-0001", "CASE-0002"],
-        "case_count": 2,
-        "discovery_confidence": 0.88,
-    })
-    mock_ollama_cls.return_value = mock_ollama_instance

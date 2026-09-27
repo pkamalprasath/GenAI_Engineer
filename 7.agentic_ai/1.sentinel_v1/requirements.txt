@@ -20,7 +20,6 @@ langgraph-checkpoint-postgres>=2.0.0
 # ── LLM APIs ──────────────────────────────────────────────────────────────────
 anthropic>=0.34.0
 openai>=1.40.0                        # Fallback only
-langchain-openai>=0.1.0               # ChatOpenAI + tool binding (Phase 2C)
 
 # ── Local LLM (Ollama) ────────────────────────────────────────────────────────
 # Ollama runs as a separate process — this is the Python client
@@ -66,24 +65,6 @@ rank-bm25>=0.2.2                      # BM25 pre-filter for discovery
 transformers>=4.42.0                  # DistilBERT / LegalBERT re-ranker
 torch>=2.3.0                          # CPU-only: pip install torch --index-url https://download.pytorch.org/whl/cpu
 # Note: ~250MB for DistilBERT, ~450MB for LegalBERT — fits comfortably in 8GB RAM
-
-# ── v2: MCP Servers ───────────────────────────────────────────────────────────
-mcp>=1.0.0                            # MCP protocol (Model Context Protocol)
-fastmcp>=0.9.0                        # FastMCP server framework
-
-# ── v2: Proactive Scheduler ───────────────────────────────────────────────────
-apscheduler>=3.10.0                   # Async-compatible job scheduler
-
-# ── v2: Regulation YAML ingestion ─────────────────────────────────────────────
-# pyyaml already listed above
-
-# ── Phase 2C: ToolNode in Legal Agent ─────────────────────────────────────────
-# (langchain-openai added above in LLM APIs section)
-
-# ── Phase 4: Task Queue + Structured Logging ──────────────────────────────────
-arq>=0.25                             # Async task queue for worker processes
-redis[hiredis]>=5.0                   # Redis client with C extension
-structlog>=24.0                       # Structured JSON logging
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 pytest>=8.2.0

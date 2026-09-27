@@ -43,10 +43,11 @@ def verify_record_list(records: list[dict], tenant_id: str, tenant_id_field: str
     """
     Verify all records in a list belong to the expected tenant.
     Used after any bulk DB query to catch misconfigured queries.
+    Fails closed: a record with no tenant is treated as a breach, not skipped.
     """
     for record in records:
         record_tenant = record.get(tenant_id_field)
-        if record_tenant and record_tenant != tenant_id:
+        if record_tenant != tenant_id:
             logger.error(
                 '{"event":"isolation_breach","expected":"%s","found":"%s"}',
                 tenant_id, record_tenant,

@@ -270,7 +270,6 @@ if st.button("Start Batch Processing", disabled=not _api_ok, use_container_width
             # Fetch and display verdict distribution
             st.markdown("### Verdict Distribution")
             try:
-                import asyncpg
                 async def get_verdict_stats():
                     db_url = os.getenv("DATABASE_URL")
                     conn = await asyncpg.connect(db_url)
