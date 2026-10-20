@@ -39,7 +39,7 @@ ColBERT's late interaction is now used in production retrieval systems. It expla
 
 ## Connection to My Experiments
 
-> `experiments/09_reranking.py` implements this two-stage idea: fast dense retrieval (top-20) followed by cross-encoder re-ranking (top-5). The +12% faithfulness gain validates ColBERT's core insight.
+> `experiments/09_reranking.py` implements this two-stage idea: fast dense retrieval (top-20) followed by cross-encoder re-ranking (top-5). On that corpus, the cross-encoder gave no measurable quality gain over the no-reranker baseline (judge scores of 4.7–4.8, against 4.8) and added latency. It was therefore left out of the engineering RAG pipeline. The two-stage idea is sound, but its value depends on how good first-stage retrieval already is.
 
 ---
 

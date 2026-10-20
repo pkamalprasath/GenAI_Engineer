@@ -72,8 +72,8 @@ These are the **production-grade retrieval techniques** used in real systems. No
 
 ## Connection to My Experiments
 
-> `experiments/08_retrieval_methods.py` directly tests all four methods: Dense, BM25, Hybrid (RRF), and HyDE. My experimental results confirmed the +15% recall gain for Hybrid — consistent with the research.
-> `experiments/09_reranking.py` validates the +12% faithfulness gain from cross-encoder re-ranking.
+> `experiments/08_retrieval_methods.py` directly tests all four methods: Dense, BM25, Hybrid (RRF), and HyDE. On the nutrition-textbook corpus, HyDE scored highest (4.90), with dense at 4.83, hybrid RRF at 4.77 and BM25 at 4.73. Hybrid did not beat dense there. In the engineering RAG project, BM25 was still kept because it catches exact identifiers such as standard numbers, which dense search misses.
+> `experiments/09_reranking.py` found no quality gain from cross-encoder re-ranking and some added latency, so re-ranking was left out.
 
 ---
 

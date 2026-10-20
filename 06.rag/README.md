@@ -33,14 +33,14 @@ Ran 10 systematic experiments on a 1,200-page nutrition textbook comparing:
 
 | What | Variants | Key Finding |
 |---|---|---|
-| Chunking strategies | 6 | Semantic chunking best faithfulness |
-| Embedding models | 6 | `text-embedding-3-small` best quality/cost |
-| Vector stores | 6 | FAISS fastest in-memory; Supabase best managed |
-| LLMs | 4 | GPT-4o-mini best quality/cost ratio |
-| Top-K retrieval | 5 values | k=5 optimal for this corpus |
-| Retrieval methods | 4 | Hybrid (Dense+BM25) outperforms dense by ~15% |
-| Re-ranking | Cross-encoder | +12% faithfulness with minimal latency cost |
-| Prompt templates | 4 | Expert-persona + CoT scores highest |
+| Chunking strategies | 6 | Fixed-512 scored highest (5.0); all strategies within 4.87–5.0 |
+| Embedding models | 6 | Local `all-MiniLM-L6-v2` matched the top score with no API cost |
+| Vector stores | 6 | FAISS and ChromaDB fastest (~160 ms average query) |
+| LLMs | 4 | Claude Haiku had the lowest latency (4.7 s average) |
+| Top-K retrieval | 5 values | k=1 too little; k=3 recovered most of the quality |
+| Retrieval methods | 4 | HyDE scored highest; hybrid did not beat dense on this corpus |
+| Re-ranking | Cross-encoder | No quality gain and added latency, so it was left out |
+| Prompt templates | 4 | Simple prompts beat chain-of-thought and expert-persona |
 
 [View Experiments →](./experiments/)
 
