@@ -37,11 +37,14 @@ All charts are in `results/` — generated automatically by each script:
 
 ## Key Findings
 
-- **Hybrid retrieval** (Dense + BM25 via Reciprocal Rank Fusion) outperforms pure dense by ~15% recall
-- **Cross-encoder re-ranking** adds ~12% faithfulness with <50ms latency overhead
-- **`text-embedding-3-small`** beats 768-dim local models at 1/10th the memory footprint
-- **Expert-persona + chain-of-thought** prompts score highest on RAGAS across all LLMs
-- **k=5** is the sweet spot — more chunks add noise, fewer miss context
+Figures come straight from the CSVs in `results/`. Quality is an LLM-as-judge score (1–5) on a small question set. Most configurations land between 4.7 and 5.0, so small gaps are within noise. The clearer signals are the large gaps and the latency.
+
+- **Re-ranking did not pay off.** Cross-encoder rerankers (MiniLM-L6, MiniLM-L12, BGE-base) scored 4.7–4.8, against 4.8 with no reranker, and added 2.7–21 s of reranking time per run. It was left out of the [engineering RAG pipeline](../projects/2.engineering-rag/).
+- **HyDE scored highest of the retrieval methods** (4.90): dense 4.83, hybrid RRF 4.77, BM25 4.73. Hybrid did not beat dense on this corpus. BM25 is still kept in the engineering pipeline because it catches exact identifiers such as standard numbers.
+- **A local embedding model was enough.** `all-MiniLM-L6-v2` (384-dim) matched the top end-to-end score (5.0) with no API cost; `text-embedding-3-small` scored 4.93.
+- **Simple prompts won.** The notebook-style prompt (4.80) and the minimal prompt (4.77) beat chain-of-thought (4.50) and expert-persona (4.63).
+- **Top-k:** k=1 retrieved too little (3.93). k=3 recovered most of the quality (4.80), and k=20 scored 4.93 with about 4× the context.
+- **LLM latency:** Claude Haiku had the lowest average latency (4.68 s), then GPT-4o-mini (6.25 s) and Claude Sonnet (9.06 s).
 
 ## Setup
 
