@@ -138,7 +138,7 @@ app = graph.compile()
 
 ## Git & GitHub Rules
 
-### Pushing to GitHub (pkamalprasath/GenAI_Engineer pattern)
+### Pushing to GitHub (pkamalprasath/ai-engineering-portfolio pattern)
 Use `/github-push <url> <subfolder>` — it writes and runs a Python script that:
 1. Clones the target repo to `C:\Temp\<repo>_push`
 2. Copies all project files (skipping venv, __pycache__, .git, reports, .env)

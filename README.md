@@ -3,7 +3,7 @@
 **AI engineer with 13 years of client delivery.** I build RAG systems and LLM agents in Python and measure every change. At Cognizant I have worked with financial services, healthcare, energy and retail clients on their systems and data: requirements, incident management against client SLAs, a mainframe-to-AWS assessment, and AI tools applied to client code.
 Bristol, UK · open to London hybrid · [LinkedIn](https://www.linkedin.com/in/kamalprasath) · AWS Certified Solutions Architect – Associate · AWS Certified AI Practitioner
 
-[![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Tests](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/ai-engineering-portfolio/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 

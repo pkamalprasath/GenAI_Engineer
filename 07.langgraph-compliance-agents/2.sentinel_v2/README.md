@@ -4,7 +4,7 @@ Reviewing lending decisions for fair-lending problems means checking each decisi
 SENTINEL is an 11-node LangGraph workflow that runs 3 agents in parallel (provenance, legal, bias), picks cases with a BM25 → DistilBERT → local Llama 3.2 triage so only borderline cases reach a language model, and sends a case to human review when report confidence is below 0.85.
 Every decision record carries a SHA-256 content hash, so a changed record is detected when its provenance chain is read. All data is synthetic; the rules covered are US fair-lending rules (ECOA, HMDA and related).
 
-[![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml)
+[![Tests](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml)
 
 ---
 
@@ -95,8 +95,8 @@ Model names, thresholds, bias dimensions, PII lists and rate limits live in `con
 Prerequisites: Python 3.11, PostgreSQL with the pgvector extension (local or hosted), Redis, [Ollama](https://ollama.com), and an OpenAI API key (embeddings and default reasoning model).
 
 ```bash
-git clone https://github.com/pkamalprasath/GenAI_Engineer.git
-cd GenAI_Engineer/07.langgraph-compliance-agents/2.sentinel_v2
+git clone https://github.com/pkamalprasath/ai-engineering-portfolio.git
+cd ai-engineering-portfolio/07.langgraph-compliance-agents/2.sentinel_v2
 
 python -m venv .venv && source .venv/bin/activate
 pip install torch --index-url https://download.pytorch.org/whl/cpu

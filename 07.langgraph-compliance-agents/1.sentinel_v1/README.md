@@ -286,8 +286,8 @@ sentinel/
 
 ### 1. Clone and install
 ```bash
-git clone https://github.com/pkamalprasath/GenAI_Engineer.git
-cd GenAI_Engineer/07.langgraph-compliance-agents/1.sentinel_v1
+git clone https://github.com/pkamalprasath/ai-engineering-portfolio.git
+cd ai-engineering-portfolio/07.langgraph-compliance-agents/1.sentinel_v1
 
 python -m venv .venv
 source .venv/bin/activate            # Linux/macOS

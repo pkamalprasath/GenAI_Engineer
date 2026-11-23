@@ -5,8 +5,8 @@ Push the current project into a subfolder of an existing GitHub repository using
 
 Example:
 ```
-/github-push https://github.com/pkamalprasath/GenAI_Engineer guardrails
-/github-push https://github.com/pkamalprasath/GenAI_Engineer langchain
+/github-push https://github.com/pkamalprasath/ai-engineering-portfolio guardrails
+/github-push https://github.com/pkamalprasath/ai-engineering-portfolio langchain
 ```
 
 ## Steps to Perform
@@ -228,12 +228,12 @@ ALWAYS_SKIP = {
 
 ### Push LangChain project
 ```
-/github-push https://github.com/pkamalprasath/GenAI_Engineer langchain
+/github-push https://github.com/pkamalprasath/ai-engineering-portfolio langchain
 ```
 
 ### Push AI Guardrails project
 ```
-/github-push https://github.com/pkamalprasath/GenAI_Engineer guardrails
+/github-push https://github.com/pkamalprasath/ai-engineering-portfolio guardrails
 ```
 
 ### Push to a new repo

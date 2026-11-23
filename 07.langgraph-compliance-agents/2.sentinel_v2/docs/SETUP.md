@@ -13,8 +13,8 @@
 ## Step 1: Clone & Create Virtual Environment
 
 ```bash
-git clone https://github.com/pkamalprasath/GenAI_Engineer.git
-cd GenAI_Engineer/07.langgraph-compliance-agents/2.sentinel_v2
+git clone https://github.com/pkamalprasath/ai-engineering-portfolio.git
+cd ai-engineering-portfolio/07.langgraph-compliance-agents/2.sentinel_v2
 
 # Create isolated Python environment
 python -m venv .venv

@@ -5,7 +5,7 @@ Re-tested on the same 50 questions after every change: best run **3.87 / 5** (Cl
 
 FastAPI · Streamlit · PostgreSQL + pgvector · Claude Sonnet and Haiku · Langfuse tracing · 147 tests in CI
 
-[![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml)
+[![Tests](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml)
 
 ![Streamlit UI start screen](docs/screenshots/ss_01_keygate.png)
 
