@@ -1,6 +1,6 @@
 # Kamal Prasath Perumalsamy — AI engineering portfolio
 
-**Mainframe modernisation & AI engineer.** 13+ years delivering COBOL, DB2 and Oracle systems for financial services, healthcare, energy and retail clients at Cognizant; now building and *measuring* RAG systems and LLM agents in Python.
+**AI engineer with 13 years of client delivery.** I build RAG systems and LLM agents in Python and measure every change. At Cognizant I have worked with financial services, healthcare, energy and retail clients on their systems and data: requirements, incident management against client SLAs, a mainframe-to-AWS assessment, and AI tools applied to client code.
 Bristol, UK · open to London hybrid · [LinkedIn](https://www.linkedin.com/in/kamalprasath) · AWS Certified Solutions Architect – Associate · AWS Certified AI Practitioner
 
 [![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -66,6 +66,7 @@ A team assistant that answers questions from channel history, opens GitHub issue
 
 ## At work
 
+- Designed and built a customer-service AI agent system with input and output guardrails, sized for about 10,000 interactions (pre-production).
 - Built two prompt-based AI tools (Python, FastAPI) adopted by 40 colleagues, and trained all 40 on AI tools.
 - Use Claude, Amazon Q and GitHub Copilot for business-logic extraction, documentation, code review and test generation on client code, with every output checked by a developer.
 - Assessed a mainframe estate for migration to AWS; migrated Micro Focus COBOL to NetCOBOL on Linux; built a PHI/PII discovery tool and data masking across four database platforms.
