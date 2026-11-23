@@ -138,7 +138,7 @@ Need to implement functionality?
 | Shared business logic | Plain `async def` in `utils/` |
 | Testing MCP server | MCP client protocol |
 
-**The fix for Problem #13 in open_claw_slack_bot:**
+**The fix for Problem #13 in slack-workflow-agent:**
 - 8 broken tools importing MCP functions
 - Rewrote all 8 to use Slack SDK directly
 - Agent fully functional after fix

@@ -43,7 +43,7 @@ CRAG formalises what any good RAG engineer does intuitively — check if your re
 
 ## Connection to My Experiments
 
-> `experiments/05_evaluation.py` uses RAGAS faithfulness scores to measure exactly this — whether retrieved chunks genuinely support the generated answer. Low faithfulness = CRAG-style detection that something went wrong.
+> `experiments/05_evaluation.py` was written to measure this with RAGAS faithfulness (whether retrieved chunks support the answer), but the RAGAS scores were not computed. CRAG itself is implemented in the engineering RAG project (`projects/2.engineering-rag/src/retrieval/crag.py`), where one batched call grades every retrieved chunk before generation.
 
 ---
 

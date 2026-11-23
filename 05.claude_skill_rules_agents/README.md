@@ -95,5 +95,5 @@ Copy-Item CLAUDE.md $env:USERPROFILE\.claude\CLAUDE.md
 | Project | Skills Generated |
 |---|---|
 | LangChain Mastery (12 notebooks + 16 projects) | `/langchain-new`, `/rag-scaffold`, `/agent-scaffold`, `/env-setup`, CLAUDE.md LangChain + LangGraph patterns |
-| open_claw_slack_bot (Slack AI Agent) | `/slack-bot-new`, `/add-agent-tool`, `/add-scheduler-job`, `/debug-agent-tools`, `/bug-hunter`, `/integration-tester`, patterns/, rules/ |
+| slack-workflow-agent (Slack AI agent) | `/slack-bot-new`, `/add-agent-tool`, `/add-scheduler-job`, `/debug-agent-tools`, `/bug-hunter`, `/integration-tester`, patterns/, rules/ |
 | AI Guardrails (8 modules) | `/github-ready`, `/secret-scan`, `/github-push`, `/genai-readme` |

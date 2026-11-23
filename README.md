@@ -1,250 +1,77 @@
-# Kamal Prasath — GenAI Engineer Portfolio
+# Kamal Prasath Perumalsamy — AI engineering portfolio
 
-[![Tests Status](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+**Mainframe modernisation & AI engineer.** 13+ years delivering COBOL, DB2 and Oracle systems for financial services, healthcare, energy and retail clients at Cognizant; now building and *measuring* RAG systems and LLM agents in Python.
+Bristol, UK · open to London hybrid · [LinkedIn](https://www.linkedin.com/in/kamalprasath) · AWS Certified Solutions Architect – Associate · AWS Certified AI Practitioner
 
-A **structured, evidence-based portfolio** of GenAI engineering — from NLP foundations to production-grade AI systems.
-Every design decision is benchmarked, not assumed.
+[![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
-## Portfolio at a Glance
+## Start here: three projects, two minutes
 
-**~65,600 lines of Python** | **403 Python files** | **61 Jupyter notebooks** | **7 project areas** | **3 tested systems (900+ automated tests in CI)**
+### 1. Ask an engineering manual a question that needs a table, a diagram *and* a paragraph — get one cited answer
+**[Multimodal engineering RAG →](06.rag/projects/2.engineering-rag)**
 
-| Project | Focus | Status | Code | Impact |
-|---------|-------|--------|------|--------|
-| [01.nlp](./01.nlp) | Foundations (Word2Vec, RNNs, ANNs) | Learning | 3 files | 17 notebooks |
-| [02.langchain](./02.langchain) | 15+ LLM patterns (LCEL, RAG, Agents) | Reference | 17 files | 22 notebooks |
-| [03.guardrails](./03.guardrails) | AI safety & red-teaming | Advanced | 18 files | 14 notebooks |
-| [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch) | **Slack agent built without a framework** (17 tools) | **Production** | **80 files** | 267 unit tests |
-| [06.rag](./06.rag) | **Production deep-dive** (multimodal) | **Production** | **61 files** | 10 experiments |
-| [7.agentic_ai](./7.agentic_ai) | **SENTINEL v1 & v2** (6-agent LangGraph system) | **Production** | **198 files** | 500+ tests across v1 and v2 |
-| [8.slm_from_scratch](./8.slm_from_scratch) | Small Language Models (LoRA, GPT-2, BioGPT, Build-from-Scratch) | Learning | **26 files** | 4 training notebooks with outputs |
+Real questions about equipment ("What torque for M12 bolts near the motor, and what PPE applies?") have answers spread across text, spec tables and diagrams. This system indexes all three and answers with citations.
 
----
+- **Measured, not demoed:** a fixed 50-question test set (text, table, image, multi-hop, unanswerable) re-run after every change. Best run **3.87 / 5** (Claude Haiku as judge); multi-hop **2.63 → 3.27** under the same judge.
+- **Honest about regressions:** run 5 scored lower, the cause was traced (an image-caption model refused 257 of 359 images) and the change was reverted.
+- Hybrid retrieval (pgvector + BM25), query decomposition, corrective RAG, Langfuse tracing, ~$0.022 per query (estimated from token counts). 147 tests in CI.
 
-## Flagship Projects
+`Python` `FastAPI` `PostgreSQL + pgvector` `Claude` `Langfuse`
 
-### 1. SENTINEL: Multi-Agent Compliance Automation
+### 2. Three AI agents review a lending decision in parallel — and hand it to a human when they're not sure
+**[LangGraph compliance agents →](07.langgraph-compliance-agents/2.sentinel_v2)**
 
-**Location:** [7.agentic_ai](./7.agentic_ai/2.sentinel_v2)
+A multi-agent workflow that checks (synthetic) lending decisions against US fair-lending rules (ECOA, HMDA) and writes an evidence-backed report.
 
-Production system for compliance automation using 6 AI agents orchestrated in an 11-node LangGraph workflow.
+- **11-node LangGraph workflow**; investigation, legal and bias agents run in parallel.
+- **Cheap first, LLM last:** a BM25 → DistilBERT → local Llama 3.2 triage sends only borderline cases to a large model.
+- **Human in the loop:** reports below 0.85 confidence go to a reviewer; every finding carries SHA-256 provenance.
+- FastAPI + Redis job queue + PostgreSQL, Docker Compose, 200+ tests in CI.
 
-**Key Metrics:**
-- **Cost (estimated):** about $0.002 in API tokens per investigation
-- **Speed:** 45 seconds autonomous + 5 min human review (vs. 40+ hours manual)
+`LangGraph` `Multi-agent` `Human-in-the-loop` `FastAPI` `Ollama`
 
-**Architecture:**
-- LangGraph orchestration of 6 agents (discovery, investigation, legal, bias, report, audit), with legal, bias and investigation running in parallel and an evidence-assembly fan-in step
-- FastAPI backend + Streamlit dashboard
-- Background job queue (arq + Redis)
-- PostgreSQL with pgvector (HNSW vector search)
-- W3C PROV-O provenance graphs with SHA-256 tamper detection
+### 3. A Slack agent with 16 tools across Slack, GitHub and Notion — built without an agent framework
+**[Slack workflow agent →](04.slack-workflow-agent)**
 
-**Production Features:**
-- [OK] Health-check endpoints and graceful shutdown for container deployment
-- [OK] Multi-tenant isolation with audit trails
-- [OK] Input/output guardrails (security boundaries)
-- [OK] Observability with LangFuse cost tracking
-- [OK] Rate limiting, structured logging, error recovery
+A team assistant that answers questions from channel history, opens GitHub issues, turns threads into Notion pages and sets reminders, using Claude's native tool use in a hand-written agent loop.
+
+- **No LangChain, no LangGraph:** the tool-calling loop, memory and tool registry are written directly against the Claude API.
+- FastMCP server for the Slack tools, ChromaDB retrieval over channel history, scheduled reminders.
+- **267 unit tests in CI.** Run in a test workspace.
+
+`Claude tool use` `MCP` `Slack Bolt` `ChromaDB`
 
 ---
 
-### 2. RAG Deep-Dive: Multimodal Retrieval at Scale
+## Built from scratch
 
-**Location:** [06.rag/projects/2.engineering-rag](./06.rag/projects/2.engineering-rag/)
-
-Production RAG system handling text, tables, and images simultaneously.
-
-**Problem Solved:**
-When an engineer asks *"What torque for M12 bolts near the motor, and what PPE applies?"* — the answer spans multiple modalities:
-- Spec table (torque value)
-- Text procedure (installation steps)
-- Image caption (safety diagram)
-
-Standard RAG returns one or the other. **This system retrieves all three and synthesizes a cited answer.**
-
-**Benchmark Results:**
-- **Overall score:** 3.87 / 5.0 (measured across 50 questions, 5 evaluation runs)
-- Text retrieval: **4.13** / 5.0
-- Table retrieval: **4.30** / 5.0
-- Image retrieval: **3.37** / 5.0
-- Multihop reasoning: **3.27** / 5.0
-- Unanswerable handling: **4.77** / 5.0
-
-**What Separates This from Tutorial RAG:**
-
-| Feature | What it does | Impact |
-|---------|--------------|--------|
-| **Multimodal ingestion** | Text (parent+child chunks), tables (Markdown), images (vision captions) | 100% of document types searchable |
-| **Hybrid retrieval** | pgvector cosine + BM25 keyword + RRF ranking | +0.46 score improvement |
-| **HyDE** | Query → hypothetical answer → embedding | Better semantic matching |
-| **Query decomposition** | Multihop questions split into sub-queries | +0.64 on complex questions |
-| **CRAG** | Chunk scoring (RELEVANT/AMBIGUOUS/IRRELEVANT) | Noise filtered before generation |
-| **Self-RAG** | Answer verified post-generation, retry if needed | Grounding verification |
-| **Observability** | Full Langfuse trace per query | Latency profiling, token counts |
-| **OWASP hardening** | Path traversal protection, rate limiting, input sanitization | Production-grade security |
-
-**Stack:** Python · FastAPI · Streamlit · Claude Sonnet 4.6 · PostgreSQL + pgvector · sentence-transformers
+| What | Proof |
+|---|---|
+| **LoRA written from scratch** in PyTorch — no PEFT library | [`08.slm-pretraining/01_finance_gpt_lora`](08.slm-pretraining) |
+| **Agent loop without a framework** — native Claude tool use | [`04.slack-workflow-agent`](04.slack-workflow-agent) |
+| **GPT-2 124M pretraining on 8 GPUs** (PyTorch DDP), reimplemented following Andrej Karpathy's build-nanoGPT — val loss 3.67, HellaSwag 26.0% | [`08.slm-pretraining/02_gpt2_124m_nanogpt_reimplementation`](08.slm-pretraining) |
 
 ---
 
-### 3. OpenClaw: Proprietary Agent Architecture Built from Scratch
+## Also here
 
-**Location:** [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch)
+| Folder | What it is |
+|---|---|
+| [`06.rag/experiments`](06.rag/experiments) | **35 RAG configurations compared** (chunking, embeddings, vector stores, top-k, re-ranking, prompts). Findings are reported as the data shows them — including that re-ranking and hybrid retrieval did not help on this dataset. |
+| [`08.slm-pretraining`](08.slm-pretraining) | Small language-model training notebooks with outputs kept as evidence. |
+| [`05.claude_skill_rules_agents`](05.claude_skill_rules_agents) | Claude Code rules and commands I use for these projects. |
+| [`01.nlp`](01.nlp) · [`02.langchain`](02.langchain) · [`03.guardrails`](03.guardrails) | Learning log: course labs (credited in each folder) on NLP, LangChain, guardrails and red-teaming. |
 
-Real production system deployed to Slack workspace with 81 Python files and full test coverage.
+## At work
 
-**What Makes It Special:**
-Not an implementation of an existing framework. Built completely from first principles with a proprietary 5-layer architecture designed specifically for Slack constraints.
+- Built two prompt-based AI tools (Python, FastAPI) adopted by 40 colleagues, and trained all 40 on AI tools.
+- Use Claude, Amazon Q and GitHub Copilot for business-logic extraction, documentation, code review and test generation on client code, with every output checked by a developer.
+- Assessed a mainframe estate for migration to AWS; migrated Micro Focus COBOL to NetCOBOL on Linux; built a PHI/PII discovery tool and data masking across four database platforms.
 
-**Features:**
-- [OK] **Proprietary 5-layer architecture** (designed from scratch, not following patterns)
-- [OK] **Multi-tool integration** (10+ connected tools)
-- [OK] **Conversation memory** (long-running context)
-- [OK] **MCP server integration** (extensible architecture)
-- [OK] **Scheduled tasks** (APScheduler)
-- [OK] **Test suite** (267 unit tests, run in CI)
+## Run a project
 
-**Architecture Layers:**
-1. Slack Integration — Event handling and response formatting
-2. Middleware & Security — Validation, rate limiting, input protection
-3. Agent Orchestrator — native Claude tool-use (ReAct) loop, no agent framework
-4. Memory & Services — Conversation context and storage
-5. Integration Framework — Unified API wrappers (GitHub, Notion, Slack)
+Each project is self-contained with its own README, `requirements.txt` and `.env.example`. Tests for the three main projects run in [GitHub Actions](.github/workflows/tests.yml).
 
-**Shows:** Full-stack production thinking (not just proof-of-concept)
-
----
-
-### 4. SLM Portfolio: Small Language Models from Fundamentals
-
-**Location:** [8.slm_from_scratch](./8.slm_from_scratch)
-
-Four independent ML projects demonstrating parameter efficiency, large-scale training, domain specialization, and foundational AI architecture.
-
-**Projects:**
-- **Finance_SLM:** 64M-parameter model pretrained on financial text, then LoRA (written from scratch), adapter, prefix and full fine-tuning compared by trainable parameters. F1 not yet measured; see its README.
-- **GPT2:** GPT-2 124M pretraining on FineWeb-Edu with 8-GPU DDP, following Karpathy's build-nanoGPT (2,000 steps run, val loss 3.67)
-- **BioGPT:** 27M-parameter model pretrained on PubMed with the BioGPT vocabulary, then soft-prompt fine-tuned on cancer hallmarks (HoC macro F1 0.42, from 0.003)
-- **Build_SLM:** ~30M-parameter GPT written in PyTorch and pretrained on TinyStories (val loss 2.40)
-
-**Shows:** Complete ML engineering expertise from fundamentals to production
-
----
-
-## What This Portfolio Demonstrates
-
-| Capability | Evidence | Level |
-|---|---|---|
-| **Systematic thinking** | 10 RAG experiments with benchmarks | Expert |
-| **Full-stack development** | Backend (FastAPI) + Frontend (Streamlit/Next.js) + DevOps (Docker) | Expert |
-| **Production architecture** | OWASP security, observability (Langfuse), scaling (async/jobs) | Expert |
-| **AI/ML expertise** | LangChain, LangGraph, vector search, prompt engineering, agents | Expert |
-| **Business acumen** | ROI analysis, cost optimization, compliance automation | Expert |
-| **Code quality** | Type hints, error handling, structured logging | Advanced |
-| **Original thinking** | Proprietary architecture design (not following tutorials) | Expert |
-
----
-
-## Project Details
-
-### The Journey: Foundations → Experiments → Production
-
-**Step 1: Learn from Scratch**
-- [01.nlp](./01.nlp): Word2Vec, RNNs, ANNs — zero framework dependency
-
-**Step 2: Master Frameworks**
-- [02.langchain](./02.langchain): 15+ patterns (LCEL, RAG, agents, tools, graphs)
-- [03.guardrails](./03.guardrails): AI safety fundamentals (injection, hallucination, PII)
-
-**Step 3: Build Production Systems**
-- [4.openclaw-built_from_scratch](./4.openclaw-built_from_scratch): Proprietary architecture with real agent (memory, scheduling, MCP)
-- [06.rag](./06.rag): Systematic benchmarking → production multimodal RAG
-- [7.agentic_ai](./7.agentic_ai): Enterprise compliance system (6-agent LangGraph orchestration)
-
-**Step 4: ML Engineering Depth**
-- [8.slm_from_scratch](./8.slm_from_scratch): Parameter efficiency, infrastructure, specialization, fundamentals
-
----
-
-## Tech Stack
-
-**LLMs & APIs:**  
-Claude Sonnet/Haiku (Anthropic) · GPT-4o/GPT-4o-mini (OpenAI) · Ollama · AWS Bedrock · Groq
-
-**RAG & Retrieval:**  
-pgvector · ChromaDB · FAISS · Qdrant · LanceDB · rank-bm25 · sentence-transformers · RAGAS · Langfuse
-
-**Frameworks:**  
-LangChain · LangGraph · FastAPI · Streamlit · Slack Bolt · Next.js
-
-**AI Safety:**  
-Guardrails AI · NeMo Guardrails · Garak · Presidio (PII)
-
-**Languages:**  
-Python 3.11+ · TypeScript
-
-**Infrastructure:**  
-PostgreSQL · Docker · Kubernetes · Supabase · Redis · SQLite · Neo4j
-
----
-
-## Getting Started
-
-Each project is self-contained:
-
-```bash
-# Example: Run SENTINEL locally
-cd 7.agentic_ai/2.sentinel_v2
-pip install -r requirements.txt
-python -m uvicorn sentinel.api.main:app --port 8003
-
-# Run RAG system
-cd 06.rag/projects/2.engineering-rag
-pip install -r requirements.txt
-streamlit run app.py
-
-# Run OpenClaw Slack Bot (proprietary architecture)
-cd 4.openclaw-built_from_scratch/open_claw_slack_bot
-poetry install
-poetry run python src/main.py
-```
-
-See individual project READMEs for detailed setup.
-
----
-
-## Professional Standards
-
-- [OK] **Licensed:** MIT (see [LICENSE](LICENSE))
-- [OK] **Documented:** [CHANGELOG.md](CHANGELOG.md), [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md)
-- [OK] **Tested:** Tests in projects with `.github/workflows/tests.yml`
-- [OK] **Versioned:** Semantic versioning with git tags (v1.0, v2.0, v3.0)
-- [OK] **Type Safe:** Type hints throughout codebase
-- [OK] **Observable:** Structured logging, cost tracking, health probes
-
----
-
-## Questions?
-
-- **Architecture:** See individual project [ARCHITECTURE.md](./7.agentic_ai/2.sentinel_v2/ARCHITECTURE.md)
-- **Setup:** See individual project [SETUP.md](./7.agentic_ai/2.sentinel_v2/SETUP.md)
-- **Contributing:** See [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Security:** See [SECURITY.md](SECURITY.md)
-- **Version History:** See [CHANGELOG.md](CHANGELOG.md)
-
----
-
-> **Built to understand the internals — not just call the APIs.**  
-> **Every number in this portfolio came from running the code.**  
-> **Every architecture was designed from first principles.**
-
----
-
-**Repository:** https://github.com/pkamalprasath/GenAI_Engineer  
-**Licensed:** MIT (see [LICENSE](LICENSE))  
-**Last Updated:** May 2026
+MIT licence · [Changelog](CHANGELOG.md)

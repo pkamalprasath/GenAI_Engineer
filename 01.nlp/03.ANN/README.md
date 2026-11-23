@@ -1,23 +1,16 @@
-# ANN — Artificial Neural Networks
+# ANN: feed-forward networks on tabular data
 
-Feed-forward neural networks applied to real-world tabular classification and regression problems using Keras.
+Two course projects on the same bank-customer dataset (`Churn_Modelling.csv`), each with a Keras model and a Streamlit app.
 
-## Projects
+| Project | Task | Model |
+|---|---|---|
+| [01. Classification](./01.Classification/) | Predict customer churn (binary) | Dense 64 → 32 → 1, sigmoid output |
+| [02. Regression](./02.Regression/) | Predict estimated salary | Dense 64 → 32 → 1, linear output |
 
-| Project | Task | Dataset | Model |
-|---|---|---|---|
-| [01. Classification](./01.Classification/) | Predict customer churn (binary) | Churn Modelling CSV | Dense ANN, sigmoid output |
-| [02. Regression](./02.Regression/) | Predict estimated salary | Churn Modelling CSV | Dense ANN, linear output |
+Both cover label and one-hot encoding, feature scaling with `StandardScaler`, early stopping, saving the model (`.h5`) and encoders (`.pkl`), and a Streamlit front end.
 
-## What's Covered
-
-- Label encoding and one-hot encoding for categorical features
-- Feature scaling with StandardScaler
-- Model architecture: Dense layers with ReLU + Dropout
-- Training, validation, and early stopping
-- Model serialization (`.h5`) and inference
-- Streamlit app for live predictions
+**Source:** course labs from the Udemy course *Complete Generative AI Course With LangChain and Hugging Face* (completed 20 Jan 2026).
 
 ## Stack
 
-`TensorFlow/Keras` · `scikit-learn` · `pandas` · `Streamlit`
+TensorFlow/Keras, scikit-learn, pandas, Streamlit.

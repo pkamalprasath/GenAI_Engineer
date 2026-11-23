@@ -1,26 +1,18 @@
-# 01. NLP Foundations
+# 01. NLP foundations
 
-Classical NLP and deep learning fundamentals — the bedrock before touching LLMs.
-Every concept here is later used in the LangChain and RAG modules.
+Course notebooks on classical NLP and early deep learning: text preprocessing, sparse and dense word representations, a feed-forward network on tabular data, and a simple RNN.
+
+**Source:** Built while following the Udemy course *Complete Generative AI Course With LangChain and Hugging Face* (completed 20 Jan 2026). These are course labs; notebook outputs have been cleared.
 
 ## Modules
 
-| Module | What It Covers |
+| Module | What it covers |
 |---|---|
-| [01. Text Preprocessing](./01.text_preprocessing/) | Tokenization, stemming, lemmatization, stop words, POS tagging, NER with NLTK & spaCy |
-| [02. Word Embeddings](./02.Word2vec/) | Bag of Words, N-Grams, TF-IDF, Word2Vec — from frequency to semantics |
-| [03. ANN](./03.ANN/) | Feed-forward neural networks for classification and regression on tabular data (Keras) |
-| [04. SimpleRNN](./04.SimpleRNN/) | Recurrent neural networks for sequence modelling, IMDB sentiment (Keras + Streamlit) |
+| [01. Text preprocessing](./01.text_preprocessing/) | Tokenisation, stemming, lemmatisation, stop words, POS tagging and NER with NLTK |
+| [02. Word representations](./02.Word2vec/) | Bag of words, n-grams, TF-IDF, Word2Vec |
+| [03. ANN](./03.ANN/) | Feed-forward networks for churn classification and salary regression on tabular data (Keras), with Streamlit apps |
+| [04. SimpleRNN](./04.SimpleRNN/) | A simple RNN for IMDB sentiment (Keras), with a Streamlit app |
 
-## Why This Matters
+## Stack
 
-Understanding classical NLP — tokenization, embeddings, sequence models — explains *why* transformer-based LLMs work the way they do.
-These notebooks build intuition before working with high-level APIs.
-
-## Skills Demonstrated
-
-- Text cleaning and normalization pipelines
-- Embedding representations (sparse → dense)
-- Neural network training with Keras
-- Sequence modelling with RNNs
-- Model deployment with Streamlit
+NLTK, gensim, scikit-learn, TensorFlow/Keras, pandas, Streamlit.

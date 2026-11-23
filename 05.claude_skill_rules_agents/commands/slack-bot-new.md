@@ -1,4 +1,4 @@
-Scaffold a new Slack Bot project using the Bolt framework based on the open_claw_slack_bot project patterns.
+Scaffold a new Slack Bot project using the Bolt framework based on the Slack workflow agent project patterns.
 
 ## Usage
 `/slack-bot-new <project-name> [--socket | --http]`
@@ -106,7 +106,7 @@ SLACK_SIGNING_SECRET = os.getenv("SLACK_SIGNING_SECRET")
 
 ### 6. Generate handlers/events.py
 
-**CRITICAL RULES for Slack event handlers** (learned from open_claw_slack_bot):
+**CRITICAL RULES for Slack event handlers** (learned from slack-workflow-agent):
 
 1. **Always include `next` parameter** in middleware functions — forgetting it causes the app to hang silently with no error message.
 2. **Use `app_mention` NOT `message` for bot triggers** — `message` fires on every message including DMs; `app_mention` only fires when `@BotName` is mentioned.

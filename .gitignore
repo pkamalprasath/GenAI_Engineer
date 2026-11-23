@@ -1,0 +1,28 @@
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+**/.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Node (nutrition-rag-chat)
+node_modules/
+.next/

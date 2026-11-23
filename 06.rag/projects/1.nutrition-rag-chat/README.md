@@ -1,6 +1,6 @@
 # Nutrition RAG Chat
 
-A production-ready Retrieval-Augmented Generation chat application.
+A learning project: a Retrieval-Augmented Generation chat application built with Next.js and Supabase pgvector.
 Ask any question about the Human Nutrition textbook and get a cited, page-referenced answer in seconds.
 
 ## Demo

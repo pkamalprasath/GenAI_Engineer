@@ -1,6 +1,8 @@
-# 03. AI Guardrails & Safety
+# 03. AI guardrails and red-teaming (learning)
 
-Practical implementation of AI safety techniques — detecting and preventing prompt injection, hallucination, sensitive data leakage, and adversarial attacks.
+Course labs on input/output validation, prompt-injection detection, PII handling, evaluating LLM outputs and red-teaming.
+
+**Source:** Built while following the Udemy course *AI Guardrails & Cybersecurity – AI Agents, Red Teaming Hands-On* (completed 28 Jan 2026). These are course labs; notebook outputs have been cleared.
 
 ## Modules
 

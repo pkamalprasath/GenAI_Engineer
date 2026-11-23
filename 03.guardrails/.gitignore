@@ -42,7 +42,6 @@ Garak/reports/
 # Security Testing artifacts
 Security_Testing/__pycache__/
 Security_Testing/src/__pycache__/
-Security_Testing/ai-agents-with-crewai-main/src/__pycache__/
 
 # Misc
 *.tmp

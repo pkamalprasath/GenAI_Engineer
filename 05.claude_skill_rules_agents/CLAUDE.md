@@ -124,7 +124,7 @@ app = graph.compile()
 
 ---
 
-## Slack Bot Rules (from open_claw project)
+## Slack Bot Rules (from the Slack workflow agent)
 
 - **Middleware MUST use `next` as the parameter name** — not `next_fn`, not `nxt`
 - `reactions_add` throws `already_reacted` — always wrap in `try/except SlackApiError`
@@ -204,7 +204,7 @@ Types: `feat`, `fix`, `docs`, `refactor`, `security`, `chore`
 
 ---
 
-## Reference Library (from open_claw_slack_bot project)
+## Reference Library (from Slack workflow agent project)
 
 Detailed patterns, rules, and skills stored in global `.claude` folder:
 
