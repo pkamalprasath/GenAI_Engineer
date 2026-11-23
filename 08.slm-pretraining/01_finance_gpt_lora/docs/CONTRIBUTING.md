@@ -6,8 +6,8 @@ Thank you for your interest in contributing to the Finance SLM project! This gui
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/pkamalprasath/finance-slm-fine-tuning.git
-cd finance-slm-fine-tuning
+git clone https://github.com/pkamalprasath/ai-engineering-portfolio.git
+cd ai-engineering-portfolio/08.slm-pretraining/01_finance_gpt_lora
 ```
 
 ### 2. Create Virtual Environment
