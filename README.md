@@ -1,6 +1,9 @@
-# Kamal Prasath Perumalsamy — AI engineering portfolio
+# Kamal Prasath Perumalsamy — AI solution architecture & modernisation portfolio
 
-**AI engineer with 13 years of client delivery.** I build RAG systems and LLM agents in Python and measure every change. At Cognizant I have worked with financial services, healthcare, energy and retail clients on their systems and data: requirements, incident management against client SLAs, a mainframe-to-AWS assessment, and AI tools applied to client code.
+**AI Solution Architect & Forward Deployed Engineer, modernising mainframe and legacy systems with AI.** 13 years at Cognizant delivering for financial services, healthcare, energy and retail clients, currently on-site with a financial services client in Bristol: requirements and design workshops, stakeholder presentations, proposal estimates, then hands-on build. This repo holds the AI systems I've built and measured.
+
+**Modernisation track record:** mainframe-to-AWS assessment · Micro Focus COBOL → NetCOBOL on Linux · AI-assisted business-logic extraction from legacy code · PHI/PII discovery and masking across four database platforms.
+
 Bristol, UK · open to London hybrid · [LinkedIn](https://www.linkedin.com/in/kamalprasath) · AWS Certified Solutions Architect – Associate · AWS Certified AI Practitioner
 
 [![Tests](https://github.com/pkamalprasath/ai-engineering-portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/ai-engineering-portfolio/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -75,13 +78,13 @@ A team assistant that answers questions from channel history, opens GitHub issue
 
 | | |
 |---|---|
+| **Solution architecture** | AWS (Solutions Architect – Associate) · FastAPI services · Redis job queues · PostgreSQL + pgvector · Docker Compose · GitHub Actions CI · Slack, GitHub & Notion API integrations |
+| **Mainframe & modernisation** | COBOL · JCL · CICS · DB2 · VSAM · Oracle · mainframe-to-AWS assessment · COBOL compiler & platform migration · AI-assisted business-logic extraction · data masking (PHI/PII) |
 | **Agentic frameworks** | OpenAI & Claude SDKs · LangGraph · LangChain · Claude tool use (framework-free agent loops) · MCP (FastMCP) · multi-agent orchestration · human-in-the-loop |
 | **Context engineering** | RAG · hybrid retrieval (pgvector + BM25) · query decomposition · corrective RAG · parent–child chunking · agent memory |
 | **Harness engineering** | LLM-as-judge evaluation harnesses · fixed test sets re-run per change · scenario harnesses for agents · guardrails (Guardrails AI, NeMo, Presidio) · Langfuse tracing |
 | **Models** | Claude · OpenAI · Llama 3.2 via Ollama · PyTorch (LoRA, GPT-2 pretraining) |
-| **Solution architecture** | AWS (Solutions Architect – Associate) · FastAPI services · Redis job queues · PostgreSQL · Docker Compose · GitHub Actions CI · Slack, GitHub & Notion API integrations |
-| **Client delivery** | Requirements & design workshops · estimates for proposals · stakeholder demos & sign-off · incident management & SLAs · Scrum |
-| **Enterprise & legacy** | COBOL · JCL · CICS · DB2 · Oracle · mainframe-to-AWS assessment · data masking (PHI/PII) |
+| **Forward-deployed delivery** | On-site with clients · requirements & design workshops · estimates for proposals · stakeholder demos & sign-off · incident management & SLAs · Scrum |
 
 ## Run a project
 
