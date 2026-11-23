@@ -66,6 +66,7 @@ A team assistant that answers questions from channel history, opens GitHub issue
 
 ## At work
 
+- Designed and built a customer-service AI agent system with input and output guardrails, sized for about 10,000 interactions (pre-production).
 - Built two prompt-based AI tools (Python, FastAPI) adopted by 40 colleagues, and trained all 40 on AI tools.
 - Use Claude, Amazon Q and GitHub Copilot for business-logic extraction, documentation, code review and test generation on client code, with every output checked by a developer.
 - Assessed a mainframe estate for migration to AWS; migrated Micro Focus COBOL to NetCOBOL on Linux; built a PHI/PII discovery tool and data masking across four database platforms.
