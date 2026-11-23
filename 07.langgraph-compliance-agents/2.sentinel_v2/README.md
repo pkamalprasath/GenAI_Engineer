@@ -8,6 +8,21 @@ Every decision record carries a SHA-256 content hash, so a changed record is det
 
 ---
 
+## Case study: how I'd run this as a client engagement
+
+The scenario is synthetic, but it is shaped like the regulated-client work I do: a lender's compliance team that reviews lending decisions by hand and wants help without losing control.
+
+| | |
+|---|---|
+| **Client problem** | Compliance analysts review decisions one by one against fair-lending rules (ECOA, HMDA). The review is slow, and findings are hard to trace back to evidence. |
+| **Constraints from the client** | Regulated data, so not every record should go to a hosted model. A person must sign off anything uncertain. Every finding needs an audit trail, and tampered records must be detectable. |
+| **Design response** | Cheap-first triage (BM25 → DistilBERT → local Llama 3.2) keeps most records local and only sends borderline cases to an LLM. Three agents (provenance, legal, bias) run in parallel. Reports below 0.85 confidence pause for human review (LangGraph `interrupt()`, state checkpointed in PostgreSQL). SHA-256 hashes on every record, and an audit log for every step. |
+| **What was delivered** | FastAPI service, background worker and scheduler (arq + Redis), Streamlit review dashboard, Docker Compose (5 services), and 228 test functions in CI. |
+| **Evidence so far** | Unit and integration suites pass in CI. The end-to-end scenario pass rate is being re-measured after a scoring fix; see *Tests and CI*. |
+| **Next step with a real client** | Agree a labelled sample of past decisions with the compliance team, measure agreement between the system and the analysts, then pilot on one product line with human review on every case. |
+
+---
+
 ## Architecture
 
 The diagram below is the LangGraph graph from `sentinel/graph/builder.py`, generated with `build_graph().compile().get_graph().draw_mermaid()` (layout tidied). Dotted arrows are conditional edges; the routing functions are in `sentinel/graph/edges.py`.
