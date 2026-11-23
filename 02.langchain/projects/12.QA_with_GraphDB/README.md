@@ -27,7 +27,7 @@ LLM formats into natural language answer
 | Graph Database | Neo4j (cloud — Neo4j Aura) |
 | Query Language | Cypher |
 | Framework | LangChain |
-| LLM | OpenAI |
+| LLM | Groq (`llama-3.1-8b-instant` via `ChatGroq`) |
 | Integration | `GraphCypherQAChain` |
 | Notebook | Jupyter |
 
@@ -43,7 +43,7 @@ LLM formats into natural language answer
 ## Setup
 
 ```bash
-# 1. Copy and fill in your Neo4j and OpenAI credentials
+# 1. Copy and fill in your Neo4j and Groq credentials
 cp .env.example .env
 
 # 2. Install dependencies (from repo root)

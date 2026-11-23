@@ -38,7 +38,7 @@ DPR became the **standard retrieval backbone** for RAG systems. OpenAI's `text-e
 
 ## Connection to My Experiments
 
-> `experiments/02_embeddings.py` directly benchmarks 6 embedding models — all dual-encoder descendants of DPR. The finding that `text-embedding-3-small` (1536-dim) outperforms 768-dim local models is DPR's insight applied at scale.
+> `experiments/02_embeddings.py` benchmarks dual-encoder embedding models, all descendants of DPR (4 of the 6 planned models ran). In the end-to-end sweep the small local `all-MiniLM-L6-v2` (384-dim) scored 5.0 and `text-embedding-3-small` (1536-dim) 4.93, on 5 questions each, so a small dual encoder was enough for this corpus.
 
 ---
 

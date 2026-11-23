@@ -1,6 +1,6 @@
 # Rules: Slack Bot Development
 
-## Critical Rules Learned from Production Issues
+## Critical Rules Learned from Integration Testing
 
 ### Rule 1: Never Import FastMCP-Decorated Functions Directly
 
@@ -435,4 +435,4 @@ When building a Slack bot with agent capabilities:
 - [ ] Conditionally register optional tools
 - [ ] Implement cleanup jobs for growing data
 
-**Result:** Robust, maintainable Slack bot that actually works in production.
+**Result:** Robust, maintainable Slack bot that works end to end in a test workspace.

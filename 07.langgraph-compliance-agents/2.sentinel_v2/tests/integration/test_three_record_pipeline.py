@@ -14,7 +14,7 @@ Domains covered (20 tests total):
   5. API models / frontend   (2 tests)
 
 Run:
-    cd projects/sentinel_v2
+    cd 07.langgraph-compliance-agents/2.sentinel_v2
     ../..\\.venv\Scripts\python.exe -m pytest tests/integration/test_three_record_pipeline.py -v
 """
 from __future__ import annotations

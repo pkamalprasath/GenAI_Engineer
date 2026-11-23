@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "slack-bot-assistant"
+name = "slack-workflow-agent"
 version = "0.1.0"
-description = "An intelligent Slack bot assistant with agent system, RAG, and MCP integrations"
-authors = ["Your Name <your.email@example.com>"]
+description = "Slack agent on native Claude tool use (no agent framework): Slack, GitHub and Notion tools, ChromaDB retrieval, scheduled reminders"
+authors = ["Kamal Prasath Perumalsamy <pkamalprasath@gmail.com>"]
 readme = "README.md"
 packages = [{include = "src"}]
 
@@ -12,10 +12,9 @@ python = "^3.11"
 slack-bolt = {extras = ["async"], version = "^1.20.0"}
 slack-sdk = "^3.33.0"
 
-# Agent System & LLM
-langgraph = "^0.2.0"
+# LLM (native tool use; no agent framework)
 anthropic = "^0.39.0"
-openai = "^1.50.0"  # For embeddings
+openai = "^1.50.0"  # Optional; not used by current code paths
 
 # MCP Servers
 fastmcp = "^2.0.0"
@@ -33,7 +32,7 @@ aiohttp = "^3.10.0"
 apscheduler = "^3.10.0"
 pyyaml = "^6.0.0"
 
-# Database (Production)
+# Declared but not imported by current code
 psycopg2-binary = "^2.9.0"
 redis = "^5.0.0"
 

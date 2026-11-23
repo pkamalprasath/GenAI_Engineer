@@ -1,5 +1,7 @@
 # Notebooks — RAG from Scratch
 
+*Learning notebooks: written while learning RAG fundamentals, before the [benchmark study](../experiments/) and the [engineering RAG project](../projects/2.engineering-rag/).*
+
 Step-by-step Jupyter notebooks that build a complete RAG system without any high-level frameworks.
 The goal: understand what happens at every step before abstracting it away.
 

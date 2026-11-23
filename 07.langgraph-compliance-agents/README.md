@@ -1,80 +1,12 @@
-# Agentic AI — Multi-Agent Systems for Compliance & Investigation
+# LangGraph compliance agents (SENTINEL)
 
-## Projects
+A LangGraph multi-agent workflow that reviews synthetic lending decisions against US fair-lending rules (ECOA, HMDA and related): BM25 → DistilBERT → local Llama 3.2 triage, three agents in parallel, human review below 0.85 confidence, and SHA-256 provenance hashes. Synthetic data only; not legal advice.
 
-### 1. SENTINEL v1 (sentinel_v1/)
-**Status:** Legacy (stable, reference implementation)
+| Folder | Status | What it is |
+|---|---|---|
+| [`2.sentinel_v2`](2.sentinel_v2) | **Current version** | 11-node graph, 6 agents (3 in parallel), FastAPI + arq worker + scheduler + Streamlit dashboard (5 Docker Compose services), 228 test functions in CI |
+| [`1.sentinel_v1`](1.sentinel_v1) | Earlier version, kept for history | 9-node graph, 5 agents, single API process; 218 test functions in CI |
 
-Original SENTINEL architecture with all core features:
-- Multi-agent compliance investigation pipeline
-- W3C PROV-O provenance graph
-- Streaming Streamlit dashboard
-- Support for Finance, Pharma, EU AI Act domains
+Start with the [v2 README](2.sentinel_v2/README.md): it has the architecture diagram, design trade-offs, quick start, tests and limitations.
 
-**Setup:** See `sentinel_v1/README.md`
-
-### 2. SENTINEL v2 (sentinel_v2/)
-**Status:** Current (production-ready, enhanced)
-
-Production-grade version with:
-- Microservices architecture (API + Worker + Scheduler)
-- Async/await processing (non-blocking)
-- Background job queue (arq/Redis)
-- HNSW vector indexes (pgvector)
-- Automated audit trail (SR 11-7, GDPR compliant)
-- Real-time progress streaming (server-sent events)
-- Health-check endpoint and graceful shutdown
-
-**Key Improvements:**
-- Cheaper discovery: BM25 → DistilBERT filter, LLM only for borderline cases
-- Approximate nearest-neighbour search with HNSW indexes
-- Asynchronous API (non-blocking)
-- Automated compliance audit trail
-- Enhanced provenance (source documentation + content hashes)
-
-**Setup:** See `sentinel_v2/README.md`
-
-## Comparison
-
-| Feature | v1 | v2 |
-|---------|----|----|
-| Agents | 6 | 7 (+ audit_agent) |
-| Architecture | Monolithic | Microservices |
-| Processing | Sync (blocking) | Async (non-blocking) |
-| Vector Search | pgvector baseline | HNSW (10x faster) |
-| Audit Trail | Manual | Automated |
-| Deployment | Single service | docker-compose (7 services) |
-
-## Quick Start
-
-### SENTINEL v2 (Recommended)
-```bash
-cd sentinel_v2
-cp .env.example .env
-docker-compose up -d
-# Visit: http://localhost:8501
-```
-
-### SENTINEL v1
-```bash
-cd sentinel_v1
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m uvicorn sentinel.api.main:app --port 8003
-```
-
-## Documentation
-
-- **SENTINEL v2 README:** `sentinel_v2/README.md`
-- **SENTINEL v2 Architecture:** `sentinel_v2/ARCHITECTURE.md`
-- **SENTINEL v2 Setup:** `sentinel_v2/SETUP.md`
-- **Contributing:** `sentinel_v2/CONTRIBUTING.md`
-
-## Next Steps
-
-1. **Run SENTINEL v2** (recommended for production)
-2. **Review architecture** decisions in ARCHITECTURE.md
-3. **Set up locally** following SETUP.md
-4. **Contribute** improvements via CONTRIBUTING.md
-
+The end-to-end scenario pass rate for v2 is pending a re-run after a scoring fix; see the v2 README.

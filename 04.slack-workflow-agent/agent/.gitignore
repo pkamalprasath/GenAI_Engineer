@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SLACK BOT ASSISTANT - .gitignore Configuration
+# SLACK WORKFLOW AGENT - .gitignore Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 # This file prevents sensitive data and build artifacts from being committed
 
@@ -56,6 +56,9 @@ poetry.lock
 # ═══════════════════════════════════════════════════════════════════════════════
 # IDE & Editor Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
+# Personal Claude Code settings (machine-specific)
+.claude/settings.local.json
+
 .vscode/
 .idea/
 *.swp

@@ -4,7 +4,8 @@ Integration Test Script
 ========================
 
 Tests all major functionalities with sample data to verify the bot works end-to-end.
-Reports any issues found and adds them to PROBLEMS.md.
+Calls the real Claude API, so it needs ANTHROPIC_API_KEY and is not run in CI.
+If a PROBLEMS.md file exists, any issues found are appended to it.
 
 Usage:
     python test_integration.py

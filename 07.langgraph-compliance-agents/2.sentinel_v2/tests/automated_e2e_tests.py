@@ -1,7 +1,9 @@
 """
 Automated End-to-End Testing System for SENTINEL v2
-Tests frontend (Streamlit dashboard) and backend API with multiple compliance frameworks
-Captures screenshots for UI validation and generates comprehensive test reports
+Runs 7 scenario cases across 3 frameworks through the backend API and scores them.
+Writes a text report, a JSON file and a Markdown scenario table to test_results/.
+Requires the API running with PostgreSQL and Ollama (see README).
+Run: python tests/automated_e2e_tests.py
 """
 import asyncio
 import json
@@ -150,6 +152,147 @@ COMPLIANCE_FRAMEWORKS = {
 }
 
 
+def _normalise(label: Optional[str]) -> Optional[str]:
+    """Compare labels case-insensitively and ignore surrounding whitespace."""
+    if label is None:
+        return None
+    return str(label).strip().upper()
+
+
+def score_case(
+    test_case: Dict[str, Any],
+    verdict: Optional[str],
+    risk_level: Optional[str],
+    report: Optional[str],
+) -> Dict[str, Any]:
+    """
+    Score one scenario against its expected outcome.
+
+    A case PASSES only if all of these hold:
+      - a verdict was returned and it equals expected_verdict
+      - a risk level was returned and it equals expected_risk
+      - a non-empty final report was returned
+    Anything else is FAILED, and the reasons are listed in "failure_reasons".
+
+    (An earlier version marked a case PASSED whenever a verdict and a report
+    existed, so wrong verdicts and wrong risk levels were counted as passes.)
+    """
+    expected_verdict = test_case.get("expected_verdict")
+    expected_risk = test_case.get("expected_risk")
+
+    verdict_match = verdict is not None and _normalise(verdict) == _normalise(expected_verdict)
+    risk_match = risk_level is not None and _normalise(risk_level) == _normalise(expected_risk)
+    report_generated = bool(report and str(report).strip())
+
+    failure_reasons: List[str] = []
+    if verdict is None:
+        failure_reasons.append("no verdict returned")
+    elif not verdict_match:
+        failure_reasons.append(f"verdict {verdict} != expected {expected_verdict}")
+    if risk_level is None:
+        failure_reasons.append("no risk level returned")
+    elif not risk_match:
+        failure_reasons.append(f"risk {risk_level} != expected {expected_risk}")
+    if not report_generated:
+        failure_reasons.append("no report generated")
+
+    return {
+        "test_case_id": test_case.get("applicant_id"),
+        "test_name": test_case.get("name"),
+        "framework": test_case.get("framework"),
+        "status": "PASSED" if not failure_reasons else "FAILED",
+        "failure_reasons": failure_reasons,
+        "verdict": verdict,
+        "expected_verdict": expected_verdict,
+        "verdict_match": verdict_match,
+        "risk_level": risk_level,
+        "expected_risk": expected_risk,
+        "risk_match": risk_match,
+        "report_generated": report_generated,
+        "report_length": len(report) if report else 0,
+        "report_preview": report[:200] if report else None,
+        "error": None,
+    }
+
+
+def summarise(results: List[Dict[str, Any]]) -> Dict[str, int]:
+    """Count outcomes. Only status == PASSED counts as a pass."""
+    return {
+        "total": len(results),
+        "passed": sum(1 for r in results if r.get("status") == "PASSED"),
+        "failed": sum(1 for r in results if r.get("status") == "FAILED"),
+        "errors": sum(1 for r in results if r.get("status") == "ERROR"),
+    }
+
+
+def format_report(results: List[Dict[str, Any]]) -> str:
+    """Plain-text report. Pass and fail come only from score_case()."""
+    counts = summarise(results)
+    rate = f"{100 * counts['passed'] / counts['total']:.0f}%" if counts["total"] else "n/a"
+    lines = [
+        "=" * 100,
+        "SENTINEL v2 - END-TO-END SCENARIO REPORT",
+        "=" * 100,
+        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Scenarios: {counts['total']}",
+        f"Passed: {counts['passed']}",
+        f"Failed: {counts['failed']}",
+        f"Errors: {counts['errors']}",
+        f"Pass rate: {counts['passed']}/{counts['total']} ({rate})",
+        "A scenario passes only if verdict AND risk level match the expected values",
+        "and a report was generated.",
+        "",
+    ]
+
+    by_framework: Dict[str, List[Dict[str, Any]]] = {}
+    for result in results:
+        by_framework.setdefault(result.get("framework") or "Unknown", []).append(result)
+
+    for framework, group in by_framework.items():
+        passed = sum(1 for r in group if r.get("status") == "PASSED")
+        lines.extend([
+            "-" * 100,
+            f"FRAMEWORK: {framework}  ({passed}/{len(group)} passed)",
+            "-" * 100,
+        ])
+        for r in group:
+            lines.append(f"[{r.get('status', 'ERROR'):6}] {r.get('test_case_id')!s:12} | {r.get('test_name')}")
+            if r.get("status") == "ERROR":
+                lines.append(f"   Error: {r.get('error')}")
+            elif r.get("error"):
+                lines.append(f"   Error: {r.get('error')}")
+            else:
+                lines.append(f"   Investigation: {r.get('investigation_id')}")
+                lines.append(f"   Verdict: {r.get('verdict')} (expected {r.get('expected_verdict')})")
+                lines.append(f"   Risk:    {r.get('risk_level')} (expected {r.get('expected_risk')})")
+                lines.append(f"   Report:  {r.get('report_length', 0)} chars")
+            for reason in r.get("failure_reasons") or []:
+                lines.append(f"   Fail reason: {reason}")
+            lines.append("")
+
+    lines.append("=" * 100)
+    return "\n".join(lines)
+
+
+def format_markdown_table(results: List[Dict[str, Any]]) -> str:
+    """Scenario table (scenario, expected, actual, pass/fail) for the README."""
+    counts = summarise(results)
+    rows = [
+        "| Scenario | Expected verdict / risk | Actual verdict / risk | Result |",
+        "|---|---|---|---|",
+    ]
+    for r in results:
+        rows.append(
+            f"| {r.get('test_case_id')} {r.get('test_name') or ''} "
+            f"| {r.get('expected_verdict')} / {r.get('expected_risk')} "
+            f"| {r.get('verdict')} / {r.get('risk_level')} "
+            f"| {'pass' if r.get('status') == 'PASSED' else r.get('status', 'ERROR').lower()} |"
+        )
+    rows.append("")
+    rows.append(f"Pass rate: {counts['passed']}/{counts['total']}")
+    return "\n".join(rows) + "\n"
+
+
 class ComplianceTestData:
     """Generates test data for compliance framework testing"""
 
@@ -173,8 +316,6 @@ class ComplianceTestRunner:
         self.api_url = api_url
         self.api_key = api_key
         self.test_results = []
-        self.screenshots_dir = Path(__file__).parent.parent / "test_results" / "screenshots"
-        self.screenshots_dir.mkdir(parents=True, exist_ok=True)
         self.report_dir = Path(__file__).parent.parent / "test_results"
         self.report_dir.mkdir(parents=True, exist_ok=True)
 
@@ -242,34 +383,20 @@ class ComplianceTestRunner:
 
                 result = exec_response.json()
 
-                # Validate results
-                verdict = result.get("compliance_verdict")
-                risk_level = result.get("regulatory_risk")
-                report = result.get("final_report")
-
-                status = "PASSED" if verdict and report else "FAILED"
-
-                return {
-                    "test_case_id": test_case.get("applicant_id"),
-                    "test_name": test_case.get("name"),
-                    "framework": test_case.get("framework"),
-                    "status": status,
-                    "investigation_id": inv_id,
-                    "verdict": verdict,
-                    "expected_verdict": test_case.get("expected_verdict"),
-                    "verdict_match": verdict == test_case.get("expected_verdict"),
-                    "risk_level": risk_level,
-                    "expected_risk": test_case.get("expected_risk"),
-                    "risk_match": risk_level == test_case.get("expected_risk"),
-                    "report_generated": bool(report),
-                    "report_length": len(report) if report else 0,
-                    "report_preview": report[:200] if report else None,
-                    "error": None,
-                }
+                scored = score_case(
+                    test_case,
+                    verdict=result.get("compliance_verdict"),
+                    risk_level=result.get("regulatory_risk"),
+                    report=result.get("final_report"),
+                )
+                scored["investigation_id"] = inv_id
+                return scored
 
         except Exception as e:
             return {
                 "test_case_id": test_case.get("applicant_id"),
+                "test_name": test_case.get("name"),
+                "framework": test_case.get("framework"),
                 "status": "ERROR",
                 "error": str(e),
                 "verdict": None,
@@ -293,98 +420,14 @@ class ComplianceTestRunner:
             print(f"[{i}/{len(test_cases)}] {test_case['framework']} — {test_case['name']}...", end=" ", flush=True)
             result = await self.run_investigation(test_case)
             results.append(result)
-            status_symbol = "✅" if result["status"] == "PASSED" else "❌" if result["status"] == "FAILED" else "⚠️"
-            print(f"{status_symbol} {result['verdict'] or 'ERROR'}")
+            print(f"{result['status']} (verdict={result.get('verdict')}, risk={result.get('risk_level')})")
 
         self.test_results = results
         return results
 
     def generate_report(self) -> str:
-        """Generate comprehensive test report"""
-        report_lines = [
-            "=" * 100,
-            "SENTINEL v2 — AUTOMATED COMPLIANCE TESTING REPORT",
-            "=" * 100,
-            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}",
-            f"Total Tests: {len(self.test_results)}",
-            f"Passed: {sum(1 for r in self.test_results if r['status'] == 'PASSED')}",
-            f"Failed: {sum(1 for r in self.test_results if r['status'] == 'FAILED')}",
-            f"Errors: {sum(1 for r in self.test_results if r['status'] == 'ERROR')}",
-            "",
-        ]
-
-        # Group by framework
-        by_framework = {}
-        for result in self.test_results:
-            framework = result.get("framework", "Unknown")
-            if framework not in by_framework:
-                by_framework[framework] = []
-            by_framework[framework].append(result)
-
-        for framework, results in by_framework.items():
-            passed = sum(1 for r in results if r["status"] == "PASSED")
-            report_lines.extend([
-                "",
-                f"{'─' * 100}",
-                f"COMPLIANCE FRAMEWORK: {framework}",
-                f"{'─' * 100}",
-                f"Results: {passed}/{len(results)} passed",
-                "",
-            ])
-
-            for result in results:
-                status_symbol = "✅" if result["status"] == "PASSED" else "❌" if result["status"] == "FAILED" else "⚠️"
-                report_lines.append(
-                    f"{status_symbol} {result['test_case_id']:15} | {result['test_name']}"
-                )
-
-                if result["status"] == "PASSED":
-                    report_lines.extend([
-                        f"   Investigation: {result['investigation_id']}",
-                        f"   Verdict: {result['verdict']} (expected: {result['expected_verdict']}) {'✅' if result['verdict_match'] else '❌'}",
-                        f"   Risk: {result['risk_level']} (expected: {result['expected_risk']}) {'✅' if result['risk_match'] else '❌'}",
-                        f"   Report: {result['report_length']} chars generated",
-                    ])
-                elif result["status"] == "FAILED":
-                    report_lines.extend([
-                        f"   Error: {result['error']}",
-                    ])
-                else:
-                    report_lines.append(f"   Error: {result['error']}")
-
-                report_lines.append("")
-
-        # Summary statistics
-        report_lines.extend([
-            "",
-            "=" * 100,
-            "DATA FLOW VALIDATION",
-            "=" * 100,
-            "",
-        ])
-
-        # Check verdict matching
-        verdict_matches = sum(1 for r in self.test_results if r.get("verdict_match", False))
-        verdict_total = sum(1 for r in self.test_results if "expected_verdict" in r and r["status"] == "PASSED")
-        if verdict_total > 0:
-            report_lines.append(f"Verdict Accuracy: {verdict_matches}/{verdict_total} ({100*verdict_matches//verdict_total}%)")
-
-        # Check risk matching
-        risk_matches = sum(1 for r in self.test_results if r.get("risk_match", False))
-        risk_total = sum(1 for r in self.test_results if "expected_risk" in r and r["status"] == "PASSED")
-        if risk_total > 0:
-            report_lines.append(f"Risk Level Accuracy: {risk_matches}/{risk_total} ({100*risk_matches//risk_total}%)")
-
-        # Check report generation
-        reports_generated = sum(1 for r in self.test_results if r.get("report_generated", False))
-        report_lines.append(f"Report Generation: {reports_generated}/{verdict_total} successful")
-
-        report_lines.extend([
-            "",
-            "=" * 100,
-        ])
-
-        return "\n".join(report_lines)
+        """Generate the text report (see format_report)."""
+        return format_report(self.test_results)
 
     def save_report(self):
         """Save test report to file"""
@@ -394,18 +437,24 @@ class ComplianceTestRunner:
         print(f"\n[REPORT] Saved to: {report_file}")
         print(report)
 
-        # Also save JSON results
-        json_file = self.report_dir / f"test_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        # Also save JSON results and a Markdown scenario table for the README
+        stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        json_file = self.report_dir / f"test_results_{stamp}.json"
         json_file.write_text(json.dumps(self.test_results, indent=2), encoding='utf-8')
         print(f"[RESULTS] Saved to: {json_file}")
+        md_file = self.report_dir / f"scenario_table_{stamp}.md"
+        md_file.write_text(format_markdown_table(self.test_results), encoding='utf-8')
+        print(f"[TABLE] Saved to: {md_file}")
 
 
-async def main():
-    """Main test runner"""
+async def main() -> int:
+    """Main test runner. Exit code is non-zero if any scenario did not pass."""
     runner = ComplianceTestRunner()
     await runner.run_all_tests()
     runner.save_report()
+    counts = summarise(runner.test_results)
+    return 0 if counts["total"] and counts["passed"] == counts["total"] else 1
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(asyncio.run(main()))

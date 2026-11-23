@@ -1,60 +1,54 @@
-# 02. LangChain — LLM Application Development
+# 02. LangChain: LLM application labs
 
-End-to-end LangChain learning path covering everything from basic chains to production-grade agentic pipelines.
+Course notebooks and small projects on building LLM applications with LangChain: loaders, splitters, embeddings, vector stores, LCEL, conversational RAG, summarisation, tool-using agents, LangGraph, and a few related tools (CrewAI, PEFT, Amazon Bedrock).
 
-## Notebooks (Learning Path)
+**Source:** Built while following the Udemy course *Complete Generative AI Course With LangChain and Hugging Face* (completed 20 Jan 2026). These are course labs; notebook outputs have been cleared.
+
+## Concept notebooks
 
 | # | Notebook | Topic |
 |---|---|---|
-| 01 | `01_data_ingestion.ipynb` | Document loaders, PDF/text ingestion |
-| 02 | `02_text_splitter.ipynb` | Chunking strategies — recursive, semantic |
-| 03 | `03_embeddings.ipynb` | OpenAI + HuggingFace embeddings |
-| 04 | `04_chatbot.ipynb` | Basic LLM chain with memory |
-| 05 | `05_chat_prompts.ipynb` | PromptTemplates, system/human messages |
-| 06 | `06_chroma_db.ipynb` | ChromaDB vector store — store and retrieve |
-| 07 | `07_conversational_qa.ipynb` | RAG with conversation history |
-| 08 | `08_faiss.ipynb` | FAISS in-memory vector search |
-| 09 | `09_lcel.ipynb` | LangChain Expression Language (pipe syntax) |
-| 10 | `10_summarization.ipynb` | Map-reduce and stuff summarization chains |
-| 11 | `11_tool_agents.ipynb` | ReAct agents with custom tools |
-| 12 | `12_genai_project.ipynb` | End-to-end project combining all concepts |
+| 01 | `01_data_ingestion.ipynb` | Document loaders (text, PDF, web) |
+| 02 | `02_text_splitter.ipynb` | Character, recursive, HTML-header and JSON splitters |
+| 03 | `03_embeddings.ipynb` | OpenAI, Ollama and Hugging Face embeddings |
+| 04 | `04_chatbot.ipynb` | Chatbot with message history (Groq) |
+| 05 | `05_chat_prompts.ipynb` | Prompt templates and output parsers |
+| 06 | `06_chroma_db.ipynb` | Chroma vector store |
+| 07 | `07_conversational_qa.ipynb` | Conversational RAG with a history-aware retriever |
+| 08 | `08_faiss.ipynb` | FAISS vector store |
+| 09 | `09_lcel.ipynb` | LangChain Expression Language |
+| 10 | `10_summarization.ipynb` | Stuff, map-reduce and refine summarisation |
+| 11 | `11_tool_agents.ipynb` | Agents with Arxiv, Wikipedia and retriever tools |
+| 12 | `12_genai_project_1.ipynb`, `12_genai_project_2.py` | Small end-to-end RAG project and an Ollama Streamlit app |
 
-[View Notebooks →](./notebooks/)
+Details: [notebooks/README.md](./notebooks/README.md). `01.server.py` serves a Groq chain with LangServe and FastAPI.
 
 ## Projects
 
-| # | Project | Stack | Description |
+| # | Project | Stack (from the code) | What it does |
 |---|---|---|---|
-| 01 | [QA ChatBot (OpenAI)](./projects/01.QA_ChatBot_WithOpenAI/) | OpenAI · ChromaDB · Streamlit | PDF Q&A chatbot |
-| 02 | [QA ChatBot (Ollama)](./projects/02.QA_ChatBot_WithOllama/) | Ollama · FAISS · Streamlit | Local LLM chatbot — no API key needed |
-| 03 | [QA ChatBot (Groq)](./projects/03.QA_ChatBot_WithGroq/) | Groq · FAISS | Ultra-fast inference with Groq API |
-| 04 | [Conversational QA](./projects/04.Conversation_QA_With_Chat_history/) | OpenAI · ChromaDB | Multi-turn QA with full chat history |
-| 05 | [Tool-Based Agent](./projects/05.QA_ChatBot_Tool_based/) | OpenAI · LangChain Tools | Agent that selects tools to answer queries |
-| 06 | [SQL Chatbot](./projects/06.QA_Chat_With_Sqldb/) | SQLite · LangChain | Natural language to SQL queries |
-| 07 | [Text Summarization](./projects/07.Text_Summarization/) | OpenAI · LangChain | Map-reduce summarization pipeline |
-| 08 | [MathGPT](./projects/08.MathGPT/) | OpenAI · Wolfram · LangChain | Math problem solver with tool use |
-| 09 | [HuggingFace Integration](./projects/09.WithHuggingface/) | HuggingFace · LangChain | Open-source models via HuggingFace Hub |
-| 10 | [CrewAI Multi-Agent](./projects/10.crewai/) | CrewAI · OpenAI | Role-based multi-agent orchestration |
-| 11 | [Hybrid Search (Pinecone)](./projects/11.hybridSearch_with_PineConeDB/) | Pinecone · BM25 | Sparse + dense hybrid retrieval |
-| 12 | [GraphDB QA](./projects/12.QA_with_GraphDB/) | Neo4j · LangChain | Knowledge graph question answering |
-| 13 | [Fine-Tuning Techniques](./projects/13.FineTunning_Techniques/) | HuggingFace PEFT · LoRA | Parameter-efficient fine-tuning |
-| 14 | [LangGraph Agent](./projects/14.QA_chatbot_WithLangraph/) | LangGraph · OpenAI | Stateful agent with graph-based flow |
-| 15 | [AWS Bedrock](./projects/15.AWS_BEDROCK/) | AWS Bedrock · Claude · Titan | Enterprise LLM deployment on AWS |
-| 16 | [PDF Query](./projects/16.PDFQuery_LangChain/) | LangChain · FAISS · Streamlit | Production PDF Q&A app |
-
-## Key Patterns Used
-
-- **LCEL** — `prompt | llm | parser` pipe syntax throughout
-- **RAG** — Load → Split → Embed → Store → Retrieve → Generate
-- **Agents** — ReAct loop with custom tool definitions
-- **Memory** — `ConversationBufferMemory` and `RunnableWithMessageHistory`
+| 01 | [QA chatbot (OpenAI)](./projects/01.QA_ChatBot_WithOpenAI/) | `ChatOpenAI` · Streamlit | Chatbot with model selection; no document retrieval |
+| 02 | [QA chatbot (Ollama)](./projects/02.QA_ChatBot_WithOllama/) | Ollama · Streamlit | Local-model chatbot, no API key needed |
+| 03 | [Research-paper RAG (Groq)](./projects/03.QA_ChatBot_WithGroq/) | Groq · OpenAI embeddings · FAISS · Streamlit | Q&A over a folder of PDFs |
+| 04 | [Conversational RAG](./projects/04.Conversation_QA_With_Chat_history/) | Groq · Hugging Face embeddings · Chroma · Streamlit | PDF Q&A with chat history |
+| 05 | [Tool-using chatbot](./projects/05.QA_ChatBot_Tool_based/) | Groq · Arxiv, Wikipedia, DuckDuckGo tools · Streamlit | Agent that picks a search tool |
+| 06 | [SQL chatbot](./projects/06.QA_Chat_With_Sqldb/) | Groq · `SQLDatabase` (SQLite or MySQL) · Streamlit | Natural-language questions over a database |
+| 07 | [Text summarisation](./projects/07.Text_Summarization/) | Groq · YouTube and URL loaders · Streamlit | Summarises a YouTube video or web page |
+| 08 | [MathGPT](./projects/08.MathGPT/) | Groq · LangGraph ReAct agent · calculator and Wikipedia tools · Streamlit | Maths word-problem solver |
+| 09 | [Hugging Face models](./projects/09.WithHuggingface/) | `HuggingFaceEndpoint` | Open models through the Hugging Face Hub |
+| 10 | [CrewAI blog writer](./projects/10.crewai/) | CrewAI · OpenAI · YouTube channel search | Two agents: researcher and writer |
+| 11 | [Hybrid search (Pinecone)](./projects/11.hybridSearch_with_PineConeDB/) | Pinecone · BM25 · Hugging Face embeddings | Sparse + dense retrieval |
+| 12 | [Graph DB QA](./projects/12.QA_with_GraphDB/) | Neo4j · `GraphCypherQAChain` · Groq | Questions answered with generated Cypher |
+| 13 | [Fine-tuning with PEFT](./projects/13.finetuning_peft/) | Hugging Face `peft` · `bitsandbytes` · Lamini | LoRA and QLoRA on `distilgpt2`; Lamini API tuning |
+| 14 | [LangGraph chatbot](./projects/14.langgraph_chatbot/) | LangGraph · Groq · Arxiv and Wikipedia tools | Graph-based chatbot with a tool-calling loop |
+| 15 | [Amazon Bedrock (Nova)](./projects/15.aws_bedrock_nova/) | `boto3` · Amazon Nova 2 Lite · Nova Canvas | Text and image generation on Bedrock |
+| 16 | [PDF query (Cassandra)](./projects/16.pdf_query_cassandra/) | `cassio` · Astra DB (Cassandra) · OpenAI · PyPDF2 | PDF Q&A in a notebook |
 
 ## Setup
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
-# Fill in OPENAI_API_KEY and other keys
+cp .env.example .env             # fill in the keys each notebook or project needs
 ```

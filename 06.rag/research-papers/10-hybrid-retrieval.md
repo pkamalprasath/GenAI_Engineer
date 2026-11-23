@@ -62,19 +62,19 @@ Cross-encoder jointly encodes query + passage — much more expressive than bi-e
 
 ## Key Results
 
-- Hybrid (Dense + BM25) outperforms either alone by 10-20% recall on diverse QA datasets
+- Hybrid (Dense + BM25) often outperforms either method alone on diverse QA datasets
 - HyDE improves retrieval on zero-shot tasks where the query is very different from passage style
-- Re-ranking consistently improves faithfulness by 10-15%
+- Cross-encoder re-ranking usually improves ranking quality over first-stage retrieval, at a latency cost
 
 ## Why It Matters
 
-These are the **production-grade retrieval techniques** used in real systems. No serious RAG deployment uses pure dense retrieval alone.
+These techniques are widely used in deployed retrieval systems, where dense retrieval alone often misses exact terms.
 
 ## Connection to My Experiments
 
-> `experiments/08_retrieval_methods.py` directly tests all four methods: Dense, BM25, Hybrid (RRF), and HyDE. My experimental results confirmed the +15% recall gain for Hybrid — consistent with the research.
-> `experiments/09_reranking.py` validates the +12% faithfulness gain from cross-encoder re-ranking.
+> `experiments/08_retrieval_methods.py` directly tests all four methods: Dense, BM25, Hybrid (RRF), and HyDE. On the nutrition-textbook corpus, HyDE scored highest (4.90), with dense at 4.83, hybrid RRF at 4.77 and BM25 at 4.73, on 10 questions. Hybrid did not beat dense there. In the engineering RAG project, BM25 was still kept because it catches exact identifiers such as standard numbers, which dense search misses.
+> `experiments/09_reranking.py` found no quality gain from cross-encoder re-ranking and some added latency, so re-ranking was left out.
 
 ---
 
-**Key Takeaway:** In production, always use hybrid retrieval (Dense + BM25) and add a re-ranker. It's the most impactful single improvement to any RAG system.
+**Key Takeaway:** The papers report gains from hybrid retrieval and re-ranking, but on my small, clean corpus neither helped. Measure them on your own data before adding them.

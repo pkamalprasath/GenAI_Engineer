@@ -346,6 +346,7 @@ USER QUERY: "What torque and safety gear for M12 bolt near motor?"
 
 | Category | Run 1 | Run 2 | Run 3 | Run 4 | **Run 5** | Target |
 |---|---|---|---|---|---|---|
+| judge | gpt-4o-mini | gpt-4o-mini | Claude Haiku | Claude Haiku | Claude Haiku | |
 | text | 3.30 | 3.77 | 3.43 | 3.67 | **4.13** ✅ | 4.5 |
 | table | 3.30 | 4.20* | 4.10 | **4.30** ✅ | 3.93 | 4.5 |
 | image | 2.70 | 2.77 | 3.30 | **3.37** ✅ | 2.53 | 4.5 |
@@ -357,7 +358,7 @@ USER QUERY: "What torque and safety gear for M12 bolt near motor?"
 Run 6 applies: adaptive CRAG (keep AMBIGUOUS for multihop), TABLE_CHUNK_ROWS=6 restored, Haiku captioner restored.
 
 *Table Run 2 was 3.47 before fixing 4 questions that referenced content not in the PDFs; 4.20 after.  
-All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonnet for generation.
+**Judge:** gpt-4o-mini for runs 1–2, Claude Haiku for runs 3–5. Scores are comparable only within those two groups (runs 1–2; runs 3–5), so the change from run 1 to run 4 is not like-for-like. Runs 4/5 use Claude Sonnet for generation, and the Haiku judge is from the same model family.
 
 **Chunk counts per run:**
 
@@ -391,6 +392,8 @@ All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonn
 
 ### Per-Query API Calls and Tokens (Run 5 configuration)
 
+> All costs in this section are estimates: approximate token counts × published list prices, not billed spend.
+
 | Pipeline Stage | Model | Calls/query | Input tokens | Output tokens | Cost/query |
 |---|---|---|---|---|---|
 | Query decomposition | Claude Haiku | 1 | ~200 | ~100 | ~$0.00004 |
@@ -421,13 +424,13 @@ All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonn
 
 ### Score vs Cost Summary
 
-| Run | Score | Score Δ | Ingestion cost | Cost/query | Avg latency | Notable change |
-|---|---|---|---|---|---|---|
-| Run 1 | 3.13 | baseline | ~$0.68 | ~$0.005 | 15.0s | Initial pipeline |
-| Run 2 | 3.59 | +0.46 | ~$4.00 | ~$0.005 | ~8s | Contextual retrieval + BM25 + GHS render |
-| Run 3 | 3.65 | +0.06 | ~$1.29 | ~$0.014 | ~5s | Claude migration + type-aware caption prompt |
-| Run 4 | 3.87 | +0.22 | ~$1.29 | ~$0.022 | 21.3s | Sonnet gen + query decomposition + parent-child |
-| **Run 5** | **3.65** | **-0.22** | **~$0.80** | **~$0.022** | **21.5s** | CRAG/table/image regressions identified |
+| Run | Judge | Score | Score Δ | Ingestion cost | Cost/query | Avg latency | Notable change |
+|---|---|---|---|---|---|---|---|
+| Run 1 | gpt-4o-mini | 3.13 | baseline | ~$0.68 | ~$0.005 | 15.0s | Initial pipeline |
+| Run 2 | gpt-4o-mini | 3.59 | +0.46 | ~$4.00 | ~$0.005 | ~8s | Contextual retrieval + BM25 + GHS render |
+| Run 3 | Claude Haiku | 3.65 | n/a (judge changed) | ~$1.29 | ~$0.014 | ~5s | Claude migration + type-aware caption prompt |
+| Run 4 | Claude Haiku | 3.87 | +0.22 | ~$1.29 | ~$0.022 | 21.3s | Sonnet gen + query decomposition + parent-child |
+| **Run 5** | Claude Haiku | **3.65** | **-0.22** | **~$0.80** | **~$0.022** | **21.5s** | CRAG/table/image regressions identified |
 
 ---
 
@@ -460,7 +463,7 @@ All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonn
 | Version | Style | Key Addition | Score Impact |
 |---|---|---|---|
 | Run 1/2 | Generic: "describe the image" | None | 2.70 |
-| Run 3 | Type-aware: separate instructions per image type | GHS symbol names, component enumeration | +0.60 |
+| Run 3 | Type-aware: separate instructions per image type | GHS symbol names, component enumeration | +0.60 (judge also changed from gpt-4o-mini to Haiku) |
 | Run 4 | Type-aware + spatial relationships instruction | left/right/above/below/connected-to | +0.07 |
 | Run 5 | Type-aware + spatial + few-shot example | Detailed bearing housing example | +0.06 (Sonnet filtering negated gains) |
 
@@ -575,10 +578,13 @@ All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonn
 | TABLE_CHUNK_ROWS=6 | Best balance | Free | ✅ Restored |
 
 ### Retrieval
+
+> Scores in this table come from the separate benchmark sweep on a nutrition textbook (`06.rag/experiments/results/retrieval_stats.csv`, 10 questions), not from this project's 50-question set. Hybrid scored slightly below dense there; BM25 is kept here for exact identifiers.
+
 | Method | Score | Latency | Decision |
 |---|---|---|---|
 | Dense only | 4.833 | ~20ms | Rejected — misses exact values |
-| BM25 only | 4.5 | ~10ms | Rejected — misses semantic paraphrases |
+| BM25 only | 4.733 | ~10ms | Rejected — misses semantic paraphrases |
 | Hybrid (Dense + BM25 + RRF) | 4.767 | ~30ms | ✅ Used |
 | HyDE + Hybrid | 4.9 | +0.8s | ✅ Used — best score |
 | Query decomposition | +0.64 multihop | +0.5s | ✅ Used — essential for multihop |
@@ -593,9 +599,9 @@ All runs use Claude Haiku as judge for fair comparison. Runs 4/5 use Claude Sonn
 ### Generation
 | Model | Multihop | Cost | Decision |
 |---|---|---|---|
-| gpt-4o-mini | 3.73 | $0.002 | Strong, but quota exhausted |
-| Claude Haiku | 2.63 | $0.008 | ❌ Too weak for multihop |
-| Claude Sonnet | 3.27 | $0.022 | ✅ Current best with Anthropic |
+| gpt-4o-mini | 3.73 (run 2, gpt-4o-mini judge) | $0.002 | Strong, but quota exhausted |
+| Claude Haiku | 2.63 (run 3, Haiku judge) | $0.008 | ❌ Too weak for multihop |
+| Claude Sonnet | 3.27 (run 4, Haiku judge) | $0.022 (est.) | ✅ Current best with Anthropic |
 
 ### CRAG
 | Strategy | Effect | Decision |
@@ -673,7 +679,7 @@ The score is at the same level as Run 3 (3.65). Run 4 was the best run (3.87). R
 3. Full re-ingest: text + tables + images from scratch with Haiku captioner
 4. Expected result: image chunks restore to ~354 (from 102), table chunks ~743
 
-**Projected Run 6 score:**
+**Projected Run 6 score (a projection, not a measurement; run 6 has not been evaluated):**
 
 | Category | Run 5 | Expected R6 | Improvement Source |
 |---|---|---|---|

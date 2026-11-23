@@ -35,7 +35,7 @@ Self-RAG is the first paper to treat **self-critique as a first-class component*
 
 ## Connection to My Experiments
 
-> The RAGAS evaluation in `experiments/05_evaluation.py` externally evaluates what Self-RAG handles internally — faithfulness (IsSup), relevance (IsRel), and answer quality (IsUse). Self-RAG internalises the evaluation loop.
+> RAGAS, as planned in `experiments/05_evaluation.py`, would evaluate from outside what Self-RAG handles internally: faithfulness (IsSup), relevance (IsRel) and answer quality (IsUse). (The RAGAS scores were not computed; the study used an LLM judge.) The engineering RAG project's generator runs a Self-RAG-style grounding check and retries once if the answer is not supported.
 
 ---
 

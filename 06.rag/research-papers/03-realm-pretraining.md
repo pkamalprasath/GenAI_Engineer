@@ -34,7 +34,7 @@ REALM showed that **retrieval is a learnable skill** — not just a lookup opera
 
 ## Connection to My Experiments
 
-> `experiments/05_evaluation.py` uses RAGAS to measure whether retrieved chunks actually help answer the question — the same question REALM addresses through joint training.
+> `experiments/05_evaluation.py` was written to measure, with RAGAS, whether retrieved chunks actually help answer the question — the question REALM addresses through joint training. The RAGAS scores were not computed (the columns in `eval_ragas.csv` are empty); the study's scores come from an LLM judge.
 
 ---
 

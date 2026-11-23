@@ -1,35 +1,14 @@
-# SENTINEL
-### Autonomous AI Compliance Investigation Platform
+# SENTINEL v1 (earlier version; see v2)
 
-> Multi-agent LangGraph system that audits AI-assisted decisions for regulatory violations — detecting bias, tracing decision provenance, and generating regulatory-grade reports with human-in-the-loop oversight.
+> **This is the earlier version, kept for history. The current version is [`../2.sentinel_v2`](../2.sentinel_v2), which adds the audit agent, a fan-out node so the three parallel agents run only when cases are found, the worker and scheduler services, and the scenario test harness. Start there.**
 
-**Domains:** Financial lending (ECOA · FCRA · HMDA · CRA) · Pharma/Clinical trials (FDA 21 CFR 312 · ICH E6 · EU AI Act)
-
----
-
-## Business Impact
-
-| Metric | Manual Process | With SENTINEL |
-|--------|---------------|---------------|
-| Quarterly compliance review | 40 hours (analyst + legal team) | 45 seconds autonomous + 5 min human review |
-| Cost per investigation | $8,000–$15,000 (labor + legal fees) | ~$0.002 in API tokens |
-| Bias detection coverage | Spot-checks (~5% of decisions) | 100% of all decisions, every run |
-| Audit trail | Mutable manual logs | SHA-256 tamper-evident provenance chain |
-| Regulator-ready report | 2 weeks (compile, format, legal review) | Generated automatically, citation-verified |
-| Human escalation load | Every decision reviewed manually | ~15–20% escalated (low-confidence only) |
-| Decision traceability | Black-box AI, no explanation | Full W3C PROV-O graph from query → verdict |
-
-**Who benefits:**
-- **Compliance teams** — investigate 100% of AI decisions rather than sampling 5%
-- **Legal departments** — reports cite ECOA §1691(a), HMDA §2803, EU AI Act Article 9 automatically
-- **Regulators (CFPB, FDA, state)** — tamper-evident audit trail satisfies SR 11-7 and GDPR Article 22
-- **Engineering** — swap LLM providers (OpenAI ↔ Anthropic) with one config line, zero code changes
+Multi-agent LangGraph workflow that reviews synthetic lending decisions for possible fair-lending problems: it selects relevant cases, checks their provenance hashes, maps findings to US regulations, tests for approval-rate disparities and drafts a report, with human review for low-confidence results. Synthetic data only; not legal advice.
 
 ---
 
 ## What It Does
 
-A compliance manager submits a plain-English query. Six specialized agents run autonomously:
+A user submits a plain-English query. Five agents (discovery, investigation, legal, bias detection, report) and an evidence-assembly step run in a 9-node LangGraph:
 
 ```
 "Review credit decisions Jan–Mar 2024 for ECOA and HMDA compliance"
@@ -71,7 +50,7 @@ A compliance manager submits a plain-English query. Six specialized agents run a
               └─────────────────────────────────────┘
 ```
 
-**Output:** Compliance verdict (COMPLIANT / VIOLATION / UNCERTAIN), regulatory risk level (LOW / MEDIUM / HIGH / CRITICAL), bias finding with anomaly score, full audit report citing provenance node IDs and regulation sections — all in under 60 seconds.
+**Output:** Compliance verdict (COMPLIANT / VIOLATION / UNCERTAIN), regulatory risk level (LOW / MEDIUM / HIGH / CRITICAL), bias finding with anomaly score, full audit report citing provenance node IDs and regulation sections (no end-to-end latency has been measured).
 
 ---
 
@@ -80,7 +59,7 @@ A compliance manager submits a plain-English query. Six specialized agents run a
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Business User (Browser)                       │
-│                   Streamlit Dashboard :8502                      │
+│                   Streamlit Dashboard :8501                      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ HTTP
 ┌──────────────────────────▼──────────────────────────────────────┐
@@ -128,7 +107,7 @@ A compliance manager submits a plain-English query. Six specialized agents run a
 |----------|-------|----------------|
 | API input | `input_guard.py` | SQL injection, prompt injection, SSRF, XSS, PII in queries |
 | Agent output | `output_guard.py` | PII in report, uncited claims, low-confidence auto-resolve |
-| DB access | `tenant_id` on every query | Cross-tenant data leakage → `IsolationBreachError` |
+| DB access | `tenant_id` filter on queries | Tenant-scoped data model; the tenant comes from the client-supplied `X-Tenant-ID` header, so this is not enforced isolation |
 | Provenance | SHA-256 per node | Tampered records detected on next read |
 
 ---
@@ -143,12 +122,12 @@ A compliance manager submits a plain-English query. Six specialized agents run a
 | Regulation search | **pgvector (cosine similarity)** | 1536-dim embeddings, top-k retrieval; legal agent fetches only relevant sections |
 | Local LLM | **Ollama (llama3.2:3b + nomic-embed-text)** | Zero API cost for classification and local embeddings; fits in 8 GB RAM |
 | Reasoning LLM | **OpenAI gpt-4o-mini / Anthropic claude-haiku** | Provider-agnostic via `configs/models.yaml` — switch with one line |
-| Semantic re-ranking | **DistilBERT (HuggingFace transformers)** | CPU-only, 250 MB, `lru_cache` for instant subsequent calls |
-| Keyword pre-filter | **rank_bm25** | Eliminates 95% of records before BERT; deterministic, auditable |
+| Semantic re-ranking | **DistilBERT (HuggingFace transformers)** | CPU-only; model cached after first load |
+| Keyword pre-filter | **rank_bm25** | Drops clearly irrelevant records before BERT; deterministic, auditable |
 | Anomaly detection | **Isolation Forest (scikit-learn)** | Unsupervised — finds bias patterns without labeled training data |
 | PII detection | **Microsoft Presidio** | Named entity recognition; separate entity lists for input vs output |
 | Provenance standard | **W3C PROV-O** | prov:Entity (decisions) + prov:Activity (investigation) + prov:Agent (AI agent) |
-| Observability | **LangFuse + LangSmith** | LangFuse: production cost/latency per tenant; LangSmith: LangGraph trace debugging |
+| Observability | **LangFuse + LangSmith** | LangFuse: cost/latency per tenant; LangSmith: LangGraph trace debugging |
 | Dashboard | **Streamlit** | Live agent progress, interactive provenance graph, escalation queue, analytics |
 | Graph visualization | **pyvis + NetworkX** | Interactive decision chain rendering in browser with physics layout |
 
@@ -158,23 +137,23 @@ A compliance manager submits a plain-English query. Six specialized agents run a
 
 ### 1. BM25 → DistilBERT → llama3.2:3b — Three-Stage Discovery
 
-**The naive approach:** Send all 10,000 decisions to GPT-4o and ask it to find relevant ones.
+**The naive approach:** Send every decision to a hosted LLM and ask it to find the relevant ones.
 
 | Problem with naive | Impact |
 |--------------------|--------|
-| 10,000 records × ~500 tokens = 5M tokens per run | ~$150/run at GPT-4o rates — unusable at scale |
-| LLM context windows cap at 128K | Cannot process full dataset in one call |
+| Tokens for every record on every run | Cost grows with the size of the data set |
+| Context window limits | Cannot process a large data set in one call |
 | Non-deterministic LLM relevance scores | Compliance requires reproducible, auditable selection |
 
 **SENTINEL three-stage hybrid:**
 ```
-BM25  (milliseconds, zero cost)    → eliminates ~95% of records
-DistilBERT  (2–4 s, CPU-only)      → cosine similarity re-ranks survivors
-llama3.2:3b  (local, zero API cost) → resolves only the 3–8 "borderline" cases
+BM25  (local, deterministic)       → drops clearly irrelevant records
+DistilBERT  (local, CPU-only)      → cosine similarity re-ranks survivors
+llama3.2:3b  (local, via Ollama)   → resolves only the borderline cases
 ```
-**Result:** ~$0.001 per investigation vs $150. Every selection is traceable to a deterministic algorithm.
+**Result:** Only borderline cases reach a language model, and every other selection is traceable to a deterministic score. (No cost per investigation has been measured.)
 
-**Tradeoff:** DistilBERT loaded at startup uses 250 MB RAM. On memory-constrained systems, this can be disabled and BM25 alone used as the pre-filter.
+**Tradeoff:** DistilBERT is held in memory once loaded.
 
 ---
 
@@ -182,13 +161,13 @@ llama3.2:3b  (local, zero API cost) → resolves only the 3–8 "borderline" cas
 
 LangGraph's checkpoint system lets the graph **pause mid-execution** when human review is required, persist full state to PostgreSQL, and **resume exactly where it stopped** after human approval. A plain `while` loop loses all in-flight state on pause.
 
-**Tradeoff:** LangGraph adds ~200ms overhead per node for state serialization. Acceptable for compliance investigations (45-second total pipeline) but would be too slow for real-time latency-sensitive use cases.
+**Tradeoff:** state is serialised to the checkpoint at every node, which adds latency: fine for a review workflow, not for real-time use.
 
 ---
 
 ### 3. Parallel Legal + Bias Agents (Fan-Out)
 
-Legal analysis and bias detection are independent — neither uses the other's output. Running them concurrently cuts total pipeline time from ~90s to ~45s.
+Legal analysis and bias detection are independent — neither uses the other's output. Running them concurrently shortens the pipeline (not benchmarked).
 
 **Tradeoff:** Both agents make LLM calls simultaneously, doubling concurrent API usage. Under strict rate limits, one agent may slow the other via backpressure.
 
@@ -204,7 +183,7 @@ The input guard blocks PERSON, LOCATION, DATE_TIME, EMAIL, SSN, etc. The output 
 
 FAISS requires an offline indexing step and is rebuilt from scratch on schema changes. pgvector stores embeddings alongside regulation metadata in the same PostgreSQL database — transactional consistency, no separate index server, and the legal agent queries it live per investigation. New regulations added to the DB are available immediately to the next investigation without a service restart.
 
-**Tradeoff:** pgvector cosine search on 17 embeddings is trivially fast. At 100,000+ regulation sections, a dedicated vector DB (Weaviate, Qdrant) would outperform pgvector.
+**Tradeoff:** the corpus is small (10 sections), so search speed is not a concern; a much larger corpus would need index tuning or a dedicated vector store.
 
 ---
 
@@ -214,16 +193,16 @@ Model names, risk thresholds, bias dimensions, PII entity lists, and rate limits
 
 ---
 
-## Key Achievements
+## What is implemented
 
-- **17 regulation sections** embedded across two domains: finance (ECOA, FCRA, HMDA, FHAct, CRA) and pharma/AI (FDA 21 CFR 312, ICH E6, EU AI Act Articles 9 & 13, FDA 21 CFR 11) — legal agent dynamically retrieves only what's relevant to each investigation
-- **Multi-domain support** from a single pipeline — domain specified per investigation request, no code change
+- **10 US regulation sections** (ECOA, FCRA, HMDA, Fair Housing Act, CRA) embedded in pgvector by `scripts/ingest_regulations.py`; the legal agent retrieves the relevant ones per investigation
+- **Domain config** per investigation request (`configs/domains/`); only finance has regulation data
 - **Isolation Forest bias detection** across 3 demographic dimensions (age, income, geography) with no labeled training data; disparity threshold configurable per domain
-- **W3C PROV-O provenance graph** with SHA-256 tamper detection — satisfies SR 11-7, GDPR Article 22, and CFPB examination requirements
+- **W3C PROV-O provenance graph** with SHA-256 tamper detection
 - **HITL graph interrupt** that pauses mid-graph, persists full LangGraph state to PostgreSQL, resumes on human approval — compliance officer modifies or approves the draft report before it becomes final
-- **Zero-overhead observability** — LangFuse and LangSmith operate in no-op mode when keys are absent; no errors, no performance hit in local dev
-- **300 synthetic decisions** with injected anomalies (geographic bias, broken provenance chains, GDPR deletion violations) for reproducible demo and testing
-- **Output guardrail** verifies every citation: each provenance node ID in the report is checked against the DB before the report is released — no hallucinated citations
+- **Optional observability** — LangFuse and LangSmith run in no-op mode when keys are absent
+- **500 synthetic decisions** (`scripts/generate_synthetic_data.py`) with injected anomalies (geographic bias, broken provenance chains, GDPR deletion violations) for reproducible demo and testing
+- **Output guardrail** verifies every citation: each provenance node ID in the report is checked against the DB before the report is released (invented node IDs are rejected)
 
 ---
 
@@ -283,14 +262,14 @@ sentinel/
 ├── souls/                        # Agent system prompts (LLM persona / soul files)
 ├── data/
 │   ├── regulations/              # Regulation YAML source files (per domain)
-│   └── synthetic/                # 300 synthetic decisions (gitignored, regenerated)
+│   └── synthetic/                # synthetic decisions (gitignored, regenerated)
 ├── tests/
 │   ├── unit/                     # Component tests — classifiers, guardrails, state schema
 │   ├── integration/              # Full pipeline tests — no Docker required
 │   ├── security/                 # OWASP injection + PII leakage boundary tests
 │   └── performance/              # Latency benchmarks per agent
 └── scripts/
-    ├── generate_synthetic_data.py  # 300 decisions with injected anomalies
+    ├── generate_synthetic_data.py  # 500 decisions with injected anomalies
     ├── seed_database.py            # Create tables + load synthetic decisions
     └── ingest_regulations.py       # Embed regulation sections into pgvector
 ```
@@ -307,20 +286,21 @@ sentinel/
 
 ### 1. Clone and install
 ```bash
-git clone <repo-url>
-cd rag/projects/sentinel
+git clone https://github.com/pkamalprasath/GenAI_Engineer.git
+cd GenAI_Engineer/07.langgraph-compliance-agents/1.sentinel_v1
 
-python -m venv ../../.venv
-source ../../.venv/bin/activate      # Linux/macOS
-# ../../.venv\Scripts\activate       # Windows
+python -m venv .venv
+source .venv/bin/activate            # Linux/macOS
+# .venv\Scripts\activate             # Windows
 
 pip install -r requirements.txt
 ```
 
 ### 2. Configure environment
 ```bash
-cp .env.example .env
-# Edit .env — add your API keys (see .env.example for all required fields)
+# v1 has no .env.example; v2's lists the same variables
+cp ../2.sentinel_v2/.env.example .env
+# Edit .env: DATABASE_URL, OPENAI_API_KEY, SENTINEL_API_KEY, POSTGRES_PASSWORD
 ```
 
 ### 3. Start PostgreSQL with pgvector
@@ -332,7 +312,7 @@ docker-compose up -d postgres
 ```bash
 python scripts/generate_synthetic_data.py   # generates data/synthetic/decisions.json
 python scripts/seed_database.py             # creates tables + loads decisions + provenance nodes
-python scripts/ingest_regulations.py        # embeds ECOA, HMDA, FDA, EU AI Act into pgvector
+python scripts/ingest_regulations.py        # embeds the ECOA, FCRA, HMDA, FHAct and CRA sections into pgvector
 ```
 
 ### 5. Pull Ollama models (local, no API cost)
@@ -350,10 +330,10 @@ ollama serve
 python -m uvicorn sentinel.api.main:app --host 0.0.0.0 --port 8003
 
 # Terminal 3 — Streamlit dashboard
-python -m streamlit run sentinel/dashboard/Home.py --server.port 8502
+python -m streamlit run sentinel/dashboard/app.py --server.port 8501
 ```
 
-Open **http://localhost:8502** → Investigate → submit a query.
+Open **http://localhost:8501** → Investigate → submit a query.
 
 ---
 
@@ -373,7 +353,7 @@ curl -X POST http://localhost:8003/api/v1/investigations \
   }'
 # → {"investigation_id":"INV-7AA30B1C59D0","status":"queued"}
 
-# Poll until complete (~45 seconds)
+# Poll until complete
 curl http://localhost:8003/api/v1/investigations/INV-7AA30B1C59D0 \
   -H "X-API-Key: $SENTINEL_API_KEY" -H "X-Tenant-ID: bank-acme"
 # → {"status":"pending_human","compliance_verdict":"VIOLATION","regulatory_risk":"HIGH",
@@ -409,7 +389,7 @@ python -m pytest tests/unit/ tests/integration/ tests/security/ tests/performanc
 
 ## Synthetic Data
 
-`data/synthetic/decisions.json` — 300 credit decisions with injected anomalies (gitignored, regenerated via script):
+`data/synthetic/decisions.json` — 500 credit decisions with injected anomalies (gitignored, regenerated via script):
 
 | Anomaly Type | Count | What It Tests |
 |-------------|-------|---------------|
@@ -427,7 +407,7 @@ Use date range `2024-01-01` → `2024-06-30` to reliably hit injected anomalies.
 |------|--------|--------|
 | **LangFuse** | Agent latency p50/p95, cost per tenant, tokens per investigation | cloud.langfuse.com → your project |
 | **LangSmith** | LangGraph node traces, routing decisions, chain-of-thought per agent | smith.langchain.com → `sentinel-dev` |
-| **Structured JSON logs** | Every agent event, cost, heartbeat — queryable in production | stdout / structured log output |
+| **Structured JSON logs** | Every agent event, cost, heartbeat — queryable | stdout / structured log output |
 
 LangFuse and LangSmith operate in no-op mode if keys are not set — zero overhead, zero errors in local dev.
 

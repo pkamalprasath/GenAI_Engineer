@@ -1,240 +1,65 @@
-# OpenClaw Slack Bot: Production Implementation
+# Slack Workflow Agent: code
 
-Production-grade implementation of the OpenClaw proprietary agent architecture designed for intelligent Slack applications.
+This folder holds the code. The overview, architecture diagram, tool list, design decisions and limitations are in the [project README](../README.md).
 
-Status: Production Ready | All Features Complete | Tests: 267 unit tests passing in CI
+## Setup
 
----
+Full Slack app setup (scopes, Socket Mode, events, slash commands): [QUICK_START.md](QUICK_START.md).
 
-## Overview
-
-This folder contains the production implementation of the OpenClaw architecture. Every component follows the architectural design established in the parent folder.
-
-What This Demonstrates:
-- Implementation of proprietary multi-layer architecture
-- Production-grade code quality (type hints, tests, security)
-- Slack-specific optimizations for token limits, rate limiting, threading
-- Complete integration framework with error isolation
-
----
-
-## Architecture Implementation
-
-Each layer implements specific responsibilities:
-
-**Layer 1: Slack Integration**
-- Event listeners (messages, commands, mentions)
-- Message routing and response formatting
-- Block Kit UI building
-
-**Layer 2: Middleware & Security**
-- Request validation and authentication
-- Rate limiting per user and channel
-- Input validation and injection prevention
-
-**Layer 3: Agent Orchestrator**
-- Native Claude tool-use (ReAct) loop: no agent framework
-- Tool selection and execution
-- Context composition from memory and RAG
-
-**Layer 4: Memory & Services**
-- Short-term conversation context
-- Long-term persistent storage
-- Semantic search and retrieval
-
-**Layer 5: Integration Framework**
-- GitHub, Notion, Slack API wrappers
-- Unified error handling per integration
-- Rate limiting and retry logic
-
----
-
-## Features
-
-**Bot Capabilities**
-- Channel summarization with AI
-- Smart reminders with auto-delivery
-- Message scheduling
-- Bug detection and GitHub issue creation
-- Knowledge base from conversation history
-- GitHub and Notion integrations
-
-**Technical Features**
-- Agent-based decision making
-- Multi-layer memory system
-- RAG knowledge base with semantic search
-- Comprehensive error handling
-- Security-first approach
-- Async-first architecture
-
----
-
-## Getting Started
-
-Prerequisites:
-- Python 3.11+
-- Poetry
-- Slack workspace with admin access
-- API keys: Anthropic, OpenAI, (optional: GitHub, Notion)
-
-Quick Setup:
 ```bash
-poetry install
+python3.11 -m venv .venv && source .venv/bin/activate
+pip install -e .                 # or: poetry install
 cp .env.example .env
-# Configure .env with your tokens
-poetry run python src/main.py
+python src/main.py
 ```
 
-See [QUICK_START.md](QUICK_START.md) for detailed setup.
+| Variable | Required | Purpose |
+|---|---|---|
+| `SLACK_BOT_TOKEN` | yes | Bot token (`xoxb-...`) |
+| `SLACK_APP_TOKEN` | yes | App-level token for Socket Mode (`xapp-...`) |
+| `SLACK_SIGNING_SECRET` | yes | Passed to Slack Bolt |
+| `ANTHROPIC_API_KEY` | yes | Claude calls (agent loop, summaries, issue detection) |
+| `GITHUB_TOKEN` | no | Registers the three GitHub tools |
+| `NOTION_TOKEN` | no | Registers the three Notion tools |
+| `RATE_LIMIT_PER_USER`, `RATE_LIMIT_PER_CHANNEL` | no | Requests per minute (defaults 10 and 30) |
+| `RAG_INDEXING_FREQUENCY`, `RAG_MESSAGE_LIMIT` | no | Indexing interval in seconds (7200) and messages per channel (200) |
 
----
+All settings, with descriptions, are in [`config/settings.py`](config/settings.py) and [`.env.example`](.env.example). Logging is configured in `config/logging.yaml` (console, plus `logs/app.log` and `logs/error.log`).
 
-## Project Structure
+## Layout
 
 ```
-open_claw_slack_bot/
- README.md This file
- QUICK_START.md 5-minute setup guide
- pyproject.toml Poetry configuration
- .env.example Environment variables template
-
- src/
- main.py Application entry point
- agent/ Layer 3: Orchestrator
- memory/ Layer 4: Memory services
- rag/ Knowledge retrieval
- mcp_servers/ Layer 5: Integrations
- slack/ Layer 1: Slack integration
- utils/ Helper utilities
-
- tests/
- unit/ Unit tests
- integration/ Unit tests (267) and integration tests
-
- config/ Configuration management
- docs/ Technical documentation
- .claude/ Learning materials
+agent/
+  src/
+    main.py              entry point: logging, then Socket Mode handler
+    app.py               Bolt AsyncApp, middleware chain, listeners, APScheduler jobs
+    agent/               orchestrator (tool-use loop), tools (16), context builder
+    memory/              short-term (in process), long-term (MEMORY.md + memory/YYYY-MM-DD.md)
+    rag/                 ChromaDB store, channel indexer, retriever
+    mcp_servers/         FastMCP Slack server; GitHub and Notion REST clients; registry
+    services/            summarisation, issue detection, reminders, Notion export
+    slack/               listeners, middleware (auth, rate limit, errors), message service
+    utils/               validators, security helpers, exceptions, logger
+  config/                settings, logging config, system prompt
+  scripts/               test-channel seeding, manual indexing, vector store setup
+  tests/unit/            267 unit tests (pytest tests -q)
+  test_integration.py    9 end-to-end checks against the real Claude API (not in CI)
+  docs/                  guides and security notes
+  .claude/               Claude Code agents, skills, rules and patterns written while building this
 ```
 
----
+## Tests
 
-## Documentation
-
-Getting Started:
-- QUICK_START.md - 5-minute setup
-- README.md (this file) - Implementation overview
-
-Architecture:
-- ../README.md - Architecture overview
-- ../DESIGN_PHILOSOPHY.md - Design decisions
-- docs/architecture/ARCHITECTURE.md - Technical deep dive
-- docs/security/SECURITY.md - Security implementation
-
-Learning:
-- .claude/rules/ - Development guidelines
-- .claude/patterns/ - Reusable patterns
-- .claude/skills/ - How-to guides
-
-Testing:
-- docs/guides/E2E_TESTING_GUIDE.md - End-to-end testing
-- docs/development/TEST_RESULTS.md - Test report
-- docs/development/PROBLEMS.md - Issue tracking
-
----
-
-## Commands
-
-Slash Commands:
-- /bot-help - Show available commands
-- /bot-status - Check bot health
-- /bot-summarize #channel - Summarize channel messages
-- /bot-remind [message] in [time] - Schedule reminder
-
-Direct Interaction:
-- DM the bot for private conversation
-- @mention the bot to get its attention in any channel
-
----
-
-## Testing
-
-Test Suite: 267 unit tests plus 9 integration checks, all passing
-
-Run Tests:
 ```bash
-poetry run pytest tests/
-poetry run pytest --cov=src tests/
-poetry run pytest tests/integration/test_agent_orchestrator.py
+pip install -e . pytest pytest-asyncio
+pytest tests -q
 ```
 
-Code Quality:
-```bash
-poetry run black src/
-poetry run ruff check src/
-poetry run mypy src/
-```
+## Slash commands
 
----
+- `/bot-help`: available commands
+- `/bot-status`: which integrations are configured
+- `/bot-summarize #channel 24h`: Claude summary of recent messages
+- `/bot-remind <text> in <time>`: schedule a reminder
 
-## Configuration
-
-Environment Variables: See .env.example
-
-Key Settings:
-- SLACK_BOT_TOKEN: xoxb-... (bot token)
-- SLACK_APP_TOKEN: xapp-... (app token for Socket Mode)
-- ANTHROPIC_API_KEY: Claude API key
-- OPENAI_API_KEY: OpenAI embeddings
-- GITHUB_TOKEN: (optional) GitHub integration
-- NOTION_TOKEN: (optional) Notion integration
-
-Logging: Configured in config/logging.yaml
-- Console output for development
-- File rotation with backups
-- Per-module log levels
-
----
-
-## Security
-
-Security Features:
-- Request signature verification
-- Rate limiting (10 req/min per user, 30 req/min per channel)
-- Input validation and injection prevention
-- OAuth token management
-- Error isolation (prevents information leaks)
-- No hardcoded secrets (environment variables only)
-
-Practices:
-- Type hints for safety
-- Input validation at boundaries
-- Error handling with recovery
-- Token masking in logs
-
----
-
-## Performance
-
-Metrics:
-- Message latency: <200ms (agent response)
-- Throughput: 10+ concurrent conversations
-- Memory baseline: ~150MB
-- Token efficiency: Adaptive context management
-
-Optimization:
-- Async/await for concurrency
-- Memory tier strategy for efficiency
-- RAG-based context selection
-- Connection pooling for external APIs
-
----
-
-## License
-
-MIT License - See LICENSE file
-
----
-
-
-Last Updated: May 2026
-Status: Production Ready
+DM the bot or @mention it in a channel to use the agent and its tools.

@@ -1,7 +1,7 @@
 # End-to-End Testing Guide — Slack Bot Assistant
 
 > Complete guide for testing the bot with a real Slack workspace.
-> Follow this checklist to verify all functionalities work in production.
+> A manual checklist for a test workspace. It needs real Slack and Anthropic credentials, so it is not part of CI.
 
 ---
 
@@ -70,7 +70,6 @@ SLACK_SIGNING_SECRET=your-signing-secret-here
 ANTHROPIC_API_KEY=sk-ant-your-key-here
 
 # Optional Integrations
-OPENAI_API_KEY=sk-your-openai-key-here        # For embeddings
 GITHUB_TOKEN=ghp_your-github-pat-here         # For GitHub integration
 NOTION_TOKEN=secret_your-notion-token-here    # For Notion integration
 
@@ -100,7 +99,7 @@ RATE_LIMIT_PER_CHANNEL=30
 
 ```bash
 # From project root
-cd d:\AI\KrishNaik_Academy\Coding\Vizuara\open_claw_proj
+cd 04.slack-workflow-agent/agent
 
 # Activate virtual environment (if using one)
 # python -m venv venv
@@ -110,7 +109,7 @@ cd d:\AI\KrishNaik_Academy\Coding\Vizuara\open_claw_proj
 # Install dependencies (if not already installed)
 poetry install
 # OR
-pip install -r requirements.txt
+pip install -e .
 
 # Run the bot
 python src/main.py
@@ -531,7 +530,7 @@ ls chroma_db/
 **❌ If fails:**
 - Wait for 2-hour mark (or adjust `RAG_INDEXING_FREQUENCY` in `.env`)
 - Check `src/rag/indexer.py` for errors
-- Verify `OPENAI_API_KEY` if using OpenAI embeddings
+- ChromaDB embeds locally with its default model; no OpenAI key is needed
 
 ---
 
@@ -705,36 +704,21 @@ If you see "FunctionTool not callable", Problem #13 wasn't fully fixed.
 ### If All Tests Pass ✅
 1. Review logs for any warnings
 2. Optimize any slow operations
-3. Consider production deployment
-4. Set up external monitoring (Datadog, Sentry)
+3. Record what was tested and in which workspace
 
 ### If Tests Fail ❌
-1. Check PROBLEMS.md for known issues
-2. Run integration tests: `python test_integration.py`
-3. Enable DEBUG logging
-4. Review error stack traces
-5. Check Slack app configuration
+1. Run the integration script: `python test_integration.py`
+2. Enable DEBUG logging
+3. Review error stack traces
+4. Check Slack app configuration
 
 ---
 
-## Production Readiness Checklist
+## Before Using Outside a Test Workspace
 
-- [ ] All E2E tests passing
-- [ ] No errors in 24h run
-- [ ] Memory usage stable
-- [ ] Logs clean (no warnings)
-- [ ] Rate limiting working
-- [ ] Error handling tested
-- [ ] Documentation complete
-- [ ] Monitoring set up
-- [ ] Backup strategy defined
-- [ ] Rollback plan ready
+The bot has only been run in a test workspace. Before wider use, these would need doing:
 
----
-
-**Good luck with testing! 🚀**
-
-If you encounter issues not covered here, check:
-- [PROBLEMS.md](PROBLEMS.md) for known issues
-- [TEST_RESULTS.md](TEST_RESULTS.md) for integration test results
-- [FIXES_SUMMARY.md](FIXES_SUMMARY.md) for all fixes applied
+- [ ] All E2E checks above passing
+- [ ] A 24-hour run without errors
+- [ ] Rate limiting and error handling checked against real traffic
+- [ ] Monitoring and a rollback plan

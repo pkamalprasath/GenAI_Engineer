@@ -1,4 +1,6 @@
-# Open Claw Project - Complete Beginner's Guide
+# Slack Workflow Agent: Beginner's Guide
+
+> A long-form walkthrough of setup and of each module. For a short overview, see the project README. Where this guide and the code disagree, the code is right.
 
 ---
 
@@ -28,7 +30,7 @@ poetry --version     # Should show 1.x or 2.x
 
 Open a terminal in the project folder:
 ```bash
-cd d:\AI\KrishNaik_Academy\Coding\Vizuara\open_claw_proj
+cd 04.slack-workflow-agent/agent
 
 # Install all packages listed in pyproject.toml
 poetry install
@@ -222,32 +224,11 @@ ANTHROPIC_API_KEY=sk-ant-api03-paste-your-full-key-here
 
 ---
 
-#### 4B. OpenAI API Key (for text embeddings/search)
+#### 4B. OpenAI API Key (not needed)
 
-This is **required for the RAG search feature**. It converts text into numbers (vectors) so the bot
-can find similar past conversations. It does NOT power the chat - Claude does that.
-
-**Create an Account:**
-- Go to **https://platform.openai.com/**
-- Click **"Sign Up"** (or "Log In")
-- Sign up with email, Google, or Microsoft account
-
-**Add Credits:**
-- Click your profile icon (top right) > **"Billing"**
-- Click **"Add payment method"**
-- Add $5 credit (embeddings are extremely cheap - about $0.02 per million tokens)
-
-**Generate the API Key:**
-- Go to **https://platform.openai.com/api-keys**
-- Click **"+ Create new secret key"**
-- Name it: `slack-bot-embeddings`
-- Copy the key (starts with `sk-...`)
-- **You can only see this key ONCE**
-
-**Paste into `.env`:**
-```env
-OPENAI_API_KEY=sk-proj-paste-your-full-key-here
-```
+The settings file accepts an `OPENAI_API_KEY`, but no code path uses it. ChromaDB computes
+embeddings locally with its default model (all-MiniLM-L6-v2), so RAG search works without it.
+`/bot-status` only reports whether the key is set.
 
 ---
 
@@ -333,7 +314,6 @@ SLACK_SIGNING_SECRET=your-actual-signing-secret
 
 # REQUIRED - From Step 4
 ANTHROPIC_API_KEY=sk-ant-your-actual-key
-OPENAI_API_KEY=sk-your-actual-openai-key
 
 # OPTIONAL
 GITHUB_TOKEN=ghp_your-token-if-you-have-one
@@ -381,12 +361,12 @@ Now go to Slack and try these:
 
 | Action                          | What happens                         |
 |---------------------------------|--------------------------------------|
-| Send a DM to the bot            | Bot replies with your message echoed |
+| Send a DM to the bot            | The agent replies (Claude tool use)  |
 | Type `@YourBot hello` in a channel | Bot responds to the mention       |
 | Type `/bot-help`                | Shows all available commands         |
 | Type `/bot-status`              | Shows bot health status              |
-| Type `/bot-summarize #general 24h` | Summarization placeholder         |
-| Type `/bot-remind Review PR in 1 hour` | Reminder placeholder           |
+| Type `/bot-summarize #general 24h` | Claude summary of the channel     |
+| Type `/bot-remind Review PR in 1 hour` | Schedules a reminder           |
 
 ---
 
@@ -447,7 +427,7 @@ Think of it as a smart assistant that lives inside your Slack workspace.
 ### Project Structure Overview
 
 ```
-open_claw_proj/
+agent/
 |
 |-- config/              <-- Settings and configuration
 |   |-- settings.py      <-- All environment variables in one place
@@ -471,7 +451,6 @@ open_claw_proj/
 |   |-- agent/           <-- The AI brain
 |   |   |-- orchestrator.py
 |   |   |-- tools.py
-|   |   |-- state.py
 |   |   |-- context_builder.py
 |   |
 |   |-- memory/          <-- Remembering things
@@ -553,7 +532,7 @@ def use_socket_mode(self) -> bool:
 ```
 - A "computed property" - calculated from other values, not stored
 - In development mode, use WebSocket (no public URL needed)
-- In production, use HTTP (needs a public URL)
+- HTTP mode (needs a public URL) is not implemented in this project
 
 ```python
 settings = Settings()
@@ -1023,7 +1002,7 @@ async def handle_summarize_command(ack, command, client, context, logger):
 ```
 - `command["text"]` = everything the user typed AFTER the command
 - `/bot-summarize #general 24h` -> text = "#general 24h"
-- Currently a placeholder - will use AI summarization in Phase 7
+- Calls the summarisation service, which sends the messages to Claude
 
 ---
 
@@ -1277,30 +1256,9 @@ async def execute_tool(self, tool_name, **kwargs):
 
 ---
 
-### MODULE 16: src/agent/state.py
+### MODULE 16: (removed)
 
-**Goal:** Define the shape of data that flows through the agent system.
-
-**Key parts explained:**
-
-```python
-class AgentState(TypedDict):
-    user_message: str          # What the user said
-    user_id: str               # Who said it
-    channel_id: str            # Where they said it
-    conversation_history: list # Previous messages
-    memory_context: str        # What we remember about this user
-    rag_context: str           # Relevant old conversations
-    rag_enabled: bool          # Is RAG search turned on?
-    selected_tools: list       # Which tools Claude chose to use
-    tool_results: list         # Results from running those tools
-    agent_response: str        # The final response
-    iteration_count: int       # How many tool-use rounds so far
-    max_iterations: int        # Maximum allowed (prevents infinite loops)
-```
-- `TypedDict` = a dictionary with a fixed structure
-- Like a form with specific fields that must be filled in
-- Helps catch bugs: if you misspell a field name, the type checker warns you
+An earlier `src/agent/state.py` (an `AgentState` TypedDict) no longer exists. The orchestrator keeps its state in local variables inside the tool-use loop.
 
 ---
 
@@ -1636,7 +1594,8 @@ async def get_channel_messages(channel_id: str, hours: int = 24) -> str:
     ...
 ```
 - `@mcp.tool()` = decorator that registers this function as an MCP tool
-- AI can call this tool to read Slack messages
+- The agent does not talk to this server over the MCP protocol: `src/agent/tools.py` calls
+  the Slack Web API directly, and a few places import these functions in-process
 
 **github_client.py** - GitHub integration:
 ```python
@@ -1645,7 +1604,7 @@ class GitHubMCPClient:
         """Create a GitHub issue."""
 ```
 - AI can create GitHub issues from Slack conversations
-- Currently a placeholder (Phase 5)
+- A plain REST client (aiohttp calls to api.github.com), not an MCP connection
 
 **notion_client.py** - Notion integration:
 ```python
@@ -1654,7 +1613,7 @@ class NotionMCPClient:
         """Create a Notion page."""
 ```
 - AI can create Notion pages from Slack conversations
-- Currently a placeholder (Phase 5)
+- A plain REST client (aiohttp calls to api.notion.com), not an MCP connection
 
 ---
 
@@ -1709,20 +1668,10 @@ memory   memory  search
 
 ---
 
-### Development Phases (What's Done, What's Coming)
+### Current State
 
-| Phase | Name                  | Status       | What it does                                    |
-|-------|-----------------------|--------------|-------------------------------------------------|
-| 1     | Foundation            | Done         | Project structure, config, logging, exceptions  |
-| 2     | Slack Integration     | Done         | Listeners, commands, middleware, message service |
-| 3     | Memory System         | Done         | Short-term, long-term, retriever                |
-| 4     | RAG System            | Done         | Vector store, indexer, semantic retriever        |
-| 5     | MCP Servers           | Partial      | Registry ready, GitHub/Notion are placeholders  |
-| 6     | Agent System          | Partial      | Orchestrator ready, needs real tool integration  |
-| 7     | Business Logic        | Placeholder  | Summarization, reminders, issue detection       |
-| 8     | Advanced Security     | Placeholder  | Token rotation, audit logging                   |
-| 9     | Testing & QA          | Done (189)   | Unit tests for all modules                      |
-| 10    | Documentation         | This file!   | You're reading it                               |
+All modules described above are implemented. The unit suite has 267 tests (`pytest tests -q`), run in CI.
+The bot has been run in a test Slack workspace only.
 
 ---
 

@@ -40,7 +40,7 @@ In production, not every user query needs vector search. Adaptive RAG reduces co
 
 ## Connection to My Experiments
 
-> `experiments/07_topk.py` shows that k=5 is optimal — more chunks add noise. Adaptive RAG extends this: sometimes k=0 (no retrieval) is optimal. The experiments implicitly explore this space.
+> `experiments/07_topk.py` found that k=1 retrieved too little (3.93) and k=3 recovered most of the quality (4.80); k=5, 10 and 20 scored 4.67–4.93, within judge noise on 10 questions. Adaptive RAG takes this further: sometimes k=0 (no retrieval) is right. The engineering RAG project's `adaptive_router.py` does this for simple general-knowledge questions.
 
 ---
 

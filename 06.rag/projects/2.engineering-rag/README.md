@@ -1,348 +1,187 @@
-# Engineering Knowledge Assistant — Industrial Multimodal RAG
+# Multimodal RAG for engineering documents
 
-> **Ask any question about your engineering documents. Get a cited, grounded answer in seconds.**
->
-> Understands text procedures, data tables, and diagrams — all from your PDF manuals, datasheets, and safety sheets.
+**Question answering over engineering PDFs where the answer is often in a table or a diagram rather than the prose, with page citations and a confidence level on every answer.**
+Re-tested on the same 50 questions after every change: best run **3.87 / 5** (Claude Haiku as judge), multi-hop answers up from 2.63 to 3.27 under that same judge, and one regression (run 5) caught, traced to its cause and reverted.
 
----
+FastAPI · Streamlit · PostgreSQL + pgvector · Claude Sonnet and Haiku · Langfuse tracing · 147 tests in CI
 
-## What This System Does
+[![Tests](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml/badge.svg)](https://github.com/pkamalprasath/GenAI_Engineer/actions/workflows/tests.yml)
 
-Imagine a plant engineer asking: *"What torque do I apply to M12 bolts near the motor, and what PPE do I need?"*
+![Streamlit UI start screen](docs/screenshots/ss_01_keygate.png)
 
-The system:
-1. Breaks the question into sub-questions (`torque spec for M12` + `PPE near motor`)
-2. Searches 2,500+ indexed chunks — text, tables, and image captions simultaneously
-3. Scores each chunk for relevance (CRAG) and discards noise
-4. Generates a grounded answer with page citations and confidence level
-5. Self-verifies the answer is supported by the retrieved context
-
-**No hallucinations. No guessing. Every fact cited to a source page.**
-
----
-
-## Benchmark Results — 5 Completed Runs, 50 Questions Each
-
-> Scoring: LLM-as-judge (Claude Haiku), 1–5 scale. Questions span text, tables, images, multihop reasoning, and unanswerable queries.
-
-| Category | Run 1 | Run 2 | Run 3 | Run 4 | **Run 5** |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Text | 3.30 | 3.77 | 3.43 | 3.67 | **4.13** ✅ |
-| Table | 3.30 | 4.20 | 4.10 | **4.30** ✅ | 3.93 |
-| Image | 2.70 | 2.77 | 3.30 | **3.37** ✅ | 2.53 |
-| Multihop | 2.00 | 3.73 | 2.63 | **3.27** ✅ | 3.00 |
-| Unanswerable | 4.40 | 4.23 | 4.77 | **4.73** ✅ | 4.67 |
-| **Overall** | **3.13** | **3.59** | **3.65** | **3.87** 🏆 | **3.65** |
-
-**Best run: Run 4 — 3.87 / 5.0** (Claude Sonnet generation + query decomposition + parent-child chunking)
-
-Each run is a full re-ingest + 50-question evaluation. Run 6 DB is prepared (2,528 chunks with adaptive CRAG fixes applied) — evaluation pending Anthropic API key configuration.
-
-See [`results/PIPELINE_DEEP_DIVE.md`](results/PIPELINE_DEEP_DIVE.md) for the full per-category breakdown, cost analysis, and what changed each run.
-
-### What drove the score from 3.13 → 3.87
-
-| Change | Run | Score Impact |
-|---|---|---|
-| Contextual prefix (filename+section+page on every chunk) | R2 | +0.46 overall |
-| Full-page PNG render for GHS/SDS vector graphics | R2 | +18 → 344 image chunks |
-| Batched CRAG scoring (5 calls → 1 call) | R2 | −3s latency |
-| Type-aware image caption prompt (separate instructions per image type) | R3 | +0.53 on images |
-| Local HuggingFace embeddings (replaced OpenAI bug) | R3 | −$0.50/run |
-| Claude Sonnet for generation (replaced Haiku) | R4 | +0.22 overall |
-| Query decomposition (multihop → sub-questions) | R4 | +0.64 on multihop |
-| Parent-child chunking (child retrieval, parent generation) | R4 | +0.24 on text |
-| SDS keyword boost (safety queries get targeted search) | R5 | +0.46 on text |
+*Streamlit UI start screen: the user connects an OpenAI or Anthropic key, then asks questions of the indexed documents.*
 
 ---
 
 ## Architecture
 
-```
-                    ┌──────────────────────────────┐
-                    │  PDF Documents               │
-                    │  (manuals, datasheets, SDS)  │
-                    └──────────┬───────────────────┘
-                               │  ONE TIME (or when files change)
-                               ▼
-┌──────────────────────────────────────────────────────┐
-│  INGESTION PIPELINE                                  │
-│                                                      │
-│  pypdf → text  ──► SemanticChunker  ──► parent+child │
-│  pdfplumber → tables ──► 6-row markdown groups       │
-│  pymupdf → images ──► Claude Haiku vision caption    │
-│      └── full-page PNG fallback (GHS vector graphics)│
-│                                                      │
-│  All chunks: prepend [filename — section, page]      │
-│  Embed: all-MiniLM-L6-v2 (384-dim, local, no API)    │
-│  Store: PostgreSQL + pgvector                        │
-└──────────────────────────────────────────────────────┘
-                               │
-                               ▼
-                    ┌──────────────────────────────┐
-                    │  PostgreSQL + pgvector        │
-                    │  2,528 chunks across 3 docs  │
-                    │  (1,262 text + 895 table      │
-                    │   + 371 image)               │
-                    └──────────┬───────────────────┘
-                               │  ON EVERY QUESTION
-                               ▼
-┌──────────────────────────────────────────────────────┐
-│  RETRIEVAL PIPELINE                                  │
-│                                                      │
-│  1. Adaptive Router — simple query? answer directly  │
-│  2. Query Decomposition — multihop → sub-questions   │
-│  3. HyDE — short query → hypothetical answer para    │
-│  4. Hybrid Search — pgvector + BM25 per chunk type   │
-│     (text/table/image searched separately)           │
-│  5. SDS Boost — safety keywords get extra sds search │
-│  6. RRF — merge all ranked lists by position         │
-│  7. CRAG — score relevance, drop noise, set confidence│
-└──────────────────────────────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────┐
-│  GENERATION PIPELINE                                 │
-│                                                      │
-│  Build P2-style prompt with sub-query labels         │
-│  Route: text → Claude Sonnet | images → vision model │
-│  Self-RAG critique (SUPPORTED / PARTIALLY / RETRY)   │
-│  Return: answer + citations + confidence level       │
-└──────────────────────────────────────────────────────┘
-                               │
-                               ▼
-         "M12 bolt torque: 85 Nm (Source: gearbox_manual.pdf, p.47)
-          PPE: insulated gloves, safety glasses (Source: safety_manual.pdf, p.12)
-          Confidence: HIGH"
+Built from the modules in `src/`. `api.py` (FastAPI) and `app.py` (Streamlit) both call the same query pipeline.
+
+```mermaid
+flowchart TD
+    subgraph INGEST["Ingestion: ingest_docs.py"]
+        PDF["PDF manuals, handbooks, safety data sheets"] --> PARSE["document_parser.py<br/>pypdf text · pdfplumber tables · PyMuPDF images"]
+        PARSE -->|text| CHUNK["chunker.py<br/>semantic parent/child chunks<br/>tables as 6-row Markdown groups"]
+        PARSE -->|images and full-page renders| CAP["image_captioner.py<br/>Claude Haiku vision captions"]
+        CAP --> CHUNK
+        CHUNK -->|"[file, section, page] prefix<br/>all-MiniLM-L6-v2 embeddings (local)"| DB[("vectorstore.py<br/>PostgreSQL + pgvector<br/>SHA-256 file hash for incremental re-index")]
+    end
+
+    subgraph QUERY["Query: api.py /query · app.py"]
+        Q["Question"] --> SAN["input_sanitizer.py<br/>prompt-injection checks"]
+        SAN --> ROUTE{"adaptive_router.py<br/>simple or complex?"}
+        ROUTE -->|simple, general knowledge| GEN
+        ROUTE -->|complex| DEC["query_decomposer.py<br/>multi-hop question to sub-questions"]
+        DEC --> HYDE["hyde.py<br/>hypothetical answer per sub-question"]
+        HYDE --> RET["retriever.py<br/>dense search per chunk type (text, table, image)<br/>BM25 re-score · SDS keyword boost · RRF merge"]
+        DB --> RET
+        RET --> CRAG["crag.py<br/>one batched relevance-grading call<br/>sets HIGH / MEDIUM / LOW confidence"]
+        CRAG --> GEN["generator.py<br/>Claude Sonnet answer with citations<br/>Self-RAG grounding check, one retry"]
+        GEN --> OUT["Answer + page citations + confidence"]
+    end
+
+    GEN -.->|optional, off by default| PII["pii_detector.py<br/>Presidio redaction"]
+    GEN -.->|if Langfuse keys are set| LF["tracing.py<br/>Langfuse traces"]
 ```
 
 ---
 
-## Key Technical Choices (from Systematic Experiments)
+## Results
 
-| Component | Choice | Alternative Rejected | Why |
-|---|---|---|---|
-| **Chunking** | Semantic (SemanticChunker parent+child) | Fixed-size 512 tokens | Semantic splits at topic boundaries, keeps procedures intact |
-| **Embedding** | all-MiniLM-L6-v2 (384-dim, local) | OpenAI text-embedding-3 | Same score (5.0), no API cost, no latency |
-| **Vector Store** | PostgreSQL + pgvector | Chroma / Qdrant | SQL metadata filtering, one Docker container, fully transparent |
-| **LLM (generation)** | Claude Sonnet 4.6 | Claude Haiku | Multihop score 3.27 vs 2.63 |
-| **LLM (judgment)** | Claude Haiku | GPT-4o-mini | API quota, lower cost |
-| **Retrieval** | HyDE + Dense + BM25 + RRF | Dense only | HyDE: 4.9 vs 4.833; BM25 catches exact specs like "DIN EN 13463-1" |
-| **Reranking** | Skipped | cross-encoder reranker | +2.7s latency, zero quality gain |
-| **Image captioning** | Claude Haiku | Claude Sonnet | Sonnet filtered 257/359 images; Haiku captured 354/359 |
+Five full runs. Each run re-ingested the documents and answered the same 50 questions: 10 each of text, table, image, multi-hop and unanswerable (`src/evaluation/test_questions.py`). Every answer was scored 1–5 by an LLM judge.
 
----
+| Run | What changed | Judge | Overall /5 | Multi-hop /5 | Chunks | Avg latency / query |
+|---|---|---|:---:|:---:|---:|---:|
+| 1 | Baseline | gpt-4o-mini | 3.13 | 2.00 | 757 | 15.0 s |
+| 2 | Contextual chunk prefix, BM25, full-page render, batched CRAG (−3 s per query) | gpt-4o-mini | 3.59 | 3.73 | 1,272 | ~8 s |
+| 3 | Generator and judge switched to Claude Haiku; Haiku image captions | Claude Haiku | 3.65 | 2.63 | 1,289 | ~5 s |
+| 4 | Claude Sonnet generation, query decomposition, parent-child chunks | Claude Haiku | **3.87** | 3.27 | 2,364 | 21.3 s |
+| 5 | SDS keyword boost, table chunks 6→4 rows, Sonnet captions (refused 257 of 359 images): regression, reverted | Claude Haiku | 3.65 | 3.00 | 2,259 | 21.5 s |
 
-## Observability
+- **Runs 1–2 and 3–5 used different judges, so compare within those groups.** The like-for-like gains are run 1 → 2 (3.13 → 3.59, gpt-4o-mini judge, several changes together) and run 3 → 4 (3.65 → 3.87 overall, 2.63 → 3.27 multi-hop, Claude Haiku judge).
+- 50 questions, 10 each of text, table, image, multi-hop and unanswerable. Run 4 by category: text 3.67, table 4.30, image 3.37, multi-hop 3.27, unanswerable 4.73.
+- Run 4 latency about 21 s per query. Estimated cost ~$0.022 per query (approximate token counts × list prices, not billed spend); ~$1.29 to ingest the 3 PDFs.
+- The best score came from the 2,364-chunk index of run 4. A later 2,528-chunk index (run 6: Haiku captions and 6-row tables restored, CRAG keeps borderline chunks for multi-hop questions) has been built but **not evaluated**.
+- The judge (Haiku) and the generator (Sonnet) in runs 4–5 are from the same model family, which may favour their answers.
+- Latencies and costs come from the run notes in [`results/PIPELINE_DEEP_DIVE.md`](results/PIPELINE_DEEP_DIVE.md); per-question outputs are not committed.
 
-Full pipeline tracing via **Langfuse Cloud** — every query produces a trace with:
+<details>
+<summary>All five categories, all runs</summary>
 
-- Latency per step (HyDE, retrieval, CRAG, generation, Self-RAG)
-- CRAG relevance labels per chunk
-- LLM model and token counts
-- Self-RAG grounding status
-- Final confidence level
+| Category | Run 1 | Run 2 | Run 3 | Run 4 | Run 5 |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Judge | gpt-4o-mini | gpt-4o-mini | Claude Haiku | Claude Haiku | Claude Haiku |
+| Text | 3.30 | 3.77 | 3.43 | 3.67 | 4.13 |
+| Table | 3.30 | 4.20 | 4.10 | 4.30 | 3.93 |
+| Image | 2.70 | 2.77 | 3.30 | 3.37 | 2.53 |
+| Multi-hop | 2.00 | 3.73 | 2.63 | 3.27 | 3.00 |
+| Unanswerable | 4.40 | 4.23 | 4.77 | 4.73 | 4.67 |
+| **Overall** | **3.13** | **3.59** | **3.65** | **3.87** | **3.65** |
 
-Set `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` in `.env` to enable. No-op if not configured.
+</details>
 
----
-
-## Production Features
-
-| Feature | Implementation |
-|---|---|
-| **Incremental indexing** | SHA-256 file hash — unchanged files skip entirely, changed files auto-re-index |
-| **Multimodal** | Text + tables (Markdown) + images (vision captions) all searchable |
-| **OWASP security** | Path traversal protection, rate limiting (30/min), input sanitization, no stack traces in responses |
-| **CORS** | Restricted to localhost:8501/8511 only |
-| **PII guardrails** | Presidio-based redaction (configurable, off by default) |
-| **Adaptive routing** | Simple factual queries answered directly (0 retrieval calls) |
-| **Confidence scoring** | Every answer rated HIGH / MEDIUM / LOW based on CRAG output |
-| **Self-RAG** | Answer verified against context, 1 retry if not grounded |
+**What run 5 taught me.** Run 5 changed three things at once and fell from 3.87 to 3.65. The image score dropped from 3.37 to 2.53 because the Sonnet captioner refused 257 of 359 images, and the smaller table chunks split value ranges. All three changes were reverted for run 6. Next time I would change one thing per run.
 
 ---
 
-## Quick Start
+## Key design decisions and trade-offs
 
-### Prerequisites
-- Python 3.11+
-- Docker (for PostgreSQL + pgvector)
-- An Anthropic or OpenAI API key
+| Decision | Why | Trade-off |
+|---|---|---|
+| **PostgreSQL + pgvector** rather than a dedicated vector database | SQL filters on document type and chunk type, one Docker container, and the same database runs in CI. In my [benchmark sweep](../../experiments/) the vector store did not change answer quality. | Approximate (HNSW) search; retrieval recall was not measured separately. |
+| **Local `all-MiniLM-L6-v2` embeddings** | Matched the top score in the benchmark sweep (5.0 against 4.93 for `text-embedding-3-small`), with no API cost or network call. | 384 dimensions; not re-tested on engineering text. |
+| **Separate search per chunk type** (text, table, image caption), merged with reciprocal rank fusion | Stops long prose chunks crowding out the table row or diagram caption that holds the answer. | More queries per question. |
+| **BM25 re-scores the dense candidates** | Catches exact identifiers such as standard numbers and part codes, which embeddings blur. | It is not a separate keyword index, so it cannot recover a chunk that dense search missed. |
+| **Tables as 6-row Markdown groups**, header repeated in each | Keeps rows and units together. Run 5's 4-row groups split value ranges, and the table score fell from 4.30 to 3.93 (with other changes in the same run). | More table chunks to embed and search. |
+| **Claude Haiku for image captions**, not Sonnet | Haiku captioned 354–359 of 359 images; Sonnet refused 257 of them in run 5. | Spatial diagrams still score poorly (see Limitations). |
+| **Query decomposition + Claude Sonnet generation** | Multi-hop rose from 2.63 to 3.27 and overall from 3.65 to 3.87 (run 3 → 4, same judge). | Latency rose to about 21 s per query and estimated cost to ~$0.022 per query. |
+| **Batched CRAG grading** (one call instead of five) | About 3 s saved per query (run 2). If the batch call fails, every chunk is marked ambiguous rather than the query failing. | One bad batch response affects every chunk in that query. |
+| **No cross-encoder re-ranker** | No quality gain in the benchmark sweep, and 2.7–21 s added per query. | Not re-tested on this corpus. |
+| **Adaptive router** sends simple general-knowledge questions straight to the model | Saves retrieval time and cost on questions the documents do not cover. | Those answers carry no citations, and a misrouted question skips the documents. |
+| **Presidio PII redaction is optional and off by default** (`PII_REDACTION_ENABLED=false`) | Presidio needs an extra spaCy model and adds latency, so it is enabled only when needed. | It must be switched on, and tested, before use on documents that contain personal data. |
 
-### 1. Start the database
+---
+
+## Quick start
+
+Requires Python 3.11+, Docker, and an Anthropic or OpenAI API key. The evaluated configuration (runs 3–5) uses Anthropic; without that key the code falls back to OpenAI models.
+
 ```bash
+# 1. Start PostgreSQL + pgvector (credentials match configs/settings.py defaults)
 docker compose up -d
-```
 
-### 2. Install dependencies
-```bash
+# 2. Install dependencies
 python -m venv .venv
-.venv\Scripts\activate    # Windows
-source .venv/bin/activate  # Linux/macOS
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-> First run also downloads the spaCy model for PII detection:
-> `python -m spacy download en_core_web_lg`
+# 3. Configure
+cp .env.example .env               # then set ANTHROPIC_API_KEY and/or OPENAI_API_KEY
 
-### 3. Configure environment
-```bash
-cp .env.example .env
-# Edit .env — add ANTHROPIC_API_KEY (or OPENAI_API_KEY)
-```
-
-### 4. Ingest documents
-```bash
+# 4. Ingest your PDFs (put them in data/; unchanged files are skipped on re-runs)
 python ingest_docs.py data/
-# Incremental: unchanged files are automatically skipped on re-runs
-```
+python ingest_docs.py data/ --no-images     # faster, skips image captioning
 
-Expected output:
-```
-NEW: pump_maintenance_manual.pdf  → 412 text, 78 table, 45 image chunks
-NEW: hydraulic_oil_sds.pdf        → 89 text, 8 table, 22 image chunks
-SKIP: pump_maintenance_manual.pdf (unchanged)  ← on second run
-```
+# 5a. Chat UI
+streamlit run app.py               # http://localhost:8501
 
-### 5. Start the chat UI
-```bash
-streamlit run app.py
-# Opens at http://localhost:8501
-```
-
-### 6. Or use the REST API
-```bash
-uvicorn api:app --reload
-# POST http://localhost:8000/query
-# GET  http://localhost:8000/health
-```
-
-```bash
+# 5b. Or the REST API (POST /query, POST /ingest, GET /health, GET /stats)
+uvicorn api:app --reload           # http://localhost:8000
 curl -X POST http://localhost:8000/query \
      -H "Content-Type: application/json" \
-     -d '{"question": "What is the torque spec for M12 bolts?"}'
+     -d '{"question": "What must be done before starting the pump for the first time?"}'
 ```
 
----
-
-## Project Structure
-
-```
-engineering-rag/
-│
-├── docker-compose.yml          # PostgreSQL + pgvector (one command)
-├── requirements.txt            # All dependencies, grouped by category
-├── .env.example                # All env vars with placeholder values
-├── ingest_docs.py              # Entrypoint: python ingest_docs.py data/
-├── app.py                      # Streamlit chat UI
-├── api.py                      # FastAPI REST API
-│
-├── configs/
-│   ├── settings.py             # Single source of truth for all config
-│   └── logging_config.py       # Structured JSON logging
-│
-└── src/
-    ├── ingest/
-    │   ├── document_parser.py  # PDF → {text blocks, tables, images}
-    │   ├── chunker.py          # Semantic/table/image chunking strategies
-    │   ├── image_captioner.py  # Claude Haiku vision → searchable caption
-    │   └── vectorstore.py      # pgvector: schema, hash-based upsert, search
-    │
-    ├── retrieval/
-    │   ├── adaptive_router.py  # Simple vs complex query classification
-    │   ├── hyde.py             # Short query → hypothetical answer paragraph
-    │   ├── query_decomposer.py # Multihop → sub-questions (up to 4)
-    │   ├── retriever.py        # Hybrid search + BM25 + RRF merge
-    │   └── crag.py             # Chunk relevance scoring + confidence
-    │
-    ├── generation/
-    │   ├── prompts.py          # P2 notebook-style + citation templates
-    │   └── generator.py        # LLM routing, vision, Self-RAG critique
-    │
-    ├── guardrails/
-    │   ├── input_sanitizer.py  # Prompt injection protection
-    │   └── pii_detector.py     # Presidio-based PII detection/redaction
-    │
-    ├── observability/
-    │   └── tracing.py          # Langfuse v4 pipeline tracing (no-op if unconfigured)
-    │
-    └── evaluation/
-        ├── judge.py            # LLM-as-judge scoring
-        ├── metrics.py          # MRR, NDCG, Recall@k, RAGAS
-        ├── test_questions.py   # 50 questions across 5 categories
-        └── benchmarks/         # SQuAD, HotpotQA, NQ, MS MARCO, custom loaders
-```
-
----
-
-## Environment Variables
-
-All config lives in `.env`. Copy `.env.example` to get started.
-
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `ANTHROPIC_API_KEY` | Yes* | — | Claude Haiku (CRAG/HyDE/judge) + Sonnet (generation) |
-| `OPENAI_API_KEY` | Yes* | — | GPT-4o-mini (text) + GPT-4o (vision) — alternative to Anthropic |
-| `POSTGRES_HOST` | No | `localhost` | DB host — use Supabase/Neon host for cloud |
-| `POSTGRES_PORT` | No | `5432` | DB port |
-| `POSTGRES_USER` | No | `raguser` | DB user |
-| `POSTGRES_PASSWORD` | No | `ragpass` | DB password |
-| `POSTGRES_DB` | No | `ragdb` | DB name |
-| `POSTGRES_SSL` | No | `` | Set to `require` for cloud providers |
-| `LANGFUSE_PUBLIC_KEY` | No | — | Langfuse Cloud observability |
-| `LANGFUSE_SECRET_KEY` | No | — | Langfuse Cloud observability |
-| `USE_HYDE` | No | `true` | Enable/disable HyDE query expansion |
-| `USE_QUERY_DECOMPOSITION` | No | `true` | Enable/disable multihop decomposition |
-| `USE_CRAG` | No | `true` | Enable/disable CRAG chunk filtering |
-| `USE_SELF_RAG` | No | `true` | Enable/disable Self-RAG critique |
-| `PII_REDACTION_ENABLED` | No | `false` | Enable Presidio PII redaction |
-
-*At least one of `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is required.
-
----
-
-## Running the Evaluation
+**Run the 50-question evaluation** (needs the documents already ingested; a full run costs about $1.10 by the same estimate as above):
 
 ```bash
-# Full 50-question benchmark
 python -c "
-import sys; sys.path.insert(0, '.')
+from src.evaluation.benchmarks.custom_loader import load_custom
 from src.evaluation.benchmarks.runner import BenchmarkRunner
-from src.evaluation.test_questions import QUESTIONS_BY_CATEGORY
-
-samples = [{'question': q, 'category': c, 'ground_truth': '', 'doc_hint': ''}
-           for c, qs in QUESTIONS_BY_CATEGORY.items() for q in qs]
-runner = BenchmarkRunner()
-runner.run('custom', samples, cleanup_after=False)
+BenchmarkRunner().run('custom', load_custom(max_samples=50), cleanup_after=False)
 "
 ```
 
+`scripts/run_benchmarks.py` runs the public benchmarks (SQuAD, HotpotQA, Natural Questions, MS MARCO); `scripts/download_benchmarks.py` fetches them.
+
+To enable PII redaction: set `PII_REDACTION_ENABLED=true` and run `python -m spacy download en_core_web_sm`. To enable tracing: set `LANGFUSE_PUBLIC_KEY` and `LANGFUSE_SECRET_KEY`. [`docs/SETUP.md`](docs/SETUP.md) has the full setup guide and every environment variable.
+
 ---
 
-## Cost Estimates
+## Tests
 
-| Item | Cost |
+147 test functions in `tests/` (86 in `test_modules.py`, 44 in `test_benchmarks.py`, 17 in `test_pipeline.py`). The GitHub Actions workflow runs them on every push against a `pgvector/pgvector:pg16` service container.
+
+```bash
+docker compose up -d
+pytest tests -q
+```
+
+---
+
+## Limitations
+
+| Area | Limitation |
 |---|---|
-| Ingestion (3 PDFs, 2,528 chunks) | ~$1.29 (mostly image captioning) |
-| Per query (text answer) | ~$0.022 |
-| Per query (vision answer) | ~$0.025 |
-| 50-question benchmark run | ~$1.10 |
-| Embedding (all-MiniLM-L6-v2) | **$0** — local model |
+| Evaluation | One LLM judge, 50 questions, no human-labelled subset, no repeated runs to measure judge variance. Runs 1–2 used a different judge from runs 3–5. |
+| Reproducibility | The three evaluated PDFs (a centrifugal pump manual, a *Machinery's Handbook* excerpt and a Chevron safety data sheet) are third-party documents and are not committed, and neither are the per-question outputs. Only the summary reports in `results/` are. |
+| Latency | About 21 s per query in runs 4–5: interactive, but slow. |
+| Spatial diagrams | Alignment and orientation diagrams score 1.3–2.3; captions describe parts but not how they relate. |
+| Arithmetic multi-hop | Questions that need a calculation (total bolts, % reduction) score about 1.3–2.3; the pipeline retrieves facts but does not compute. |
+| Warning labels | Stuck at 1.3 in every run; text on label images is not reliably read. |
+| Cross-document multi-hop | Combining the safety data sheet with the pump manual is still inconsistent. |
+| Scanned PDFs and multi-page tables | No OCR step runs; tables that span pages are treated as separate tables. |
+| API security | Rate limiting, input sanitising and CORS restricted to localhost, but no authentication on `/query` or `/ingest`. Local use only. |
+| Dependencies | `requirements.txt` is not version-pinned. |
 
----
+## What's next
 
-## Deployment Options
+1. Re-score runs 1–2 with the Claude Haiku judge, so the whole series is like-for-like.
+2. Evaluate the run 6 index (2,528 chunks).
+3. Hand-label a subset of answers to measure how far the LLM judge agrees with a human.
+4. Commit per-question outputs for every run.
+5. Change one thing per run.
 
-| Mode | How | When to use |
-|---|---|---|
-| Local | `docker compose up -d` + `streamlit run app.py` | Development, personal use |
-| Cloud DB | Point `POSTGRES_HOST` to Supabase/Neon, run app locally | Persistent shared DB |
-| Full cloud | Containerise `app.py` + `api.py`, deploy alongside managed Postgres | Production, team access |
+## Credits
 
----
-
-## Built On
-
-Systematic experiments (01–10) covering chunking strategies, embedding models, vector stores, LLM comparisons, retrieval methods, reranking, and prompt variants. Each experiment result is referenced in the architecture decisions above.
-
-Framework: custom Python pipeline (no LangChain runtime dependency for retrieval/generation — direct Anthropic/OpenAI SDK calls for predictable latency and cost).
+The retrieval techniques follow published papers: HyDE, Corrective RAG (CRAG), Self-RAG, Adaptive-RAG and reciprocal rank fusion. My notes on them are in [`../../research-papers/`](../../research-papers/). The pipeline calls the Anthropic and OpenAI SDKs directly; LangChain is used only for the semantic chunker and the synthetic-question benchmark.

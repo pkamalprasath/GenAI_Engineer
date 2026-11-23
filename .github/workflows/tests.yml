@@ -19,12 +19,12 @@ jobs:
       # Blocking: only checks that catch code which cannot run
       - run: ruff check --select E9,F63,F7,F82 --target-version py311 --exclude "*.ipynb" .
 
-  openclaw:
-    name: OpenClaw Slack agent
+  slack-agent:
+    name: Slack workflow agent
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: 4.openclaw-built_from_scratch/open_claw_slack_bot
+        working-directory: 04.slack-workflow-agent/agent
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -70,7 +70,7 @@ jobs:
         version: [ 1.sentinel_v1, 2.sentinel_v2 ]
     defaults:
       run:
-        working-directory: 7.agentic_ai/${{ matrix.version }}
+        working-directory: 07.langgraph-compliance-agents/${{ matrix.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

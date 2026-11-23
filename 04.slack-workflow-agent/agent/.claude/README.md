@@ -1,12 +1,10 @@
-# Claude Code Learning Materials
+# Claude Code Notes for This Project
 
 ## Overview
 
-This directory contains distilled knowledge, patterns, and best practices learned from building the Slack Bot Assistant project. Use these materials as reference for future projects.
+This directory contains distilled knowledge, patterns, and best practices learned from building this Slack agent with Claude Code. Use these materials as reference for future projects.
 
 **Project Context:** Slack Bot with AI agent (Claude), background jobs (APScheduler), and multiple integrations (GitHub, Notion, RAG).
-
-**Key Achievement:** Fixed 13 critical issues found during integration testing, all tests now passing (11/11).
 
 ---
 
@@ -301,17 +299,6 @@ Critical rules learned the hard way.
 
 ---
 
-## Statistics
-
-**Problems Found:** 13
-**Problems Resolved:** 13 ✅
-**Test Coverage:** 11/11 passing ✅
-**Documentation Files:** 10
-**Code Files Modified:** 7
-
-**Time Saved Next Time:** Significant - all patterns documented and reusable
-
----
 
 ## Next Steps for Future Projects
 
@@ -358,5 +345,3 @@ Keep the same format:
 ---
 
 **Last Updated:** 2026-02-17
-**Project:** Slack Bot Assistant
-**Status:** All 13 problems resolved, all tests passing ✅

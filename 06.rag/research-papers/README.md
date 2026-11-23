@@ -49,7 +49,7 @@ Read before building — these papers explain *why* every design decision in the
        └─ Planning, multi-tool, non-linear retrieval with reasoning
 
 2024  Hybrid Retrieval
-       └─ Dense + BM25 + RRF — the production-grade retrieval stack
+       └─ Dense + BM25 + RRF — combining keyword and semantic search
 ```
 
 ## Connection to Experiments
@@ -62,5 +62,5 @@ Each paper directly influenced the experiments in [`../experiments/`](../experim
 | RETRO / DPR | `03_vectorstores.py` — in-memory vs managed vector stores |
 | Hybrid Retrieval | `08_retrieval_methods.py` — Dense + BM25 + RRF + HyDE |
 | ColBERT / DPR | `09_reranking.py` — cross-encoder re-ranking |
-| Self-RAG / CRAG | `05_evaluation.py` — RAGAS faithfulness scoring |
-| Adaptive RAG | `07_topk.py` — adaptive top-k retrieval |
+| Self-RAG / CRAG | `05_evaluation.py` — LLM-as-judge scoring (RAGAS code present, scores not computed); CRAG and Self-RAG are implemented in `projects/2.engineering-rag` |
+| Adaptive RAG | `07_topk.py` — top-k sweep; adaptive routing is implemented in `projects/2.engineering-rag` |

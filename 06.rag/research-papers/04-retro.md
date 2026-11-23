@@ -34,7 +34,7 @@ RETRO made the economic case for RAG. You don't need a 70B model if you have goo
 
 ## Connection to My Experiments
 
-> `experiments/04_llms.py` validates this — GPT-4o-mini with well-retrieved context matches GPT-4o quality at a fraction of the cost. Retrieval quality matters more than model size.
+> `experiments/04_llms.py` compared Claude Haiku, Claude Sonnet and GPT-4o-mini with the same retrieved context. The smaller models scored at least as well as Sonnet (gpt-4o-mini 4.93, Haiku 4.60, Sonnet 4.47), but on 5 questions each, so this is consistent with RETRO's point rather than proof of it. GPT-4o was not tested.
 
 ---
 

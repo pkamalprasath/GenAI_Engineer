@@ -78,28 +78,9 @@ python tests/automated_e2e_tests.py
 - Report generation status
 - Summary statistics across all cases
 
-**Expected Output:**
-```
-SENTINEL v2 — AUTOMATED COMPLIANCE TESTING
+**Scoring:** a scenario passes only if the verdict AND the risk level match the expected values and a report is generated (`score_case()` in `automated_e2e_tests.py`, unit-tested in `tests/unit/test_e2e_scoring.py`). The script exits non-zero if any scenario fails.
 
-Running 7 test cases across 3 compliance frameworks...
-
-[1/7] Fair Lending (FCRA/FHA) — Approved - No Disparities... ✅ COMPLIANT
-[2/7] Fair Lending (FCRA/FHA) — Denied - Potential Disparate Impact... ✅ UNCERTAIN
-[3/7] Fair Lending (FCRA/FHA) — Denied - Race-Based Pattern... ✅ UNCERTAIN
-[4/7] ADA Compliance — Applicant with Disability... ✅ COMPLIANT
-[5/7] ADA Compliance — Denied Without Accommodation... ✅ VIOLATION
-[6/7] ECOA — Joint Applicant... ✅ COMPLIANT
-[7/7] ECOA — Gender Discrimination... ✅ UNCERTAIN
-
-═════════════════════════════════════════════════════════════
-SUMMARY
-═════════════════════════════════════════════════════════════
-Results: 7/7 passed
-Verdict Accuracy: 7/7 (100%)
-Risk Level Accuracy: 7/7 (100%)
-Report Generation: 7/7 successful
-```
+**Output:** a text report, a JSON file and a Markdown scenario table (`scenario_table_*.md`) in `test_results/`. The true pass rate has not been published yet; see the README.
 
 ### 2. Data Flow Validation (`data_flow_validation.py`)
 
@@ -186,7 +167,7 @@ python tests/ui_validation_tests.py
 
 ### Report Locations
 
-All reports are saved in: `sentinel_v2/test_results/`
+All reports are saved in `test_results/` (created on first run).
 
 ```
 test_results/
@@ -207,20 +188,7 @@ test_results/
 ### Reading Reports
 
 #### Executive Summary
-High-level overview of test results:
-```
-OVERALL RESULTS:
-  Total Tests: 3
-  Passed: 3
-  Failed: 0
-  Errors: 0
-  Pass Rate: 100%
-
-SYSTEM READINESS:
-  ✅ E2E Integration Tests (Multiple Compliance Frameworks): PASSED
-  ✅ Data Flow Validation Tests: PASSED
-  ✅ UI Validation Tests: PASSED
-```
+High-level overview: total, passed, failed and errors for each test module, as reported by `run_all_tests.py`.
 
 #### Detailed Report
 Full test execution details with outputs and errors.
@@ -377,7 +345,7 @@ fi
 
 ## Best Practices
 
-1. **Run before deploying** — Always run full test suite before production deployment
+1. **Run before deploying** — Run the full suite before merging changes
 2. **Monitor test results** — Set up dashboard to track test history
 3. **Update test data** — Periodically add new compliance scenarios
 4. **Review failures** — Investigate and resolve failed tests immediately

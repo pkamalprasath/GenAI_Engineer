@@ -1,5 +1,5 @@
 """
-Agent heartbeat pattern — from open_claw_slack_bot production experience.
+Agent heartbeat pattern — reused from the Slack workflow agent in this repo.
 
 Each agent emits heartbeats before and after LLM calls.
 The orchestrator checks: if heartbeat timestamp is older than

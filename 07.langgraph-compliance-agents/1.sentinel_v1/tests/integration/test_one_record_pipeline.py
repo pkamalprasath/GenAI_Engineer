@@ -6,7 +6,7 @@ all state key handoffs between agents. No Docker, no Ollama required.
 All I/O boundaries are mocked; only business logic is exercised.
 
 Run:
-    cd projects/sentinel
+    cd 07.langgraph-compliance-agents/1.sentinel_v1
     pytest tests/integration/test_one_record_pipeline.py -v
 """
 from __future__ import annotations

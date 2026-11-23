@@ -1,28 +1,28 @@
-# Quick Start Guide — Slack Bot Assistant
+# Quick Start: Slack Workflow Agent
 
-> Get your bot running in 5 minutes!
+> Setting up a Slack app and running the agent against a test workspace.
 
 ---
 
 ## Prerequisites
 
-✅ Python 3.11+
-✅ Slack workspace (admin access to create apps)
-✅ Anthropic API key (for Claude)
+- Python 3.11+
+- A Slack workspace where you can create apps (a test workspace is best)
+- An Anthropic API key
 
 ---
 
-## Step 1: Create Slack App (2 minutes)
+## Step 1: Create Slack App
 
 1. Go to https://api.slack.com/apps
 2. Click **"Create New App"** → **"From scratch"**
-3. Name it **"Slack Bot Assistant"**
+3. Name it, for example, **"Slack Workflow Agent"**
 4. Select your workspace
 5. Click **"Create App"**
 
 ---
 
-## Step 2: Configure Slack App (3 minutes)
+## Step 2: Configure Slack App
 
 ### OAuth & Permissions
 
@@ -81,23 +81,28 @@
 
 ---
 
-## Step 3: Install Dependencies (1 minute)
+## Step 3: Install Dependencies
 
 ```bash
-cd d:\AI\KrishNaik_Academy\Coding\Vizuara\open_claw_proj
+cd 04.slack-workflow-agent/agent
 
-# Using Poetry (recommended)
+# Using Poetry
 poetry install
 
-# OR using pip
-pip install -r requirements.txt
+# OR using pip (Python 3.11+, in a virtual environment)
+pip install -e .
 ```
 
 ---
 
-## Step 4: Configure Environment (1 minute)
+## Step 4: Configure Environment
 
-Edit `.env` file:
+Copy the template, then edit `.env`:
+
+```bash
+cp .env.example .env
+```
+
 
 ```bash
 # REQUIRED - Slack credentials
@@ -108,8 +113,7 @@ SLACK_SIGNING_SECRET=your-signing-secret-here
 # REQUIRED - AI
 ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
 
-# Optional (for full functionality)
-OPENAI_API_KEY=sk-your-openai-key-here
+# Optional: enables the GitHub and Notion tools
 GITHUB_TOKEN=ghp_your-github-token-here
 NOTION_TOKEN=secret_your-notion-token-here
 
@@ -120,7 +124,7 @@ LOG_LEVEL=INFO
 
 ---
 
-## Step 5: Run the Bot! (30 seconds)
+## Step 5: Run the Bot
 
 ```bash
 python src/main.py
@@ -133,11 +137,11 @@ python src/main.py
 [INFO] ================================================================================
 [INFO] Environment: development
 [INFO] [OK] Slack Bolt app created successfully
-[INFO] [OK] Scheduler started with 4 jobs
+[INFO] [OK] Scheduler started with 4 jobs: reminders (60s), RAG indexing (7200s), cleanup (weekly), heartbeat (5m)
 [INFO] ⚡️ Bolt app is running in Socket Mode!
 ```
 
-**✅ Bot is now running!**
+The bot is now running.
 
 ---
 
@@ -148,7 +152,7 @@ python src/main.py
 1. Open Slack
 2. Find your bot in the Apps section
 3. Send: `Hello!`
-4. Bot should respond within seconds
+4. The bot should reply
 
 ### Test 2: Use a Slash Command
 
@@ -187,13 +191,13 @@ You should see a help message with available commands.
 ```bash
 poetry install
 # OR
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### "No module named 'config'"
-**Fix:** Run from project root:
+**Fix:** Run from the `agent/` folder:
 ```bash
-cd d:\AI\KrishNaik_Academy\Coding\Vizuara\open_claw_proj
+cd 04.slack-workflow-agent/agent
 python src/main.py
 ```
 
@@ -201,15 +205,9 @@ python src/main.py
 
 ## Next Steps
 
-✅ **Working?** Great! Read the full guide:
-- [docs/guides/E2E_TESTING_GUIDE.md](docs/guides/E2E_TESTING_GUIDE.md) — Complete testing checklist
-- [docs/development/TEST_RESULTS.md](docs/development/TEST_RESULTS.md) — Integration test results
-- [docs/development/FIXES_SUMMARY.md](docs/development/FIXES_SUMMARY.md) — All features & fixes
-
-❌ **Not working?** Check:
-- [docs/development/PROBLEMS.md](docs/development/PROBLEMS.md) — Known issues and solutions
-- Logs for error messages
-- Slack app configuration
+- [docs/guides/E2E_TESTING_GUIDE.md](docs/guides/E2E_TESTING_GUIDE.md): manual test checklist for a test workspace
+- [docs/guides/GUIDE.md](docs/guides/GUIDE.md): long-form, module-by-module walkthrough
+- Check the logs (`logs/app.log`, `logs/error.log`) and the Slack app configuration if something does not work
 
 ---
 
@@ -231,11 +229,8 @@ Send a DM and ask it to:
 - Search Notion (if configured)
 
 ### Automatic Background Jobs
-- ⏰ Reminder delivery (every 60s)
-- 🔍 RAG indexing (every 2h) — indexes messages for semantic search
-- 🧹 Cleanup old reminders (weekly)
-- 💓 Health check heartbeat (every 5min)
+- Reminder delivery (every 60s)
+- RAG indexing (every 2h) — indexes messages for semantic search
+- Cleanup old reminders (weekly)
+- Health check heartbeat (every 5min)
 
----
-
-**Enjoy your AI-powered Slack bot! 🤖✨**

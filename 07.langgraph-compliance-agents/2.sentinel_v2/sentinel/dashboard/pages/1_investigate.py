@@ -166,7 +166,7 @@ with left_col:
   <code style="display:block;margin-top:10px;background:#fff1f2;border:1px solid #fecaca;
                border-radius:7px;padding:10px 14px;font-size:12px;color:#9f1239;
                font-family:monospace;">
-    cd projects/sentinel_v2<br>
+    cd 07.langgraph-compliance-agents/2.sentinel_v2<br>
     python -m uvicorn sentinel.api.main:app --port 8003
   </code>
 </div>

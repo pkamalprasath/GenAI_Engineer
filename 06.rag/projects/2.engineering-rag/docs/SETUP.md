@@ -414,9 +414,8 @@ LOG_LEVEL=INFO
 # Place PDFs in the data/ folder first
 python ingest_docs.py data/
 
-# Expected output:
-# NEW: pump_maintenance_manual.pdf → 342 text chunks, 15 tables, 28 images
-# NEW: sds_chemical_xyz.pdf        → 89 text chunks, 8 tables, 3 images
+# Each new file is reported with its text, table and image chunk counts.
+# Unchanged files (same SHA-256 hash) are reported as skipped on later runs.
 ```
 
 ### 8.2 Start the Streamlit UI

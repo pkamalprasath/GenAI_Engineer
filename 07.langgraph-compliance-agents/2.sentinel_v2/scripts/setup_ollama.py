@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OLLAMA_MODELS = os.getenv("OLLAMA_MODELS", r"D:\ollama\models")
+OLLAMA_MODELS = os.getenv("OLLAMA_MODELS", str(Path.home() / ".ollama" / "models"))
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 # Models required for SENTINEL — total ~2.5GB RAM when loaded

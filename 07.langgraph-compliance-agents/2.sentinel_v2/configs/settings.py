@@ -34,7 +34,7 @@ def _load_yaml(filename: str) -> dict:
 class Settings(BaseSettings):
     # ── Ollama ────────────────────────────────────────────────────────────────
     ollama_base_url: str = Field(default="http://localhost:11434")
-    ollama_models: str = Field(default=r"D:\ollama\models")
+    ollama_models: str = Field(default=str(Path.home() / ".ollama" / "models"))
 
     # ── LLM APIs ──────────────────────────────────────────────────────────────
     anthropic_api_key: str = Field(default="")
