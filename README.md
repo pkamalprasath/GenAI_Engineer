@@ -71,6 +71,18 @@ A team assistant that answers questions from channel history, opens GitHub issue
 - Use Claude, Amazon Q and GitHub Copilot for business-logic extraction, documentation, code review and test generation on client code, with every output checked by a developer.
 - Assessed a mainframe estate for migration to AWS; migrated Micro Focus COBOL to NetCOBOL on Linux; built a PHI/PII discovery tool and data masking across four database platforms.
 
+## Stack
+
+| | |
+|---|---|
+| **Agentic frameworks** | LangGraph · LangChain · Claude tool use (framework-free agent loops) · MCP (FastMCP) · multi-agent orchestration · human-in-the-loop |
+| **Context engineering** | RAG · hybrid retrieval (pgvector + BM25) · query decomposition · corrective RAG · parent–child chunking · agent memory |
+| **Harness engineering** | LLM-as-judge evaluation harnesses · fixed test sets re-run per change · scenario harnesses for agents · guardrails (Guardrails AI, NeMo, Presidio) · Langfuse tracing |
+| **Models** | Claude · OpenAI · Llama 3.2 via Ollama · PyTorch (LoRA, GPT-2 pretraining) |
+| **Solution architecture** | AWS (Solutions Architect – Associate) · FastAPI services · Redis job queues · PostgreSQL · Docker Compose · GitHub Actions CI · Slack, GitHub & Notion API integrations |
+| **Client delivery** | Requirements & design workshops · estimates for proposals · stakeholder demos & sign-off · incident management & SLAs · Scrum |
+| **Enterprise & legacy** | COBOL · JCL · CICS · DB2 · Oracle · mainframe-to-AWS assessment · data masking (PHI/PII) |
+
 ## Run a project
 
 Each project is self-contained with its own README, `requirements.txt` and `.env.example`. Tests for the three main projects run in [GitHub Actions](.github/workflows/tests.yml).
